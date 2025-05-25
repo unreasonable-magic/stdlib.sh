@@ -1,6 +1,12 @@
-<p align="center">
-  <img src="/docs/logo.png" width="300" />
+<h1>
+  <p align="center">
+  <img src="https://github.com/unreasonable-magic/stdlib.sh/blob/main/docs/logo.png?raw=true" width="400" />
 </p>
+</h1>
+  <p align="center">
+    Bash can be cool too. Just need a cool logo with purple gradients.
+  </p>
+
 
 ```
 stdlib::require()
