@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
 
 COLOR_DIM="\e[2m"
+COLOR_FG_RED="\e[31m"
+COLOR_FG_GREEN="\e[32m"
 COLOR_FG_YELLOW="\e[33m"
 COLOR_FG_BLUE="\e[34m"
+COLOR_FG_MAGENTA="\e[34m"
+COLOR_FG_CYAN="\e[34m"
 
 COLOR_RESET="\e[0m"
 
