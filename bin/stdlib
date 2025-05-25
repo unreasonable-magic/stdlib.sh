@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+
+export STDLIB_PATH=$(realpath "$(dirname "$0")/..")
+
+case "$1" in
+  shellenv)
+    source "$STDLIB_PATH/lib/shellenv.sh"
+    ;;
+  *)
+    echo "unsupported $1"
+    exit 1
+    ;;
+esac
