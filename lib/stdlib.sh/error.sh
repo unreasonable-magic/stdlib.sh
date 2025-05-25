@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-source "$DEVMACHINE_PATH/lib/stdlib/error/stacktrace.bash"
+source "$STDLIB_PATH/lib/stdlib.sh/error/stacktrace.bash"
 
 stdlib::error::stacktrace() {
   if [[ "$BASH_SOURCE" != "" ]]; then

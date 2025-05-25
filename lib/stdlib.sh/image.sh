@@ -6,7 +6,7 @@ stdlib::image::print() {
   local rows="$3"
 
   if [[ "$TERM_PROGRAM" == "iTerm.app" ]]; then
-    "$DEVMACHINE_PATH/lib/stdlib/image/iterm.sh" -W "${cols}" -H "${rows}" "$path"
+    "$STDLIB_PATH/lib/stdlib/image/iterm.sh" -W "${cols}" -H "${rows}" "$path"
   else
     encoded=$(echo "$path" | tr -d '\n' | base64 | tr -d '=' | tr -d '\n')
 
