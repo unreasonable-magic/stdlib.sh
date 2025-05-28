@@ -10,8 +10,19 @@ stdlib::error::stacktrace() {
   fi
 }
 
+stdlib::error::log() {
+  local script_name="$(basename "$0")"
+  printf "%s: $1\n" "$script_name" "${@:2}" >&2
+}
+
+# Prints an error and returns 1
+stdlib::error::warning() {
+  stdlib::error::log "$@"
+  return 1
+}
+
 # Prints an error to stderr then exits
 stdlib::error::fatal() {
-  printf "$(basename "$0"): $1\n" "${@:2}" >&2
+  stdlib::error::log "$@"
   exit 1
 }
