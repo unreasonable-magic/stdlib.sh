@@ -11,7 +11,7 @@ stdlib::error::stacktrace() {
 }
 
 stdlib::error::log() {
-  local script_name="$(basename "$0")"
+  local -r script_name="$(basename "$0")"
   printf "%s: $1\n" "$script_name" "${@:2}" >&2
 }
 
