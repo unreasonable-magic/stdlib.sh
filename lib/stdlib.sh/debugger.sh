@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+source "$STDLIB_PATH/lib/stdlib.sh/color.sh"
+
 stdlib::debugger() {
   printf "${COLOR_DIM}#${COLOR_RESET} ${COLOR_FG_BLUE}stdlib::debugger${COLOR_RESET}\n"
   printf "${COLOR_DIM}# Press CTRL-D to continue with $0${COLOR_RESET}\n"
