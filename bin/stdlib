@@ -1,10 +1,12 @@
 #!/usr/bin/env sh
 
-export STDLIB_PATH=$(realpath "$(dirname "$0")/..")
+stdlib_path="$(realpath "$(dirname "$0")/..")"
 
 case "$1" in
   shellenv)
-    source "$STDLIB_PATH/lib/shellenv.sh"
+    printf "export STDLIB_PATH='%s'\n" "$stdlib_path"
+    # shellcheck disable=SC2016
+    printf 'source "$STDLIB_PATH/lib/stdlib.sh/import.sh"\n'
     ;;
   *)
     echo "unsupported $1"
