@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 stdlib::import() {
-  local path="$STDLIB_PATH/lib/stdlib.sh"
+  local path="$STDLIB_PATH/lib"
   path="$path/$1"
 
   local filename="${1##*/}"

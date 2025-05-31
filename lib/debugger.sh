@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-source "$STDLIB_PATH/lib/stdlib.sh/color.sh"
+stdlib::import "color"
 
 stdlib::debugger() {
   printf "${COLOR_DIM}#${COLOR_RESET} ${COLOR_FG_BLUE}stdlib::debugger${COLOR_RESET}\n"

@@ -6,7 +6,7 @@ case "$1" in
   shellenv)
     printf "export STDLIB_PATH='%s'\n" "$stdlib_path"
     # shellcheck disable=SC2016
-    printf 'source "$STDLIB_PATH/lib/stdlib.sh/import.sh"\n'
+    printf 'source "$STDLIB_PATH/lib/import.sh"\n'
     ;;
   *)
     echo "unsupported $1"
