@@ -1,4 +1,4 @@
-declare -g -a stdlib_source_stack=()
+declare -a stdlib_source_stack=()
 
 stdlib::source () {
   # printf "%-${#stdlib_source_stack[@]}s" ""
