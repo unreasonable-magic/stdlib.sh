@@ -6,19 +6,9 @@ stdlib::import() {
 
   local filename="${1##*/}"
 
-  # This is a bit of an obscure trick (that I wish was more readable).
-  # It's a way of testing if a string has a substring inside it.
-  #
-  # What we need to know is, if the filename is missing an extenion,
-  # we should try to come up with one. Because this function should be
-  # as POSIX compatible as possible, we cant use regex or other fancy
-  # expansion (except for what to see here).
-  #
-  # `${filename#*.}` is basically trying to replace everything after a
-  # "." with a blank string. So "foo.bar" would become "foo.". We can
-  # then tell if the substring exists by seeing if the newly updated
-  # string with stuff maybe replaced is the same as the original
-  if [ "${filename#*.}" == "$filename" ]; then
+  # If no file extension was provided, try and figure one out (see
+  # string::contains for how this thing works)
+  if [ "${filename#*"."}" == "$filename" ]; then
     local with_extension=""
 
     # If we're in bash, let's see if we can find a .bash version
