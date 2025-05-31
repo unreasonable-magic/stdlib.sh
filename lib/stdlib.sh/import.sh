@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-stdlib::require() {
-  local path="$STDLIB_PATH/lib"
+stdlib::import() {
+  local path="$STDLIB_PATH/lib/stdlib.sh"
   path="$path/$1"
 
   local filename="${1##*/}"
@@ -52,7 +52,7 @@ stdlib::require() {
   if [ -e "$path" ]; then
     source "$path"
   else
-    echo "stdlib::require: no such file $path" >&2
+    echo "stdlib::import: no such file $path" >&2
     exit 1
   fi
 }

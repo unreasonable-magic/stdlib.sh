@@ -9,7 +9,7 @@
 
 
 ```
-stdlib::require()
+stdlib::import()
 stdlib::array::join()
 stdlib::image::print()
 stdlib::image::dimensions()
