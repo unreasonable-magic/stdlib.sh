@@ -1,65 +1,54 @@
-#!/usr/bin/env bash
+STDLIB_SQLITE_ROW=$'\036'
+STDLIB_SQLITE_COL=$'\037'
 
-source "$STDLIB_PATH/lib/stdlib.sh/debugger.sh"
-
-coproc conn ( sqlite3 -init "sqliteinit" -interactive "$HOME/Code/northwind.db"  )
-
-while read -r line; do
-  echo "intro: $line"
-done <&"${conn[0]}"
-
-echo "The print coprocess array: ${conn[@]}"
-
-echo "The PID of the print coprocess is ${conn_PID}"
-
-split() {
-   # Usage: split "string" "delimiter"
-   IFS=$'\n' read -d "" -ra arr <<< "${1//$2/$'\n'}"
-   printf '%s\n' "${arr[@]}"
+stdlib::sqlite::logger::log() {
+  mkdir -p "$HOME/.state/stdlib.sh/sqlite"
+  echo -e "$1" >> "$HOME/.state/stdlib.sh/sqlite.log"
 }
 
-readco() {
-  while read -r line; do
-    echo "${line}"
-  done <&"${conn[0]}"
+stdlib::sqlite::read() {
+  while IFS= read -d $'\n' -r line <&"${sqlite_conn[0]}"; do
+    if [[ "$line" == "" ]]; then
+      break
+    fi
+    stdlib::sqlite::logger::log "$line"
+    printf "%s\n" "$line"
+  done
 
-  # echo "$stdout"
-  # echo -E "----> ${stdout@Q}"
-  # echo "$(echo "$stdout" | tail -n +2)"
-
-
-
+  stdlib::sqlite::logger::log "----"
 }
 
-readco
+stdlib::sqlite::connect() {
+  coproc sqlite_conn (
+    sqlite3 \
+      -init "$STDLIB_PATH/lib/sqlite/init" \
+      -interactive \
+      "$1"
+  )
 
-sql() {
-  echo "$1; .print hello"  >&"${conn[1]}"
-  readco
+  stdlib::sqlite::read > /dev/null
+
+  stdlib::sqlite::logger::log "The print coprocess array: ${sqlite_conn[@]}"
+  stdlib::sqlite::logger::log "The PID of the print coprocess is ${sqlite_conn_PID}"
 }
 
-results=$(sql "select EmployeeID, FirstName, LastName from Employees;")
+stdlib::sqlite::execute() {
+  for arg; do
+    case "$arg" in
+      --raw)
+        shift
+        ;;
+    esac
+  done
 
-# while IFS= read -d $'\036' -r row; do
-#   IFS=$'\037' read -a cols -r <<< "$row"
-#
-#   for col in ${cols[@]}; do
-#     printf 'emp %s\n' "$col"
-#   done
-#
-#   echo
-# done <<< "$results"
-#
-# exit
+  stdlib::sqlite::logger::log "sql \e[1;32m$1\e[0m"
 
-ROWS=$'\036'
+  echo "$1" >&"${sqlite_conn[1]}"
 
-while IFS=$ROWS read -r row; do
-  echo "RECORD: $row"
-  # You can perform other operations on each line here
-done <<< "$results"
+  IFS=$'\n' read -r prompt <&"${sqlite_conn[0]}"
+  IFS=$'\n' read -r query <&"${sqlite_conn[0]}"
 
+  stdlib::sqlite::logger::log "QUERY $query"
 
-# writeandwait "hello there"
-
-# stdlib::debugger
+  stdlib::sqlite::read
+}

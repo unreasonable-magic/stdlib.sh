@@ -1,0 +1,4 @@
+.mode ascii
+.prompt "\n\n" ""
+.echo off
+.headers off
