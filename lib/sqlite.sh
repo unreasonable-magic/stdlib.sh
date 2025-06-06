@@ -21,7 +21,7 @@ stdlib::sqlite::read() {
 stdlib::sqlite::connect() {
   coproc sqlite_conn (
     sqlite3 \
-      -init "$STDLIB_PATH/lib/sqlite/init" \
+      -init "$STDLIB_PATH/lib/sqlite/initrc" \
       -interactive \
       "$1"
   )
