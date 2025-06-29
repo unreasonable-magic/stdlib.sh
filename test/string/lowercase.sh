@@ -3,6 +3,9 @@ eval "$(stdlib shellenv)"
 stdlib::import "assert"
 stdlib::import "string/lowercase"
 
+declare out=""
+declare stdout=""
+
 stdout=$(lowercase "FOO")
 assert "$stdout" == "foo"
 

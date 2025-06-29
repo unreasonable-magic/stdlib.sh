@@ -1,6 +1,6 @@
 inflector() {
   local inflection="$1"
-  shift
+  shift 1
 
   local returnvar
   if [[ "$1" == "-v" ]]; then
@@ -8,7 +8,24 @@ inflector() {
     shift 2
   fi
 
-  local str="${1:-$(</dev/stdin)}"
+  # Check if we're in a subshell and trying to set a variable
+  if [[ $BASH_SUBSHELL -gt 0 && -n "$returnvar" ]]; then
+    echo "Error: Cannot set variable '$returnvar' from within a pipe/subshell." >&2
+    echo "Use process substitution instead: $inflection -v $returnvar < <(echo \"\$data\")" >&2
+    echo "Or here-string: inflector $inflection -v $returnvar <<< \"\$data\"" >&2
+    return 1
+  fi
+
+  local str=""
+  if [ $# -gt 0 ]; then
+    str="$1"
+  else
+    str="$(
+      cat </dev/stdin
+      echo x
+    )"
+    str="${str%x}"
+  fi
 
   case "$inflection" in
   capitalize)
@@ -20,6 +37,24 @@ inflector() {
 
     str="${first_char}${rest_of_string}"
     ;;
+  titleize)
+    local result=""
+    local char prev_char=" "
+
+    for ((i = 0; i < ${#str}; i++)); do
+      char="${str:i:1}"
+      if [[ "$prev_char" =~ [^a-zA-Z] && "$char" =~ [a-zA-Z] ]]; then
+        result+="${char^^}"
+      elif [[ "$char" =~ [a-zA-Z] ]]; then
+        result+="${char,,}"
+      else
+        result+="$char"
+      fi
+      prev_char="$char"
+    done
+
+    str="${result}"
+    ;;
   lowercase)
     str="${str,,}"
     ;;
@@ -29,10 +64,10 @@ inflector() {
   esac
 
   if [[ -n "$returnvar" ]]; then
-    declare -n returnvar_ref="${returnvar}"
-    # shellcheck disable=SC2034
-    returnvar_ref="${str}"
+    printf -v "$returnvar" "%s" "${str}"
   else
-    printf "%s\n" "${str}"
+    printf "%s" "${str}"
   fi
+
+  return 0
 }

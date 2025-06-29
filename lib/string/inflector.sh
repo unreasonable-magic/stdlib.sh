@@ -19,11 +19,12 @@ inflector() {
 
   case "$inflection" in
   capitalize)
-    first_char="$(printf '%s' "$str" | cut -c1)"
-    rest_of_string="$(printf '%s' "$str" | cut -c2-)"
-    uppercase -v first_char "$first_char"
-    lowercase -v rest_of_string "$rest_of_string"
+    first_char="$(printf '%s' "$first_char" | cut c1 | tr '[:lower:]' '[:upper:]')"
+    rest_of_string="$(printf '%s' "$rest_of_string" | cut -c2- | tr '[:upper:]' '[:lower:]')"
     str="${first_char}${rest_of_string}"
+    ;;
+  titleize)
+    str="$(printf '%s' "$str" | sed -e "s/\b\(.\)/\u\1/g")"
     ;;
   lowercase)
     str="$(printf '%s' "$str" | tr '[:upper:]' '[:lower:]')"
