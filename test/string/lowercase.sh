@@ -4,10 +4,16 @@ stdlib::import "assert"
 stdlib::import "string/lowercase"
 
 stdout=$(lowercase "FOO")
-stdlib::assert [ "$stdout" == "foo" ]
+assert "$stdout" == "foo"
 
 stdout=$(lowercase "foo")
-stdlib::assert [ "$stdout" == "foo" ]
+assert "$stdout" == "foo"
 
 stdout=$(lowercase "MiXeD\nLiNeS")
-stdlib::assert [ "$stdout" == "mixed\nlines" ]
+assert "$stdout" == "mixed\nlines"
+
+stdout=$(echo -e "STDIN\nWITH\nLINES" | lowercase)
+assert "$stdout" == $'stdin\nwith\nlines'
+
+lowercase -v out "FROM a VAR"
+assert "$out" == "from a var"
