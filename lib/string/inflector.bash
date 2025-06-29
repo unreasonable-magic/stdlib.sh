@@ -63,15 +63,7 @@ inflector() {
   uppercase)
     str="${str^^}"
     ;;
-  lstrip)
-    str="${str#"${str%%[![:space:]]*}"}"
-    ;;
-  rstrip)
-    while [[ "$str" =~ [[:space:]]$ ]]; do
-      str="${str%?}"
-    done
-    ;;
-  strip)
+  trim)
     str="${str#"${str%%[![:space:]]*}"}"
     str="${str%"${str##*[![:space:]]}"}"
     ;;

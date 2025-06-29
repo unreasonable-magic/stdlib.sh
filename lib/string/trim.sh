@@ -2,6 +2,6 @@
 
 stdlib::import "string/inflector"
 
-rstrip() {
-  inflector "rstrip" "$@"
+trim() {
+  inflector "trim" "$@"
 }
