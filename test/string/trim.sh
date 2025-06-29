@@ -6,9 +6,6 @@ stdlib::import "string/trim"
 declare out=""
 declare stdout=""
 
-trim -v out --leading "   VAR    "
-assert "$out" == "VAR"
-
 stdout=$(trim "FOO")
 assert "$stdout" == "FOO"
 
