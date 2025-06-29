@@ -1,4 +1,6 @@
 inflector() {
+  shopt -s extglob
+
   local inflection="$1"
   shift 1
 
@@ -60,6 +62,18 @@ inflector() {
     ;;
   uppercase)
     str="${str^^}"
+    ;;
+  lstrip)
+    str="${str#"${str%%[![:space:]]*}"}"
+    ;;
+  rstrip)
+    while [[ "$str" =~ [[:space:]]$ ]]; do
+      str="${str%?}"
+    done
+    ;;
+  strip)
+    str="${str#"${str%%[![:space:]]*}"}"
+    str="${str%"${str##*[![:space:]]}"}"
     ;;
   esac
 

@@ -8,3 +8,6 @@ test:
 	bash test/string/contains.sh
 	bash test/string/lowercase.sh
 	bash test/string/uppercase.sh
+	bash test/string/lstrip.sh
+	bash test/string/rstrip.sh
+	bash test/string/strip.sh
