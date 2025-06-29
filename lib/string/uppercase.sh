@@ -1,5 +1,7 @@
 #!/usr/bin/env sh
 
+stdlib::import "string/inflector"
+
 uppercase() {
-  printf '%s\n' "$1" | tr '[:lower:]' '[:upper:]'
+  inflector "uppercase" "$@"
 }

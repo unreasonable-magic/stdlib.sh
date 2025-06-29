@@ -2,6 +2,6 @@
 
 stdlib::import "string/inflector"
 
-lowercase() {
-  inflector "lowercase" "$@"
+capitalize() {
+  inflector "capitalize" "$@"
 }
