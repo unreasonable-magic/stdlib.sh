@@ -80,7 +80,7 @@ inflector() {
   if [[ -n "$returnvar" ]]; then
     printf -v "$returnvar" "%s" "${str}"
   else
-    printf "%s" "${str}"
+    printf "%s\n" "${str}"
   fi
 
   return 0
