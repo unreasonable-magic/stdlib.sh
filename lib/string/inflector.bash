@@ -11,12 +11,12 @@ inflector() {
   fi
 
   # Check if we're in a subshell and trying to set a variable
-  if [[ $BASH_SUBSHELL -gt 0 && -n "$returnvar" ]]; then
-    echo "Error: Cannot set variable '$returnvar' from within a pipe/subshell." >&2
-    echo "Use process substitution instead: $inflection -v $returnvar < <(echo \"\$data\")" >&2
-    echo "Or here-string: inflector $inflection -v $returnvar <<< \"\$data\"" >&2
-    return 1
-  fi
+  # if [[ $BASH_SUBSHELL -gt 0 && -n "$returnvar" ]]; then
+  #   echo "Error: Cannot set variable '$returnvar' from within a pipe/subshell." >&2
+  #   echo "Use process substitution instead: $inflection -v $returnvar < <(echo \"\$data\")" >&2
+  #   echo "Or here-string: inflector $inflection -v $returnvar <<< \"\$data\"" >&2
+  #   return 1
+  # fi
 
   local str=""
   if [ $# -gt 0 ]; then
