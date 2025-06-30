@@ -1,11 +1,14 @@
 declare -a stdlib_source_stack=()
 
-stdlib::source () {
+stdlib::source() {
   # printf "%-${#stdlib_source_stack[@]}s" ""
   # printf "%s\n" $1
+  #
+  local path="$1"
+  shift
 
-  stdlib_source_stack+=("$1")
-  source "$@"
+  stdlib_source_stack+=("$path")
+  source "$path" "$@"
   local -i returned_exit_status="$?"
 
   # Recreate array and remove last element
