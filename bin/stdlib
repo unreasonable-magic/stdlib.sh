@@ -9,13 +9,18 @@ shellenv)
   printf 'source "$STDLIB_PATH/lib/stdlib/import.sh"\n'
   ;;
 
+--help)
+  man stdlib
+  ;;
+
 *)
   eval "$(stdlib shellenv)"
   stdlib::import "$1"
-  funcname="${1//\//}"
-  if [[ "$2" == "--help" ]]; then
-    man -P "$MANPAGER" "$stdlib_path/share/man/${1}.1"
+  if [[ "$*" == *" --help"* ]]; then
+    manpage="stdlib-${1//\//-}"
+    man "${manpage}"
   else
+    funcname="${1//\//}"
     "${funcname}" "${@:2}"
   fi
   ;;
