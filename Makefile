@@ -8,11 +8,11 @@ test:
 		echo "$$test"; \
 		bash "$$test"; \
 	done
+
 .PHONY: manpages
 manpages:
-	find lib -name "*.adoc" | xargs
-	@for adoc in $$(find lib -name "*.adoc"); do \
-		echo "$$adoc"; \
-		stdlib file/dirname "$$adoc" | sed "s/lib\/stdlib\///g"  | xargs -I DIR mkdir -p "share/man/DIR"; \
-		asciidoctor -b manpage "$$adoc" -D share/man/ -v; \
-	done
+	asciidoctor -b manpage "lib/**/*.adoc" -D share/man/ -v;
+
+.PHONY: install
+install:
+	cp share/man/* /opt/homebrew/share/man/man1/;

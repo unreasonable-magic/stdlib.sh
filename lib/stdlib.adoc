@@ -1,0 +1,30 @@
+stdlib(1)
+==========
+
+NAME
+----
+stdlib - blah
+
+SYNOPSIS
+--------
+stdlib <command> [flags]
+
+DESCRIPTION
+-----------
+Bunch of random functions that make working in bash more fun
+
+FUNCTIONS
+---------
+
+stdlib-url-join(1)::
+        One or more path components to join together
+
+stdlib-url-parse(1)::
+        The URL to parse (required)
+
+EXAMPLES
+--------
+----
+$ stdlib url/join "api" "v1" "users"
+api/v1/users
+----

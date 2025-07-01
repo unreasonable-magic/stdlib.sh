@@ -1,9 +1,9 @@
-url/join(1)
-==========
+stdlib-url-join(1)
+==================
 
 NAME
 ----
-url/join - join URL path components together
+stdlib-url-join - join URL path components together
 
 SYNOPSIS
 --------

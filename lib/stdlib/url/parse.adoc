@@ -1,9 +1,9 @@
-url/parse(1)
-===========
+stdlib-url-parse(1)
+===================
 
 NAME
 ----
-url/parse - parse a URL into its component parts
+stdlib-url-parse - parse a URL into its component parts
 
 SYNOPSIS
 --------
