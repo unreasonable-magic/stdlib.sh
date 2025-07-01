@@ -1,0 +1,69 @@
+urlparse(1)
+===========
+
+NAME
+----
+urlparse - parse a URL into its component parts
+
+SYNOPSIS
+--------
+*urlparse* _<url>_ [_OPTIONS_...]
+
+DESCRIPTION
+-----------
+Parse a URL and extract its individual components (scheme, host, port, path, query string, and fragment). Without any options specified, the function performs parsing but produces no output. Use option flags to output specific URL components.
+
+ARGUMENTS
+---------
+
+_<url>_::
+    The URL to parse (required)
+
+OPTIONS
+-------
+
+`--scheme`::
+    Output the scheme/protocol
+
+`--host`::
+    Output the hostname
+
+`--port`::
+    Output the port number
+
+`--path`::
+    Output the path component
+
+`--query`::
+    Output the query string
+
+`--fragment`::
+    Output the fragment/anchor
+
+EXAMPLES
+--------
+
+Parse a complete URL and extract the hostname:
+
+----
+$ stdlib url/parse "https://example.com:8080/path?query=value#section" --host
+example.com
+----
+
+Extract multiple components from a GitHub API URL:
+
+----
+$ stdlib url/parse "https://api.github.com/repos/user/repo" --scheme --host --path
+https
+api.github.com
+/repos/user/repo
+----
+
+EXIT STATUS
+-----------
+
+`0`::
+    Success
+
+`1`::
+    No URL provided or invalid input

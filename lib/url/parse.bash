@@ -1,6 +1,30 @@
 #!/usr/bin/env bash
 
-stdlib::url::parse() {
+# Parse a URL into its component parts
+#
+# Usage: urlparse <url> [OPTIONS...]
+#
+# Arguments:
+#   <url>               The URL to parse (required)
+#
+# Options:
+#   --scheme            Output the scheme/protocol (e.g., http, https, ftp)
+#   --host              Output the hostname
+#   --port              Output the port number
+#   --path              Output the path component
+#   --query             Output the query string
+#   --fragment          Output the fragment/anchor
+#
+# Examples:
+#   $ urlparse "https://example.com:8080/path?query=value#section" --host
+#   example.com
+#
+#   $ urlparse "https://api.github.com/repos/user/repo" --scheme --host --path
+#   https
+#   api.github.com
+#   /repos/user/repo
+#
+urlparse() {
   local url="$1"
   local scheme host port path query fragment
   local temp
@@ -69,21 +93,4 @@ stdlib::url::parse() {
         ;;
     esac
   done
-}
-
-stdlib::url::join() {
-  local joined last_part
-
-  for str in "$@"; do
-    joined+="$str/"
-  done
-
-  # Globally replace any tripple /// (which may have gotten added during the
-  # join) with a single /
-  joined="${joined//\/\/\///}"
-
-  # Remove trailing / if we have one
-  joined="${joined%%/}"
-
-  echo "$joined"
 }
