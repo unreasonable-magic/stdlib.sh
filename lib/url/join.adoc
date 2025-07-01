@@ -1,0 +1,53 @@
+url/join(1)
+==========
+
+NAME
+----
+url/join - join URL path components together
+
+SYNOPSIS
+--------
+stdlib *url/join* _<component>_...
+
+DESCRIPTION
+-----------
+Join multiple URL path components together with forward slashes, handling redundant slashes and trailing slashes appropriately.
+
+ARGUMENTS
+---------
+
+_<component>_...::
+    One or more path components to join together
+
+EXAMPLES
+--------
+
+Join simple path components:
+
+----
+$ stdlib url/join "api" "v1" "users"
+api/v1/users
+----
+
+Join components with existing slashes:
+
+----
+$ stdlib url/join "api/" "/v1/" "users"
+api/v1/users
+----
+
+Join base URL with path components:
+
+----
+$ stdlib url/join "https://example.com" "api" "users" "123"
+https://example.com/api/users/123
+----
+
+EXIT STATUS
+-----------
+
+`0`::
+    Success
+
+`1`::
+    No components provided

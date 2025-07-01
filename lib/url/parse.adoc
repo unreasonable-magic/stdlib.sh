@@ -1,13 +1,13 @@
-urlparse(1)
+url/parse(1)
 ===========
 
 NAME
 ----
-urlparse - parse a URL into its component parts
+url/parse - parse a URL into its component parts
 
 SYNOPSIS
 --------
-*urlparse* _<url>_ [_OPTIONS_...]
+stdlib *url/parse* _<url>_ [_OPTIONS_...]
 
 DESCRIPTION
 -----------
