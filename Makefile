@@ -9,3 +9,6 @@ test:
 	bash test/string/lowercase.sh
 	bash test/string/uppercase.sh
 	bash test/string/trim.sh
+.PHONY: manpages
+manpages:
+	asciidoctor -b manpage lib/url/parse.adoc -D share/man/

@@ -1,0 +1,110 @@
+'\" t
+.\"     Title: urlparse
+.\"    Author: [see the "AUTHOR(S)" section]
+.\" Generator: Asciidoctor 2.0.23
+.\"      Date: 2025-07-01
+.\"    Manual: \ \&
+.\"    Source: \ \&
+.\"  Language: English
+.\"
+.TH "URLPARSE" "1" "2025-07-01" "\ \&" "\ \&"
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.ss \n[.ss] 0
+.nh
+.ad l
+.de URL
+\fI\\$2\fP <\\$1>\\$3
+..
+.als MTO URL
+.if \n[.g] \{\
+.  mso www.tmac
+.  am URL
+.    ad l
+.  .
+.  am MTO
+.    ad l
+.  .
+.  LINKSTYLE blue R < >
+.\}
+.SH "NAME"
+urlparse \- parse a URL into its component parts
+.SH "SYNOPSIS"
+.sp
+\fBurlparse\fP \fI<url>\fP [\fIOPTIONS\fP...]
+.SH "DESCRIPTION"
+.sp
+Parse a URL and extract its individual components (scheme, host, port, path, query string, and fragment). Without any options specified, the function performs parsing but produces no output. Use option flags to output specific URL components.
+.SH "ARGUMENTS"
+.sp
+\fI<url>\fP
+.RS 4
+The URL to parse (required)
+.RE
+.SH "OPTIONS"
+.sp
+\f(CR\-\-scheme\fP
+.RS 4
+Output the scheme/protocol
+.RE
+.sp
+\f(CR\-\-host\fP
+.RS 4
+Output the hostname
+.RE
+.sp
+\f(CR\-\-port\fP
+.RS 4
+Output the port number
+.RE
+.sp
+\f(CR\-\-path\fP
+.RS 4
+Output the path component
+.RE
+.sp
+\f(CR\-\-query\fP
+.RS 4
+Output the query string
+.RE
+.sp
+\f(CR\-\-fragment\fP
+.RS 4
+Output the fragment/anchor
+.RE
+.SH "EXAMPLES"
+.sp
+Parse a complete URL and extract the hostname:
+.sp
+.if n .RS 4
+.nf
+.fam C
+$ stdlib url/parse "https://example.com:8080/path?query=value#section" \-\-host
+example.com
+.fam
+.fi
+.if n .RE
+.sp
+Extract multiple components from a GitHub API URL:
+.sp
+.if n .RS 4
+.nf
+.fam C
+$ stdlib url/parse "https://api.github.com/repos/user/repo" \-\-scheme \-\-host \-\-path
+https
+api.github.com
+/repos/user/repo
+.fam
+.fi
+.if n .RE
+.SH "EXIT STATUS"
+.sp
+\f(CR0\fP
+.RS 4
+Success
+.RE
+.sp
+\f(CR1\fP
+.RS 4
+No URL provided or invalid input
+.RE
