@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 stdlib_path="$(realpath "$(dirname "$0")/..")"
 
@@ -8,8 +8,15 @@ case "$1" in
     # shellcheck disable=SC2016
     printf 'source "$STDLIB_PATH/lib/import.sh"\n'
     ;;
+
   *)
-    echo "unsupported $1"
-    exit 1
+    eval "$(stdlib shellenv)"
+    stdlib::import "$1"
+    funcname="${1//\//}"
+    if [[ "$2" == "--help" ]]; then
+      man -P "$MANPAGER" "$stdlib_path/share/man/${funcname}.1"
+    else
+      "${funcname}" "${@:2}"
+    fi
     ;;
 esac
