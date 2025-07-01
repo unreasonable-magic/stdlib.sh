@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 assert() {
   # $(caller) returns the line number and the file path
   local -r caller_info="$(caller)"
