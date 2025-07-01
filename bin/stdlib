@@ -3,20 +3,20 @@
 stdlib_path="$(realpath "$(dirname "$0")/..")"
 
 case "$1" in
-  shellenv)
-    printf "export STDLIB_PATH='%s'\n" "$stdlib_path"
-    # shellcheck disable=SC2016
-    printf 'source "$STDLIB_PATH/lib/import.sh"\n'
-    ;;
+shellenv)
+  printf "export STDLIB_PATH='%s'\n" "$stdlib_path"
+  # shellcheck disable=SC2016
+  printf 'source "$STDLIB_PATH/lib/import.sh"\n'
+  ;;
 
-  *)
-    eval "$(stdlib shellenv)"
-    stdlib::import "$1"
-    funcname="${1//\//}"
-    if [[ "$2" == "--help" ]]; then
-      man -P "$MANPAGER" "$stdlib_path/share/man/${funcname}.1"
-    else
-      "${funcname}" "${@:2}"
-    fi
-    ;;
+*)
+  eval "$(stdlib shellenv)"
+  stdlib::import "$1"
+  funcname="${1//\//}"
+  if [[ "$2" == "--help" ]]; then
+    man -P "$MANPAGER" "$stdlib_path/share/man/${1}.1"
+  else
+    "${funcname}" "${@:2}"
+  fi
+  ;;
 esac
