@@ -41,8 +41,6 @@ urlparse() {
   if [[ "$temp" == *"/"* ]]; then
     path="/${temp#*/}"
     temp="${temp%%/*}"
-  else
-    path="/"
   fi
 
   # What's left is host[:port]
@@ -56,7 +54,6 @@ urlparse() {
   local -a parts=()
 
   for arg in "${@}"; do
-    log_debug "$arg"
     case "$arg" in
     --scheme)
       parts+=("$scheme")
