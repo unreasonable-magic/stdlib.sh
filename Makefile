@@ -3,7 +3,6 @@ BINDIR := $(PREFIX)/bin
 
 .PHONY: test
 test:
-	bundle
 	@for test in $$(find test -name "*.sh"); do \
 		echo "$$test"; \
 		bash "$$test"; \
