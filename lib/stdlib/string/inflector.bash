@@ -70,7 +70,9 @@ inflector() {
   esac
 
   if [[ -n "$returnvar" ]]; then
-    declare -g "$returnvar"="${str}"
+    declare -g __inflector_return_value="${str}"
+    eval "$returnvar=\$__inflector_return_value"
+    unset __inflector_return_value
   else
     printf "%s\n" "${str}"
   fi
