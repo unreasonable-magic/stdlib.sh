@@ -80,6 +80,12 @@ urlnormalize() {
   # Remove / from end of path
   path="${path%/}"
 
+  # Add ? back into query
+  query="${query:+?${query}}"
+
+  # Add # to fragment
+  fragment="${fragment:+#${fragment}}"
+
   local normalized="${scheme,,}://${host,,}${path}${query}${fragment}"
 
   if [[ -n "$returnvar" ]]; then

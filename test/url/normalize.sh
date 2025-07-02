@@ -15,6 +15,18 @@ assert "$stdout" == "http://example.com"
 stdout=$(urlnormalize "example.com:80")
 assert "$stdout" == "http://example.com"
 
+stdout=$(urlnormalize "https://example.com/blah")
+assert "$stdout" == "https://example.com/blah"
+
+stdout=$(urlnormalize "https://example.com/blah?a=1&b=2")
+assert "$stdout" == "https://example.com/blah?a=1&b=2"
+
+stdout=$(urlnormalize "https://example.com/blah#toast")
+assert "$stdout" == "https://example.com/blah#toast"
+
+stdout=$(urlnormalize "https://example.com/blah?a=1#toast")
+assert "$stdout" == "https://example.com/blah?a=1#toast"
+
 stdout=$(urlnormalize "/foo/bar" --base "example.com")
 assert "$stdout" == "http://example.com/foo/bar"
 
