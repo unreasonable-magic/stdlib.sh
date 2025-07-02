@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 
 urljoin() {
+  local returnvar
+  if [[ "$1" == "-v" ]]; then
+    returnvar="$2"
+    shift 2
+  fi
+
   local joined
   for str in "$@"; do
     joined+="$str/"
@@ -13,5 +19,11 @@ urljoin() {
   # Remove trailing / if we have one
   joined="${joined%%/}"
 
-  echo "$joined"
+  if [[ -n "$returnvar" ]]; then
+    declare -g "$returnvar"="$joined"
+  else
+    printf "%s\n" "${joined}"
+  fi
+
+  return 0
 }

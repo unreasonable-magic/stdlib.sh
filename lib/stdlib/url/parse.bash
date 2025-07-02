@@ -1,7 +1,15 @@
 #!/usr/bin/env bash
 
 urlparse() {
+  local returnvar
+  if [[ "$1" == "-v" ]]; then
+    returnvar="$2"
+    shift 2
+  fi
+
   local url="$1"
+  shift
+
   local scheme host port path query fragment
   local temp
 
@@ -47,26 +55,39 @@ urlparse() {
     host="$temp"
   fi
 
-  for arg in "${@:2}"; do
+  local -a parts=()
+
+  for arg in "${@}"; do
+    log_debug "$arg"
     case "$arg" in
     --scheme)
-      echo "$scheme"
+      parts+=("$scheme")
       ;;
     --host)
-      echo "$host"
+      parts+=("$host")
       ;;
     --port)
-      echo "$port"
+      parts+=("$port")
       ;;
     --path)
-      echo "$path"
+      parts+=("$path")
       ;;
     --query)
-      echo "$query"
+      parts+=("$query")
       ;;
     --fragment)
-      echo "$fragment"
+      parts+=("$fragment")
       ;;
     esac
   done
+
+  local IFS=$'\n'
+
+  if [[ -n "$returnvar" ]]; then
+    declare -g "$returnvar"="${parts[*]}"
+  else
+    echo -e "${parts[*]}"
+  fi
+
+  return 0
 }

@@ -70,7 +70,7 @@ inflector() {
   esac
 
   if [[ -n "$returnvar" ]]; then
-    printf -v "$returnvar" "%s" "${str}"
+    declare -g "$returnvar"="${str}"
   else
     printf "%s\n" "${str}"
   fi
