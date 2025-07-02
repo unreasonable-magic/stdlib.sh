@@ -1,5 +1,3 @@
-#!/usr/bin/env bash
-
 urlparse() {
   local returnvar
   if [[ "$1" == "-v" ]]; then

@@ -1,5 +1,3 @@
-#!/usr/bin/env bash
-
 urljoin() {
   local returnvar
   if [[ "$1" == "-v" ]]; then
