@@ -13,7 +13,6 @@ test:
 manpages:
 	rm -rf tmp/man; \
 	bundle exec asciidoctor -b manpage  -D tmp/man/ -v "docs/*.adoc"; \
-	man share/man/stdlib.1
 
 .PHONY: docs
 docs:
@@ -21,5 +20,5 @@ docs:
 	open tmp/html/stdlib.html;
 
 .PHONY: install
-install: manpages:
+install:
 	cp tmp/man/* /opt/homebrew/share/man/man1/;

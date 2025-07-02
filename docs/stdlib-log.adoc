@@ -1,0 +1,83 @@
+= stdlib-log(1)
+
+== Name
+
+stdlib-log - logging functions with configurable levels and colored output
+
+== Synopsis
+
+stdlib *log/init*
+
+stdlib *log/set_level* _<level>_
+
+stdlib *log/debug* _<message>_
+
+stdlib *log/info* _<message>_
+
+stdlib *log/warn* _<message>_
+
+stdlib *log/error* _<message>_
+
+== Description
+
+The stdlib logging module provides structured logging with configurable levels, colored output, and timing information. All log messages include delta timestamps, log levels, process IDs, and colored formatting for improved readability.
+
+Log levels are hierarchical - setting a higher log level will suppress lower priority messages. The available log levels in order of priority are: DEBUG (10), INFO (20), WARN (30), ERROR (40).
+
+== Functions
+
+`log_init`::
+    Initialize the logging system. Sets the default log level to INFO and records the main process ID. Must be called before using other logging functions.
+
+`log_set_level <level>`::
+    Set the current log level. Only messages at or above this level will be displayed. Valid levels are: LOG_LEVEL_DEBUG (10), LOG_LEVEL_INFO (20), LOG_LEVEL_WARN (30), LOG_LEVEL_ERROR (40).
+
+`log_debug <message>`::
+    Log a debug message (level 10). Only displayed when log level is set to DEBUG or lower.
+
+`log_info <message>`::
+    Log an informational message (level 20). Default log level - displayed unless log level is set to WARN or higher.
+
+`log_warn <message>`::
+    Log a warning message (level 30). Displayed unless log level is set to ERROR.
+
+`log_error <message>`::
+    Log an error message (level 40). Always displayed regardless of log level.
+
+== Arguments
+
+`<level>`::
+    Log level constant (LOG_LEVEL_DEBUG, LOG_LEVEL_INFO, LOG_LEVEL_WARN, or LOG_LEVEL_ERROR)
+
+`<message>`::
+    The message to log
+
+== Examples
+
+Initialize logging and log messages at different levels:
+
+----
+$ source lib/stdlib/log.sh
+$ log_init
+$ log_info "Application started"
++000ms [INFO ] [12345~main] Application started
+$ log_warn "This is a warning"
++010ms [WARN ] [12345~main] This is a warning
+----
+
+Set log level to suppress debug messages:
+
+----
+$ log_set_level $LOG_LEVEL_WARN
+$ log_debug "This won't be shown"
+$ log_error "This will be shown"
++005ms [ERROR] [12345~main] This will be shown
+----
+
+== Exit status
+
+`0`::
+    Success
+
+`1`::
+    Invalid log level provided to log_set_level

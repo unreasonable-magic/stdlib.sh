@@ -14,6 +14,9 @@ Bunch of random functions that make working in bash more fun
 
 == Functions
 
+xref:stdlib-log.adoc[stdlib-log(1)]::
+        Logging functions with configurable levels and colored output
+
 xref:stdlib-url-join.adoc[stdlib-url-join(1)]::
         Join URL path components together
 
