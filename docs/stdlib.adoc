@@ -1,0 +1,28 @@
+= stdlib(1)
+
+== Name
+
+stdlib - hello world
+
+== Synopsis
+
+stdlib <command> [flags]
+
+== Description
+
+Bunch of random functions that make working in bash more fun
+
+== Functions
+
+xref:stdlib-url-join.adoc[stdlib-url-join(1)]::
+        Join URL path components together
+
+xref:stdlib-url-parse.adoc[stdlib-url-parse(1)]::
+        Parse a URL into its component parts
+
+== Examples
+
+----
+$ stdlib url/join "api" "v1" "users"
+api/v1/users
+----

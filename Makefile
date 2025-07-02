@@ -11,8 +11,15 @@ test:
 
 .PHONY: manpages
 manpages:
-	asciidoctor -b manpage "lib/**/*.adoc" -D share/man/ -v;
+	rm -rf tmp/man; \
+	bundle exec asciidoctor -b manpage  -D tmp/man/ -v "docs/*.adoc"; \
+	man share/man/stdlib.1
+
+.PHONY: docs
+docs:
+	bundle exec asciidoctor --attribute relfilesuffix=.html -b html -D tmp/html/ -v "docs/*.adoc"; \
+	open tmp/html/stdlib.html;
 
 .PHONY: install
-install:
-	cp share/man/* /opt/homebrew/share/man/man1/;
+install: manpages:
+	cp tmp/man/* /opt/homebrew/share/man/man1/;

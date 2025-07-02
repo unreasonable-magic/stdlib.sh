@@ -1,26 +1,23 @@
-stdlib-url-parse(1)
-===================
+= stdlib-url-parse(1)
 
-NAME
-----
+== Name
+
 stdlib-url-parse - parse a URL into its component parts
 
-SYNOPSIS
---------
+== Synopsis
+
 stdlib *url/parse* _<url>_ [_OPTIONS_...]
 
-DESCRIPTION
------------
+== Description
+
 Parse a URL and extract its individual components (scheme, host, port, path, query string, and fragment). Without any options specified, the function performs parsing but produces no output. Use option flags to output specific URL components.
 
-ARGUMENTS
----------
+== Arguments
 
-_<url>_::
+`<url>`::
     The URL to parse (required)
 
-OPTIONS
--------
+== Options
 
 `--scheme`::
     Output the scheme/protocol
@@ -40,8 +37,7 @@ OPTIONS
 `--fragment`::
     Output the fragment/anchor
 
-EXAMPLES
---------
+== Examples
 
 Parse a complete URL and extract the hostname:
 
@@ -59,8 +55,7 @@ api.github.com
 /repos/user/repo
 ----
 
-EXIT STATUS
------------
+== Exit status
 
 `0`::
     Success

@@ -1,26 +1,23 @@
-stdlib-url-join(1)
-==================
+= stdlib-url-join(1)
 
-NAME
-----
+== Name
+
 stdlib-url-join - join URL path components together
 
-SYNOPSIS
---------
+== Synopsis
+
 stdlib *url/join* _<component>_...
 
-DESCRIPTION
------------
+== Description
+
 Join multiple URL path components together with forward slashes, handling redundant slashes and trailing slashes appropriately.
 
-ARGUMENTS
----------
+== Arguments
 
-_<component>_...::
+`<component>`...::
     One or more path components to join together
 
-EXAMPLES
---------
+== Examples
 
 Join simple path components:
 
@@ -43,8 +40,7 @@ $ stdlib url/join "https://example.com" "api" "users" "123"
 https://example.com/api/users/123
 ----
 
-EXIT STATUS
------------
+== Exit status
 
 `0`::
     Success
