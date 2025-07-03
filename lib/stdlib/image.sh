@@ -4,7 +4,7 @@ stdlib_image_print() {
   local rows="$3"
 
   if [[ "$TERM_PROGRAM" == "iTerm.app" ]]; then
-    "$STDLIB_PATH/lib/stdlib/image/iterm.sh" -W "${cols}" -H "${rows}" "$path"
+    "$STDLIB_PATH/contrib/iterm.sh" -W "${cols}" -H "${rows}" "$path"
   else
     encoded=$(echo "$path" | tr -d '\n' | base64 | tr -d '=' | tr -d '\n')
 
