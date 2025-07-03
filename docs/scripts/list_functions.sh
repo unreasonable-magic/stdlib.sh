@@ -1,1 +1,1 @@
-rg "stdlib::.+() \{$" | sed -E "s/\{//g" | sed -E "s/lib\/stdlib.sh\/([a-z]+)(\.sh)?://"
+rg --no-filename "stdlib_.+() \{$" | sed -E "s/\{//g" | sed -E "s/\(\)//g" | sort
