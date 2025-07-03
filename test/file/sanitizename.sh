@@ -34,13 +34,13 @@ stdout=$(stdlib_file_sanitizename $'x\r\nx')
 assert "$stdout" == "xx"
 
 stdout=$(stdlib_file_sanitizename "<")
-assert "$stdout" == "stdlib_file_"
+assert "$stdout" == "file"
 
 stdout=$(stdlib_file_sanitizename "<a")
 assert "$stdout" == "a"
 
 stdout=$(stdlib_file_sanitizename ">")
-assert "$stdout" == "stdlib_file_"
+assert "$stdout" == "file"
 
 stdout=$(stdlib_file_sanitizename "a>")
 assert "$stdout" == "a"
