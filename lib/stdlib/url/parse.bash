@@ -1,4 +1,4 @@
-urlparse() {
+stdlib_url_parse() {
   local returnvar
   if [[ "$1" == "-v" ]]; then
     returnvar="$2"
@@ -13,7 +13,7 @@ urlparse() {
 
   # Check if URL is provided
   if [[ -z "$url" ]]; then
-    stdlib::error::warning "not url passed"
+    stdlib_error_warning "not url passed"
     return 1
   fi
 

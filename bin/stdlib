@@ -16,8 +16,8 @@ shellenv)
   printf "export STDLIB_PATH='%s'\n" "$stdlib_path"
   # shellcheck disable=SC2016
   printf 'source "$STDLIB_PATH/lib/stdlib/import.sh"\n'
-  printf 'stdlib::import "error"\n'
-  printf 'stdlib::import "error/shell_integration"\n'
+  printf 'stdlib_import "error"\n'
+  printf 'stdlib_import "error/shell_integration"\n'
   ;;
 
 --help)
@@ -27,7 +27,7 @@ shellenv)
 *)
   if [[ -n "$1" ]]; then
     eval "$(stdlib shellenv)"
-    stdlib::import "$1"
+    stdlib_import "$1"
     if [[ "$*" == *" --help"* ]]; then
       manpage="stdlib-${1//\//-}"
       man "${manpage}"

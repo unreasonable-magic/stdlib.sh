@@ -1,56 +1,55 @@
 eval "$(stdlib shellenv)"
 
-stdlib::import "assert"
-stdlib::import "file/sanitizename"
+stdlib_import "assert"
+stdlib_import "file/sanitizename"
 
-
-stdout=$(filesanitizename "x x")
+stdout=$(stdlib_file_sanitizename "x x")
 assert "$stdout" == "x x"
 
-stdout=$(filesanitizename "https://example.com/foo/bar")
+stdout=$(stdlib_file_sanitizename "https://example.com/foo/bar")
 assert "$stdout" == "httpsexample.comfoobar"
 
-stdout=$(filesanitizename "a")
+stdout=$(stdlib_file_sanitizename "a")
 assert "$stdout" == "a"
 
-stdout=$(filesanitizename "a ")
+stdout=$(stdlib_file_sanitizename "a ")
 assert "$stdout" == "a"
 
-stdout=$(filesanitizename " a")
+stdout=$(stdlib_file_sanitizename " a")
 assert "$stdout" == "a"
 
-stdout=$(filesanitizename " a ")
+stdout=$(stdlib_file_sanitizename " a ")
 assert "$stdout" == "a"
 
-stdout=$(filesanitizename $' a   \n')
+stdout=$(stdlib_file_sanitizename $' a   \n')
 assert "$stdout" == "a"
 
-stdout=$(filesanitizename "x x")
+stdout=$(stdlib_file_sanitizename "x x")
 assert "$stdout" == "x x"
 
-stdout=$(filesanitizename "x | x")
+stdout=$(stdlib_file_sanitizename "x | x")
 assert "$stdout" == "x x"
 
-stdout=$(filesanitizename $'x\r\nx')
+stdout=$(stdlib_file_sanitizename $'x\r\nx')
 assert "$stdout" == "xx"
 
-stdout=$(filesanitizename "<")
-assert "$stdout" == "file"
+stdout=$(stdlib_file_sanitizename "<")
+assert "$stdout" == "stdlib_file_"
 
-stdout=$(filesanitizename "<a")
+stdout=$(stdlib_file_sanitizename "<a")
 assert "$stdout" == "a"
 
-stdout=$(filesanitizename ">")
-assert "$stdout" == "file"
+stdout=$(stdlib_file_sanitizename ">")
+assert "$stdout" == "stdlib_file_"
 
-stdout=$(filesanitizename "a>")
+stdout=$(stdlib_file_sanitizename "a>")
 assert "$stdout" == "a"
 
-stdout=$(filesanitizename "a>a")
+stdout=$(stdlib_file_sanitizename "a>a")
 assert "$stdout" == "aa"
 
-stdout=$(filesanitizename "< > | / \\ * ? :")
+stdout=$(stdlib_file_sanitizename "< > | / \\ * ? :")
 assert "$stdout" == "file"
 
-stdout=$(filesanitizename $'what\\ēver//wëird:user:înput:')
+stdout=$(stdlib_file_sanitizename $'what\\ēver//wëird:user:înput:')
 assert "$stdout" == "whatēverwëirduserînput"

@@ -1,22 +1,22 @@
 eval "$(stdlib shellenv)"
 
-stdlib::import "assert"
-stdlib::import "string/lowercase"
+stdlib_import "assert"
+stdlib_import "string/lowercase"
 
 declare out=""
 declare stdout=""
 
-stdout=$(lowercase "FOO")
+stdout=$(stdlib_string_lowercase "FOO")
 assert "$stdout" == "foo"
 
-stdout=$(lowercase "foo")
+stdout=$(stdlib_string_lowercase "foo")
 assert "$stdout" == "foo"
 
-stdout=$(lowercase "MiXeD\nLiNeS")
+stdout=$(stdlib_string_lowercase "MiXeD\nLiNeS")
 assert "$stdout" == "mixed\nlines"
 
-stdout=$(echo -e "STDIN\nWITH\nLINES" | lowercase)
+stdout=$(echo -e "STDIN\nWITH\nLINES" | stdlib_string_lowercase)
 assert "$stdout" == $'stdin\nwith\nlines'
 
-lowercase -v out "FROM a VAR"
+stdlib_string_lowercase -v out "FROM a VAR"
 assert "$out" == "from a var"

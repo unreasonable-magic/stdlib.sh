@@ -1,7 +1,5 @@
-#!/usr/bin/env sh
+stdlib_import "string/inflector"
 
-stdlib::import "string/inflector"
-
-capitalize() {
-  inflector "capitalize" "$@"
+stdlib_string_capitalize() {
+  stdlib_string_inflector "capitalize" "$@"
 }

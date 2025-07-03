@@ -1,4 +1,4 @@
-stdlib::string::contains () {
+stdlib_string_contains() {
   local -r string="$1"
   local -r substring="$2"
 
@@ -8,7 +8,7 @@ stdlib::string::contains () {
   #
   # So here's how that looks:
   #
-  #   stdlib::string::contains "hello world" "world"
+  #   stdlib_string_contains "hello world" "world"
   #
   # (eventually becomes...)
   #

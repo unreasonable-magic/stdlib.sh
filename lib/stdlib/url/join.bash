@@ -1,4 +1,4 @@
-urljoin() {
+stdlib_url_join() {
   local returnvar
   if [[ "$1" == "-v" ]]; then
     returnvar="$2"

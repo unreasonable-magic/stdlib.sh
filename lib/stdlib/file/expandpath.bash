@@ -4,7 +4,7 @@
 # We could use realpath mostly for this, but that errors out if the path doesn't
 # exist, which is kinda annoying to deal with, so this is just a slightly safer
 # way of doing it without the headache of errors.
-expandpath() {
+stdlib_file_expandpath() {
   local path="$1"
   local first_char="${path:0:1}"
 

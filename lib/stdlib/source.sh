@@ -1,6 +1,6 @@
 declare -a stdlib_source_stack=()
 
-stdlib::source() {
+stdlib_source() {
   # printf "%-${#stdlib_source_stack[@]}s" ""
   # printf "%s\n" $1
   #

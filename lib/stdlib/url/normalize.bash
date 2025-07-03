@@ -1,7 +1,7 @@
-stdlib::import "url/parse"
-stdlib::import "error"
+stdlib_import "url/parse"
+stdlib_import "error"
 
-urlnormalize() {
+stdlib_url_normalize() {
   local returnvar
   if [[ "$1" == "-v" ]]; then
     returnvar="$2"
@@ -15,30 +15,30 @@ urlnormalize() {
   for arg in "${@}"; do
     local value="${arg#*=}"
     case "$arg" in
-      "--base="*)
-        basevar="${value}"
-        ;;
-      "--base")
-        basevar="$2"
-        break
-        ;;
-      *)
-        stdlib::error::fatal "invalid arg $arg"
-        ;;
+    "--base="*)
+      basevar="${value}"
+      ;;
+    "--base")
+      basevar="$2"
+      break
+      ;;
+    *)
+      stdlib_error_fatal "invalid arg $arg"
+      ;;
     esac
     shift
   done
 
   local base_scheme base_host base_port
   if [[ -n "${basevar}" ]]; then
-    read -r base_scheme base_host base_port < <(urlparse "$basevar" --scheme --host --port)
-    readarray -t parts < <(urlparse "$basevar" --scheme --host --port)
+    read -r base_scheme base_host base_port < <(stdlib_url_parse "$basevar" --scheme --host --port)
+    readarray -t parts < <(stdlib_url_parse "$basevar" --scheme --host --port)
     local base_scheme="${parts[0]}"
     local base_host="${parts[1]}"
     local base_port="${parts[2]}"
   fi
 
-  readarray -t parts < <(urlparse "$url" --scheme --host --port --path --query --fragment)
+  readarray -t parts < <(stdlib_url_parse "$url" --scheme --host --port --path --query --fragment)
   local scheme="${parts[0]}"
   local host="${parts[1]}"
   local port="${parts[2]}"
@@ -55,7 +55,7 @@ urlnormalize() {
       if [[ -n "$base_scheme" ]]; then
         scheme="${base_scheme}"
       else
-        stdlib::error::warning "no scheme provided in --base, defaulting to http"
+        stdlib_error_warning "no scheme provided in --base, defaulting to http"
         scheme="http"
         port=""
       fi
@@ -73,7 +73,7 @@ urlnormalize() {
       host="${base_host}"
     else
       host=""
-      stdlib::error::warning "no host provided in --base, defaulting to blank"
+      stdlib_error_warning "no host provided in --base, defaulting to blank"
     fi
   fi
 

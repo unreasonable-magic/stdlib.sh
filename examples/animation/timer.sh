@@ -2,26 +2,25 @@
 
 eval "$(stdlib shellenv)"
 
-stdlib::import "animation/timer"
+stdlib_import "animation/timer"
 
-select example in simple loop reversed alternate speed
-do
+select example in simple loop reversed alternate speed; do
   case "$example" in
-    simple)
-      timer --duration 1000
-      ;;
-    loop)
-      timer --duration 1000 --loop
-      ;;
-    reversed)
-      timer --duration 1000 --reversed
-      ;;
-    alternate)
-      timer --duration 1000 --loop --alternate
-      ;;
-    speed)
-      timer --duration 1000 --loop --alternate --fps 60
-      ;;
+  simple)
+    stdlib_animation_timer --duration 1000
+    ;;
+  loop)
+    stdlib_animation_timer --duration 1000 --loop
+    ;;
+  reversed)
+    stdlib_animation_timer --duration 1000 --reversed
+    ;;
+  alternate)
+    stdlib_animation_timer --duration 1000 --loop --alternate
+    ;;
+  speed)
+    stdlib_animation_timer --duration 1000 --loop --alternate --fps 60
+    ;;
   esac
   break
 done

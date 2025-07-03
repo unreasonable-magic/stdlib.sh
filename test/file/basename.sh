@@ -1,16 +1,16 @@
 eval "$(stdlib shellenv)"
 
-stdlib::import "assert"
-stdlib::import "file/basename"
+stdlib_import "assert"
+stdlib_import "file/basename"
 
-stdout=$(basename "hello.txt")
+stdout=$(stdlib_file_basename "hello.txt")
 assert "$stdout" == "hello.txt"
 
-stdout=$(basename "hello.txt" ".txt")
+stdout=$(stdlib_file_basename "hello.txt" ".txt")
 assert "$stdout" == "hello"
 
-stdout=$(basename "hello.txt" ".png")
+stdout=$(stdlib_file_basename "hello.txt" ".png")
 assert "$stdout" == "hello.txt"
 
-stdout=$(basename "hello.txt" ".*")
+stdout=$(stdlib_file_basename "hello.txt" ".*")
 assert "$stdout" == "hello"

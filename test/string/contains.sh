@@ -1,22 +1,22 @@
 eval "$(stdlib shellenv)"
 
-stdlib::import "assert"
-stdlib::import "string/contains"
+stdlib_import "assert"
+stdlib_import "string/contains"
 
-stdlib::string::contains "foo" "bar"
+stdlib_string_contains "foo" "bar"
 assert "$?" == 1
 
-stdlib::string::contains "foo" "foo"
+stdlib_string_contains "foo" "foo"
 assert "$?" == 0
 
-stdlib::string::contains "hello world" "hell"
+stdlib_string_contains "hello world" "hell"
 assert "$?" == 0
 
-stdlib::string::contains "hello world" " world"
+stdlib_string_contains "hello world" " world"
 assert "$?" == 0
 
-stdlib::string::contains "my file name.exe" "."
+stdlib_string_contains "my file name.exe" "."
 assert "$?" == 0
 
-stdlib::string::contains "my file name" "."
+stdlib_string_contains "my file name" "."
 assert "$?" == 1

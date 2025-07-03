@@ -1,7 +1,5 @@
-#!/usr/bin/env sh
+stdlib_import "string/inflector"
 
-stdlib::import "string/inflector"
-
-titleize() {
-  inflector "titleize" "$@"
+stdlib_string_titleize() {
+  stdlib_string_inflector "titleize" "$@"
 }

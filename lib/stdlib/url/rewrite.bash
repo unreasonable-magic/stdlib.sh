@@ -1,6 +1,6 @@
-stdlib::import "url/parse"
+stdlib_import "url/parse"
 
-urlrewrite() {
+stdlib_url_rewrite() {
   local returnvar
   if [[ "$1" == "-v" ]]; then
     returnvar="$2"
@@ -10,7 +10,7 @@ urlrewrite() {
   local url="$1"
   shift
 
-  readarray -t parts < <(urlparse "$url" --scheme --host --port --path --query --fragment)
+  readarray -t parts < <(stdlib_url_parse "$url" --scheme --host --port --path --query --fragment)
 
   for arg in "${@}"; do
     local value="${arg#*=}"

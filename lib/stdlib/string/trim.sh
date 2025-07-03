@@ -1,7 +1,5 @@
-#!/usr/bin/env sh
+stdlib_import "string/inflector"
 
-stdlib::import "string/inflector"
-
-trim() {
-  inflector "trim" "$@"
+stdlib_string_trim() {
+  stdlib_string_inflector "trim" "$@"
 }

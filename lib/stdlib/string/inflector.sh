@@ -1,6 +1,4 @@
-#!/usr/bin/env sh
-
-inflector() {
+stdlib_string_inflector() {
   inflection="$1"
   shift
 

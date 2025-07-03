@@ -1,4 +1,4 @@
-basename() {
+stdlib_file_basename() {
   local filename="${1##*/}"
 
   if [ $# -eq 2 ]; then

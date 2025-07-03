@@ -1,4 +1,4 @@
-inflector() {
+stdlib_string_inflector() {
   shopt -s extglob
 
   local inflection="$1"
@@ -70,9 +70,9 @@ inflector() {
   esac
 
   if [[ -n "$returnvar" ]]; then
-    declare -g __inflector_return_value="${str}"
-    eval "$returnvar=\$__inflector_return_value"
-    unset __inflector_return_value
+    declare -g __stdlib_string_inflector_return_value="${str}"
+    eval "$returnvar=\$__stdlib_string_inflector_return_value"
+    unset __stdlib_string_inflector_return_value
   else
     printf "%s\n" "${str}"
   fi

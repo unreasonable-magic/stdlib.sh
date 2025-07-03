@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-stdlib::image::print() {
+stdlib_image_print() {
   local path="$1"
   local cols="$2"
   local rows="$3"
@@ -14,7 +14,7 @@ stdlib::image::print() {
   fi
 }
 
-stdlib::image::dimensions() {
+stdlib_image_dimensions() {
   local path="$(realpath $1)"
 
   if [[ "$path" == *.png ]]; then

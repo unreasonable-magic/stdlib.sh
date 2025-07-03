@@ -1,14 +1,12 @@
-#!/usr/bin/env bash
+stdlib_import "color"
 
-stdlib::import "color"
-
-stdlib::debugger() {
-  printf "${COLOR_DIM}#${COLOR_RESET} ${COLOR_FG_BLUE}stdlib::debugger${COLOR_RESET}\n"
+stdlib_debugger() {
+  printf "${COLOR_DIM}#${COLOR_RESET} ${COLOR_FG_BLUE}stdlib_debugger${COLOR_RESET}\n"
   printf "${COLOR_DIM}# Press CTRL-D to continue with $0${COLOR_RESET}\n"
 
   while true; do
     printf "▲ "
-    if read -r input 2> /dev/null; then
+    if read -r input 2>/dev/null; then
       eval "$input"
     else
       printf "\n"

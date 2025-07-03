@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
-stdlib::import() {
+stdlib_import() {
   local path="$STDLIB_PATH/lib/stdlib"
   path="$path/$1"
 
   local filename="${1##*/}"
 
   # If no file extension was provided, try and figure one out (see
-  # string::contains for how this thing works)
+  # stdlib_string_contains for how this thing works)
   if [ "${filename#*"."}" == "$filename" ]; then
     local with_extension=""
 
@@ -42,7 +42,7 @@ stdlib::import() {
   if [ -e "$path" ]; then
     source "$path"
   else
-    echo "stdlib::import: no such file $path" >&2
+    echo "stdlib_import: no such file $path" >&2
     exit 1
   fi
 }

@@ -1,13 +1,13 @@
 command_not_found_handle() {
   printf "command not found: %s\n\n" "$*" >&2
 
-  stdlib::error::stacktrace
+  stdlib_error_stacktrace
 
   # This is "plan b" for if the bottom approaches don't work to stopping the
   # current script.
   {
     sleep 3
-    echo "took too long to exit, force killing..."
+    echo "took too long to exit, force killing..." >&2
     kill -9 "$$"
   } &
   local plan_b_pid=$?

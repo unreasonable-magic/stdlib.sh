@@ -1,8 +1,6 @@
-#!/usr/bin/env bash
+stdlib_import "error"
 
-stdlib::import "error"
-
-divide() {
+stdlib_maths_divide() {
   # Grab the precision config if present
   local precision=6
   if [[ "$1" == "--precision" ]]; then
@@ -37,39 +35,39 @@ divide() {
   # If you someone does test it, and there's a faster way, happy to put to
   # replace this code!
   case "$precision" in
-    1)
-      local scale="10"
-      ;;
-    2)
-      local scale="100"
-      ;;
-    3)
-      local scale="1000"
-      ;;
-    4)
-      local scale="10000"
-      ;;
-    5)
-      local scale="100000"
-      ;;
-    6)
-      local scale="1000000"
-      ;;
-    7)
-      local scale="10000000"
-      ;;
-    8)
-      local scale="100000000"
-      ;;
-    9)
-      local scale="1000000000"
-      ;;
-    *)
-      stdlib::error::fatal "max precision is 9"
-      ;;
+  1)
+    local scale="10"
+    ;;
+  2)
+    local scale="100"
+    ;;
+  3)
+    local scale="1000"
+    ;;
+  4)
+    local scale="10000"
+    ;;
+  5)
+    local scale="100000"
+    ;;
+  6)
+    local scale="1000000"
+    ;;
+  7)
+    local scale="10000000"
+    ;;
+  8)
+    local scale="100000000"
+    ;;
+  9)
+    local scale="1000000000"
+    ;;
+  *)
+    stdlib_error_fatal "max precision is 9"
+    ;;
   esac
 
-  local result=$(( (num1_int * scale) / num2_int ))
+  local result=$(((num1_int * scale) / num2_int))
 
   # Adjust for decimal places difference
   local decimal_adjust=$((num2_decimal_places - num1_decimal_places))

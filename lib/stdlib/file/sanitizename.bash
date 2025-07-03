@@ -1,6 +1,6 @@
-stdlib::import "string/trim"
+stdlib_import "string/trim"
 
-filesanitizename() {
+stdlib_file_sanitizename() {
   shopt -s extglob
 
   local returnvar
@@ -11,7 +11,7 @@ filesanitizename() {
 
   local escaped="${1}"
 
-  trim -v escaped "${escaped}"
+  stdlib_string_trim -v escaped "${escaped}"
 
   # Replace all non supported chars
   escaped="${escaped//[^a-zA-Z0-9À-ÿĀ-žƀ-ɏ\. ]/}"

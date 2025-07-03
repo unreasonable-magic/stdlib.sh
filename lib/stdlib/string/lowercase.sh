@@ -1,7 +1,5 @@
-#!/usr/bin/env sh
+stdlib_import "string/inflector"
 
-stdlib::import "string/inflector"
-
-lowercase() {
-  inflector "lowercase" "$@"
+stdlib_string_lowercase() {
+  stdlib_string_inflector "lowercase" "$@"
 }
