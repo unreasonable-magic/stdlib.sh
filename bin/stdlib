@@ -2,6 +2,15 @@
 
 stdlib_path="$(realpath "$(dirname "$0")/..")"
 
+stdlib_cli_banner() {
+  local banner="
+ \e[38;2;157;80;232m▄▄▄ ▄▄▄ ▄▄  ▄   ▄▄▄ ▄▄      ▄▄▄ ▄ ▄\e[0m
+ \e[38;2;97;53;206m▀▄   █  █ █ █    █  █▄▀     ▀▄  █▄█\e[0m
+ \e[38;2;63;38;181m▄▄█  █  █▄▀ █▄▄ ▄█▄ █▄▀  ▄  ▄▄█ █ █\e[0m
+"
+  echo -e "${banner:1}"
+}
+
 case "$1" in
 shellenv)
   printf "export STDLIB_PATH='%s'\n" "$stdlib_path"
@@ -12,18 +21,22 @@ shellenv)
   ;;
 
 --help)
-  man stdlib
+  stdlib_cli_banner
   ;;
 
 *)
-  eval "$(stdlib shellenv)"
-  stdlib::import "$1"
-  if [[ "$*" == *" --help"* ]]; then
-    manpage="stdlib-${1//\//-}"
-    man "${manpage}"
+  if [[ -n "$1" ]]; then
+    eval "$(stdlib shellenv)"
+    stdlib::import "$1"
+    if [[ "$*" == *" --help"* ]]; then
+      manpage="stdlib-${1//\//-}"
+      man "${manpage}"
+    else
+      funcname="${1//\//}"
+      "${funcname}" "${@:2}"
+    fi
   else
-    funcname="${1//\//}"
-    "${funcname}" "${@:2}"
+    exec stdlib --help
   fi
   ;;
 esac
