@@ -7,7 +7,12 @@ stdlib_debugger() {
   while true; do
     printf "▲ "
     if read -r input 2>/dev/null; then
-      eval "$input"
+      # If a variable has been entered, let's be nice and just log it for them
+      if [[ "${input:0:1}" == "$" ]]; then
+        eval "echo $input"
+      else
+        eval "$input"
+      fi
     else
       printf "\n"
       break
