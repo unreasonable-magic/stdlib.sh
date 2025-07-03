@@ -19,3 +19,16 @@ assert "$?" == 0
 stdlib_lock_release "$lock_name"
 stat "$test_lock_path" &>/dev/null
 assert "$?" == 1
+
+test_lock_proxy() {
+  stdlib_lock_create_proxy "${FUNCNAME[0]}" "$@"
+}
+
+test_lock_proxy_path="$(test_lock_proxy --path)"
+
+test_lock_proxy acquire
+assert "$(<"$test_lock_proxy_path")" == $$
+
+test_lock_proxy release
+stat "$test_lock_proxy_path" &>/dev/null
+assert "$?" == 1

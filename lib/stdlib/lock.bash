@@ -47,3 +47,35 @@ stdlib_lock_release() {
     log_warn "Failed to remove lock: $lock_path"
   fi
 }
+
+stdlib_lock_create_proxy() {
+  local function_name="$1"
+  shift
+
+  local command_handler_code='
+  local command="$1"
+  shift
+
+  case "$command" in
+    acquire)
+      stdlib_lock_acquire "$lock_name" "$@"
+      ;;
+    release)
+      stdlib_lock_release "$lock_name" "$@"
+      ;;
+    --path)
+      echo "$DEFAULT_LOCK_DIR/${lock_name}.lock"
+      ;;
+  esac
+  '
+
+  local function_code="
+  $function_name() {
+    local lock_name=${function_name@Q}
+    $command_handler_code
+  }
+  "
+
+  eval "$function_code"
+  "$function_name" "$@"
+}
