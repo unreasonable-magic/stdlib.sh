@@ -1,19 +1,7 @@
 #!/usr/bin/env bash
 
 stdlib::import "error/stacktrace"
-
-stdlib::error::stacktrace() {
-  if [[ "$BASH_SOURCE" != "" ]]; then
-    stdlib::error::stacktrace::bash
-  else
-    echo "can't figure out backtrace"
-  fi
-}
-
-stdlib::error::log() {
-  local -r script_name="$(basename "$0")"
-  printf "%s: $1\n" "$script_name" "${@:2}" >&2
-}
+stdlib::import "error/log"
 
 # Prints an error and returns 1
 stdlib::error::warning() {

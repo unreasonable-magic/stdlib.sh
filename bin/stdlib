@@ -7,6 +7,8 @@ shellenv)
   printf "export STDLIB_PATH='%s'\n" "$stdlib_path"
   # shellcheck disable=SC2016
   printf 'source "$STDLIB_PATH/lib/stdlib/import.sh"\n'
+  printf 'stdlib::import "error"\n'
+  printf 'stdlib::import "error/shell_integration"\n'
   ;;
 
 --help)

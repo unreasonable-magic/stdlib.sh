@@ -1,6 +1,4 @@
-#!/usr/bin/env bash
-
-stdlib::error::stacktrace::bash() {
+stdlib::error::stacktrace() {
   local -i idx=1
   local -i length="${#BASH_SOURCE[@]}"
 
