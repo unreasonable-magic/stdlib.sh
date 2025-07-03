@@ -1,5 +1,3 @@
-#!/usr/bin/env bash
-
 stdlib_image_print() {
   local path="$1"
   local cols="$2"

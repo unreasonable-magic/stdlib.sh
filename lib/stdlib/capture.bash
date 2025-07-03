@@ -1,5 +1,3 @@
-#!/usr/bin/env bash
-
 # https://stackoverflow.com/questions/11027679/capture-stdout-and-stderr-into-different-variables
 capture() {
   local stdout_var="__stdout"

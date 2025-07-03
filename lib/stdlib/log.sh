@@ -1,5 +1,3 @@
-#!/usr/bin/env bash
-
 export LOG_LEVEL_DEBUG=10
 export LOG_LEVEL_INFO=20
 export LOG_LEVEL_WARN=30

@@ -1,5 +1,3 @@
-#!/usr/bin/env bash
-
 stdlib_import() {
   local path="$STDLIB_PATH/lib/stdlib"
   path="$path/$1"
