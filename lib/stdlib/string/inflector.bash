@@ -67,6 +67,33 @@ stdlib_string_inflector() {
     str="${str#"${str%%[![:space:]]*}"}"
     str="${str%"${str##*[![:space:]]}"}"
     ;;
+  underscore)
+    local new_str=""
+    local char
+
+    # Start by inserting spaces between anything that's not a lowercase letter
+    for ((i = 0; i < ${#str}; i++)); do
+      char="${str:i:1}"
+      if [[ ! "$char" =~ [a-z] ]]; then
+        new_str+=" "
+      fi
+      new_str+="$char"
+    done
+
+    str="${new_str}"
+
+    # Lowercase everything
+    str="${str,,}"
+
+    # Compress all whitespace and remove it from the start and the end
+    str="${str//+( )/ }"
+    str="${str#"${str%%[![:space:]]*}"}"
+    str="${str%"${str##*[![:space:]]}"}"
+
+    # Replace whitespace with underscores
+    str="${str// /_}"
+
+    ;;
   esac
 
   if [[ -n "$returnvar" ]]; then
