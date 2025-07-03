@@ -13,11 +13,11 @@ stdlib_image_print() {
 }
 
 stdlib_image_dimensions() {
-  local path="$(realpath $1)"
+  local -r path="$(realpath "$1")"
 
   if [[ "$path" == *.png ]]; then
     # This is extreemly not portable, but that's not a problem at the moment
-    echo $(/sbin/file "$path" | grep "PNG image" | awk '{print $5, $7}' | sed 's/,//g')
+    echo "$(/sbin/file "$path" | grep "PNG image" | awk '{print $5, $7}' | sed 's/,//g')"
   else
     echo "don't know how to handle $path yet"
     exit 1

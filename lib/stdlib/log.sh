@@ -22,17 +22,17 @@ log() {
     # Calculate milliseconds using bash arithmetic (no subshells)
     local total_sec=${current_time%.*}
     local total_frac=${current_time#*.}
-    local start_sec=${START_TIME%.*}
-    local start_frac=${START_TIME#*.}
+    # local start_sec=${START_TIME%.*}
+    # local start_frac=${START_TIME#*.}
     local last_sec=${LAST_TIME%.*}
     local last_frac=${LAST_TIME#*.}
 
     # Convert to milliseconds and calculate differences
     local total_ms_now=$(((total_sec * 1000) + (10#$total_frac / 1000)))
-    local start_ms=$(((start_sec * 1000) + (10#$start_frac / 1000)))
+    # local start_ms=$(((start_sec * 1000) + (10#$start_frac / 1000)))
     local last_ms=$(((last_sec * 1000) + (10#$last_frac / 1000)))
 
-    local total_elapsed=$((total_ms_now - start_ms))
+    # local total_elapsed=$((total_ms_now - start_ms))
     local delta_elapsed=$((total_ms_now - last_ms))
 
     # printf "Total: %dms | Delta: +%dms\n" "$total_elapsed" "$delta_elapsed"
