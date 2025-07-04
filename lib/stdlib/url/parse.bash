@@ -17,10 +17,14 @@ stdlib_url_parse() {
     return 1
   fi
 
-  # Extract scheme (protocol)
+  # Extract scheme (handle both full schemes i.e. https://example.com, and
+  # relative ones i.e. //example.com)
   if [[ "$url" =~ ^([^:]+):// ]]; then
     scheme="${url%%://*}"
     temp="${url#*://}"
+  elif [[ "$url" =~ ^// ]]; then
+    scheme=""
+    temp="${url#*//}"
   else
     temp="$url"
   fi

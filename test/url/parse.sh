@@ -21,3 +21,9 @@ assert "$stdout" == $'\nexample.com'
 
 stdlib_url_parse -v out "https://example.com/users/1" --path --host
 assert "$out" == $'/users/1\nexample.com'
+
+stdout=$(stdlib_url_parse "//example.com/users/1" --scheme --host --port --path --query --fragment)
+assert "$stdout" == $'\nexample.com\n\n/users/1'
+
+stdout=$(stdlib_url_parse "example.com" --scheme --host --port --path --query --fragment)
+assert "$stdout" == $'\nexample.com'
