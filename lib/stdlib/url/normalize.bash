@@ -38,13 +38,14 @@ stdlib_url_normalize() {
     local base_port="${parts[2]}"
   fi
 
-  readarray -t parts < <(stdlib_url_parse "$url" --scheme --host --port --path --query --fragment)
+  readarray -t parts < <(stdlib_url_parse "$url" --scheme --host --port --path --query --fragment --auth)
   local scheme="${parts[0]}"
   local host="${parts[1]}"
   local port="${parts[2]}"
   local path="${parts[3]}"
   local query="${parts[4]}"
   local fragment="${parts[5]}"
+  local auth="${parts[6]}"
 
   #echo "$scheme" >&2
   #echo "$host" >&2
@@ -88,10 +89,22 @@ stdlib_url_normalize() {
   # Add ? back into query
   query="${query:+?${query}}"
 
+  # Add @ back into auth
+  auth="${auth:+${auth}@}"
+
   # Add # to fragment
   fragment="${fragment:+#${fragment}}"
 
-  local normalized="${scheme,,}://${host,,}${path}${query}${fragment}"
+  # Fix casing on pars of the URL we're allowed to
+  scheme="${scheme,,}"
+  host="${host,,}"
+
+  if [[ "$scheme" == "http"* ]];  then
+    local normalized="${scheme}://${auth}${host}${path}${query}${fragment}"
+  else
+    # URLs like mailto don't have //
+    local normalized="${scheme}:${auth}${host}${path}${query}${fragment}"
+  fi
 
   if [[ -n "$returnvar" ]]; then
     declare -g "$returnvar"="$normalized"

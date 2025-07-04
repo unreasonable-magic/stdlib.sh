@@ -8,7 +8,7 @@ stdlib_url_parse() {
   local url="$1"
   shift
 
-  local scheme host port path query fragment
+  local scheme auth host port path query fragment
   local temp
 
   # Check if URL is provided
@@ -25,8 +25,17 @@ stdlib_url_parse() {
   elif [[ "$url" =~ ^// ]]; then
     scheme=""
     temp="${url#*//}"
+  elif [[ "$url" =~ ^mailto: ]]; then
+    scheme="mailto"
+    temp="${url#*:}"
   else
     temp="$url"
+  fi
+
+  # Extract auth (everything before @)
+  if [[ "$temp" == *"@"* ]]; then
+    auth="${temp%@*}"
+    temp="${temp##*@}"
   fi
 
   # Extract fragment (everything after #)
@@ -61,6 +70,9 @@ stdlib_url_parse() {
     case "$arg" in
     --scheme)
       parts+=("$scheme")
+      ;;
+    --auth)
+      parts+=("$auth")
       ;;
     --host)
       parts+=("$host")

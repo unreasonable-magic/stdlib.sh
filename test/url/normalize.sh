@@ -44,3 +44,6 @@ assert "$stdout" == "http://example.com/path"
 
 stdlib_url_normalize -v out "https://example.com/path/?"
 assert "$out" == "https://example.com/path"
+
+stdout=$(stdlib_url_normalize "mailto:hello@website.com" --base "different.com")
+assert "$stdout" == "mailto:hello@website.com"

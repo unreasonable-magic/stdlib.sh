@@ -27,3 +27,6 @@ assert "$stdout" == $'\nexample.com\n\n/users/1'
 
 stdout=$(stdlib_url_parse "example.com" --scheme --host --port --path --query --fragment)
 assert "$stdout" == $'\nexample.com'
+
+stdout=$(stdlib_url_parse "mailto:hello@example.com" --scheme --auth --host --port --path --query --fragment)
+assert "$stdout" == $'mailto\nhello\nexample.com'
