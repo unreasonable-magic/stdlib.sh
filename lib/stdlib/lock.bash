@@ -5,7 +5,7 @@ DEFAULT_LOCK_DIR="$XDG_RUNTIME_DIR/stdlib.sh/locks/"
 stdlib_lock_acquire() {
   local -r name="$1"
 
-  log_debug "Waiting on lock $name"
+  stdlib_log_debug "Waiting on lock $name"
 
   while true; do
     if [ ! -d "$DEFAULT_LOCK_DIR" ]; then
@@ -18,7 +18,7 @@ stdlib_lock_acquire() {
     local lock_path="${DEFAULT_LOCK_DIR}/${1}.lock"
 
     if (set -o noclobber; echo "$$" > "$lock_path") 2> /dev/null; then
-      log_debug "Created $name lock."
+      stdlib_log_debug "Created $name lock"
       break
     else
       # Grab the pid from the lock and see if the process is still alive. If
@@ -28,7 +28,7 @@ stdlib_lock_acquire() {
 
       if ! kill -0 "$lock_owner_pid" 2>/dev/null; then
         echo "Process $PID is not running"
-        log_warn "Removing lock $name as pid $lock_owner_pid is gone"
+        stdlib_log_warn "Removing lock $name as pid $lock_owner_pid is gone"
         stdlib_lock_release "$name"
         continue
       fi
@@ -39,12 +39,12 @@ stdlib_lock_acquire() {
 }
 
 stdlib_lock_release() {
-  log_debug "Releasing lock: $1"
+  stdlib_log_debug "Releasing lock: $1"
 
   local -r lock_path="$DEFAULT_LOCK_DIR/${1}.lock"
 
   if ! rm "$lock_path"; then
-    log_warn "Failed to remove lock: $lock_path"
+    stdlib_log_warn "Failed to remove lock: $lock_path"
   fi
 }
 
