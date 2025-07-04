@@ -1,17 +1,17 @@
-export LOG_LEVEL_DEBUG=10
-export LOG_LEVEL_INFO=20
-export LOG_LEVEL_WARN=30
-export LOG_LEVEL_ERROR=40
+export STDLIB_LOG_LEVEL_DEBUG=10
+export STDLIB_LOG_LEVEL_INFO=20
+export STDLIB_LOG_LEVEL_WARN=30
+export STDLIB_LOG_LEVEL_ERROR=40
 
-log_init() {
-  declare -g -i __log_current_level=$LOG_LEVEL_INFO
+stdlib_log_init() {
+  declare -g -i __log_current_level=$STDLIB_LOG_LEVEL_INFO
   declare -g __log_main_pid="$BASHPID"
 }
 
 START_TIME=${EPOCHREALTIME}
 LAST_TIME=${START_TIME}
 
-log() {
+stdlib_log() {
   local -i level=$1
 
   if [[ $__log_current_level -le $level ]]; then
@@ -40,19 +40,19 @@ log() {
 
     local level_str level_color
     case $level in
-    "$LOG_LEVEL_DEBUG")
+    "$STDLIB_LOG_LEVEL_DEBUG")
       level_str="DEBUG"
       level_color="38;5;250"
       ;;
-    "$LOG_LEVEL_INFO")
+    "$STDLIB_LOG_LEVEL_INFO")
       level_str="INFO "
       level_color="38;5;75"
       ;;
-    "$LOG_LEVEL_WARN")
+    "$STDLIB_LOG_LEVEL_WARN")
       level_str="WARN "
       level_color="38;5;208"
       ;;
-    "$LOG_LEVEL_ERROR")
+    "$STDLIB_LOG_LEVEL_ERROR")
       level_str="ERROR"
       level_color="38;5;160"
       ;;
@@ -72,39 +72,39 @@ log() {
   fi
 }
 
-log_set_level() {
-  case $1 in
-  "$LOG_LEVEL_DEBUG")
-    __log_current_level=$LOG_LEVEL_DEBUG
+stdlib_log_set_level() {
+  case "$1" in
+  "$STDLIB_LOG_LEVEL_DEBUG")
+    __log_current_level="$STDLIB_LOG_LEVEL_DEBUG"
     ;;
-  "$LOG_LEVEL_INFO")
-    __log_current_level=$LOG_LEVEL_INFO
+  "$STDLIB_LOG_LEVEL_INFO")
+    __log_current_level="$STDLIB_LOG_LEVEL_INFO"
     ;;
-  "$LOG_LEVEL_WARN")
-    __log_current_level=$LOG_LEVEL_WARN
+  "$STDLIB_LOG_LEVEL_WARN")
+    __log_current_level="$STDLIB_LOG_LEVEL_WARN"
     ;;
-  "$LOG_LEVEL_ERROR")
-    __log_current_level=$LOG_LEVEL_ERROR
+  "$STDLIB_LOG_LEVEL_ERROR")
+    __log_current_level="$STDLIB_LOG_LEVEL_ERROR"
     ;;
   *)
-    echo "unknown log level $1"
+    echo "unknown log level $1" >&2
     exit 1
     ;;
   esac
 }
 
-log_debug() {
-  log $LOG_LEVEL_DEBUG "$1"
+stdlib_log_debug() {
+  stdlib_log $STDLIB_LOG_LEVEL_DEBUG "$1"
 }
 
-log_info() {
-  log $LOG_LEVEL_INFO "$1"
+stdlib_log_info() {
+  stdlib_log $STDLIB_LOG_LEVEL_INFO "$1"
 }
 
-log_warn() {
-  log $LOG_LEVEL_WARN "$1"
+stdlib_log_warn() {
+  stdlib_log $STDLIB_LOG_LEVEL_WARN "$1"
 }
 
-log_error() {
-  log $LOG_LEVEL_ERROR "$1"
+stdlib_log_error() {
+  stdlib_log $STDLIB_LOG_LEVEL_ERROR "$1"
 }
