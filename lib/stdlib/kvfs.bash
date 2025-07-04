@@ -1,3 +1,4 @@
+stdlib_import "log"
 stdlib_import "error"
 stdlib_import "string/hex"
 stdlib_import "file/basename"
@@ -30,9 +31,13 @@ stdlib_kvfs_reset() {
   local -r store="$1"
 
   if [[ -e "${store}" ]]; then
-    if ! rm -rf "${store}"; then
+    if rm -rf "${store}"; then
+      stdlib_log_debug "reset ${store}"
+    else
       stdlib_error_fatal "failed to remove ${store}, rm exited with $?"
     fi
+  else
+    stdlib_log_debug "store already reset ${store}"
   fi
 }
 
@@ -59,15 +64,18 @@ stdlib_kvfs_set() {
       stdlib_error_log "${store} is a file, needs to be a directory"
       return 1
     else
-      if ! mkdir -p "${store}"; then
+      if mkdir -p "${store}"; then
+        stdlib_log_debug "create kvfs ${store}"
+      else
         stdlib_error_log "can't create kfvs directory ${store} (exited with $?)"
         return 1
       fi
     fi
   fi
 
-  local value="$3"
-  echo "$value" > "$keypath"
+  stdlib_log_debug "set ${keypath}=${3}"
+
+  echo "$3" > "$keypath"
 }
 
 stdlib_kvfs_exists() {
@@ -135,29 +143,36 @@ stdlib_kvfs_create_proxy() {
 
   case "$command" in
     set)
-      stdlib_kvfs_set "$store_name" "$@"
+      stdlib_kvfs_set "$store_path" "$@"
       ;;
     get)
-      stdlib_kvfs_get "$store_name" "$@"
+      stdlib_kvfs_get "$store_path" "$@"
       ;;
     exists)
-      stdlib_kvfs_exists "$store_name" "$@"
+      stdlib_kvfs_exists "$store_path" "$@"
       ;;
     del|delete)
-      stdlib_kvfs_delete "$store_name" "$@"
+      stdlib_kvfs_delete "$store_path" "$@"
       ;;
     ls|list)
-      stdlib_kvfs_list "$store_name" "$@"
+      stdlib_kvfs_list "$store_path" "$@"
+      ;;
+    reset)
+      stdlib_kvfs_reset "$store_path" "$@"
       ;;
     --path)
-      echo "$store_name"
+      echo "$store_path"
+      ;;
+    *)
+      stdlib_error_error "unknown kvfs proxy command $command"
+      return 1
       ;;
   esac
   '
 
   local function_code="
   $function_name() {
-    local store_name=${store_path@Q}
+    local store_path=${store_path@Q}
     $command_handler_code
   }
   "
