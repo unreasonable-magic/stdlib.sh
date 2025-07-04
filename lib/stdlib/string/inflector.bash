@@ -71,13 +71,29 @@ stdlib_string_inflector() {
     local new_str=""
     local char
 
-    # Start by inserting spaces between anything that's not a lowercase letter
-    for ((i = 0; i < ${#str}; i++)); do
-      char="${str:i:1}"
-      if [[ ! "$char" =~ [a-z] ]]; then
-        new_str+=" "
+    # Remove chars we don't care about
+    str="${str//[^a-zA-Z0-9 ]/}"
+
+    local new_str=""
+
+    IFS=' ' read -ra words <<< "$str"
+    for word in "${words[@]}"; do
+      # If the word has a mixture of uppercase and lowercase, the explode it
+      # into spaces, i.e. "myFoo" becomes "my Foo"
+      if [[ "$word" =~ [a-z] && "$word" =~ [A-Z] ]]; then
+        local exploded_word=""
+        for ((i = 0; i < ${#word}; i++)); do
+          char="${word:i:1}"
+          if [[ ! "$char" =~ [a-z] ]]; then
+            char="${word:i:1}"
+            exploded_word+=" "
+          fi
+          exploded_word+="$char"
+        done
+        new_str+=" $exploded_word"
+      else
+        new_str+=" $word"
       fi
-      new_str+="$char"
     done
 
     str="${new_str}"
