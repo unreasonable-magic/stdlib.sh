@@ -6,7 +6,8 @@ stdlib_debugger() {
 
   while true; do
     printf "▲ "
-    if read -r input 2>/dev/null; then
+    local input
+    if read -r input 2>/dev/null < /dev/tty; then
       # If a variable has been entered, let's be nice and just log it for them
       if [[ "${input:0:1}" == "$" ]]; then
         eval "echo $input"
