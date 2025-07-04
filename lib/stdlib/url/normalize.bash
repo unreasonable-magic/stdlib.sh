@@ -46,13 +46,18 @@ stdlib_url_normalize() {
   local query="${parts[4]}"
   local fragment="${parts[5]}"
 
+  #echo "$scheme" >&2
+  #echo "$host" >&2
+  #echo "$path" >&2
+
   # Figure out which scheme to use
   if [[ -z "${scheme}" ]]; then
     if [[ "${port}" == 433 ]]; then
       scheme="https"
       port=""
     else
-      if [[ -n "$base_scheme" ]]; then
+      # Use the scheme from the base if the hosts are the same
+      if [[ -n "$base_scheme" && ("${host}" == "" || "${host}" == "${base_host}") ]]; then
         scheme="${base_scheme}"
       else
         stdlib_error_warning "no scheme provided in --base, defaulting to http"

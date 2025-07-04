@@ -33,6 +33,12 @@ assert "$stdout" == "http://example.com/foo/bar"
 stdout=$(stdlib_url_normalize "/foo/bar" --base "https://example.com")
 assert "$stdout" == "https://example.com/foo/bar"
 
+stdout=$(stdlib_url_normalize "//example.com/foo/bar" --base "https://example.com")
+assert "$stdout" == "https://example.com/foo/bar"
+
+stdout=$(stdlib_url_normalize "//diff.com/foo/bar" --base "https://example.com")
+assert "$stdout" == "http://diff.com/foo/bar"
+
 stdout=$(stdlib_url_normalize "example.com/path" --base "different.com")
 assert "$stdout" == "http://example.com/path"
 
