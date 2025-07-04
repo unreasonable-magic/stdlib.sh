@@ -9,7 +9,16 @@ stdlib_file_sanitizename() {
     shift 2
   fi
 
-  local escaped="${1}"
+  local escaped=""
+  if [ $# -gt 0 ]; then
+    escaped="$1"
+  else
+    escaped="$(
+      cat </dev/stdin
+      echo x
+    )"
+    escaped="${escaped%x}"
+  fi
 
   stdlib_string_trim -v escaped "${escaped}"
 
