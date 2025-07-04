@@ -1,7 +1,5 @@
 stdlib_import "log"
 stdlib_import "error"
-stdlib_import "string/hex"
-stdlib_import "file/basename"
 
 declare -g __stdlib_kvfs_keypath_return
 
@@ -15,10 +13,24 @@ stdlib_kvfs_keypath() {
   local store="$1"
   local key="$2"
 
-  local encoded_key
-  stdlib_string_hex_encode -v encoded_key "$key"
+  local hash=0
+  local i char
 
-  local keypath="${store}/${encoded_key}"
+  for ((i=0; i < ${#key}; i++)); do
+    char="${key:$i:1}"
+
+    # Get ASCII value using printf
+    printf -v ascii_val '%d' "'$char"
+    hash=$(((hash * 31 + ascii_val) % 2147483647))
+  done
+
+  # Convert to positive if negative
+  hash=$((hash < 0 ? -hash : hash))
+
+  local hash_key
+  printf -v hash_key '%d' "$hash"
+
+  local keypath="${store}/${hash_key}"
 
   if [[ -n "$return_arg" ]]; then
     __stdlib_kvfs_keypath_return="${keypath}"
@@ -46,8 +58,8 @@ stdlib_kvfs_delete() {
   local -r keypath="$__stdlib_kvfs_keypath_return"
 
   if [[ -e "${keypath}" ]]; then
-    if ! rm "${keypath}"; then
-      stdlib_error_fatal "failed to remove ${store}, rm exited with $?"
+    if ! rm -rf "${keypath}"; then
+      stdlib_error_fatal "failed to remove ${store}, rm -rf exited with $?"
     fi
   fi
 }
@@ -75,7 +87,13 @@ stdlib_kvfs_set() {
 
   stdlib_log_debug "set ${keypath}=${3}"
 
-  echo "$3" > "$keypath"
+  if ! mkdir -p "${keypath}"; then
+    stdlib_error_log "can't create directory ${keypath} (exited with $?)"
+    return 1
+  fi
+
+  echo "$key" > "$keypath/key"
+  echo "$3" > "$keypath/data"
 }
 
 stdlib_kvfs_exists() {
@@ -103,7 +121,7 @@ stdlib_kvfs_get() {
     return 1
   fi
 
-  local -r value="$(<"$keypath")"
+  local -r value="$(<"$keypath/data")"
 
   if [[ -n "$returnvar" ]]; then
     declare -g __stdlib_kvfs_get_return="${value}"
@@ -121,13 +139,7 @@ stdlib_kvfs_list() {
   shopt -s extglob
 
   for file in "$store"/*; do
-    local encoded_key
-    encoded_key="$(stdlib_file_basename "$file")"
-
-    local decoded_key
-    stdlib_string_hex_decode -v decoded_key "$encoded_key"
-
-    echo "$decoded_key"
+    echo "$(<"$file/key")"
   done
 }
 
