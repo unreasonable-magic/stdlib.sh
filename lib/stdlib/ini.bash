@@ -1,3 +1,7 @@
+stdlib_import "ini/formatter/pretty"
+stdlib_import "ini/formatter/colored"
+stdlib_import "ini/formatter/tokens"
+
 #
 #
 # config::_parse_section() {
@@ -46,59 +50,88 @@
 #   fi
 # }
 #
-export STDLIB_INI_LINE_TYPE_KV="kv"
-export STDLIB_INI_LINE_TYPE_COMMENT="comment"
-export STDLIB_INI_LINE_TYPE_SECTION="section"
-export STDLIB_INI_LINE_TYPE_WS="whitespace"
+export STDLIB_INI_TOKEN_KEY="key"
+export STDLIB_INI_TOKEN_VALUE="value"
+export STDLIB_INI_TOKEN_COMMENT="comment"
+export STDLIB_INI_TOKEN_SECTION="section"
+export STDLIB_INI_TOKEN_WS="ws"
+export STDLIB_INI_TOKEN_NEWLINE="nl"
 
-stdlib_ini_parse_line() {
-  local line="$1"
+stdlib_ini_tokenizer() {
+  #local -r lines="$(</dev/stdin)"
 
-  # local stdlib_init_comment_regex="^#"
-  # local stdlib_init_section_regex=""
-  # local stdlib_init_section_key_regex=
+  stdlib_ini_tokenizer__ws () {
+    if [[ "$1" != "" ]]; then
+      printf '%s\n%s\0' \
+        "$STDLIB_INI_TOKEN_WS" \
+        "$1"
+    fi
+  }
 
-  # These tests are ordered by potential frequency in the config files so we
-  # can avoid unncessary regex calls
-  #
-  declare -g -a __stdlib_ini_parse_line_return
+  while IFS= read -r line; do
 
-  if [[ "$line" =~ ^[[:blank:]]*([^= ]+)[[:blank:]]*=[[:blank:]]*([^#]*)[[:blank:]]*(#(.+))?$ ]]; then
-    __stdlib_ini_parse_line_return=(
-      "$STDLIB_INI_LINE_TYPE_KV"
-      "${BASH_REMATCH[1]}"
-      "${BASH_REMATCH[2]}"
-      "${BASH_REMATCH[4]}"
-    )
-    return
-  fi
+    # local stdlib_init_comment_regex="^#"
+    # local stdlib_init_section_regex=""
+    # local stdlib_init_section_key_regex=
 
-  if [[ "$line" =~ ^\[(.+)\]$ ]]; then
-    __stdlib_ini_parse_line_return=(
-      "$STDLIB_INI_LINE_TYPE_SECTION"
-      "${BASH_REMATCH[1]}"
-    )
-    return
-  fi
+    # These tests are ordered by potential frequency in the config files so we
+    # can avoid unncessary regex calls
+    #
+    # declare -g -a __stdlib_ini_parse_line_return
 
-  if [[ "$line" =~ ^( )*#(.*)$ ]]; then
-    __stdlib_ini_parse_line_return=(
-      "$STDLIB_INI_LINE_TYPE_COMMENT"
-      "${BASH_REMATCH[1]}"
-    )
-    return
-  fi
+    if [[ "$line" =~ ^([[:blank:]]+)?([^= ]+)([[:blank:]]+)?=([[:blank:]]+)?([^#]*)([[:blank:]]+)?(#(.+))?$ ]]; then
 
-  if [[ "$line" == "" || "$line" =~ ^([ \t])$ ]]; then
-    __stdlib_ini_parse_line_return=(
-      "$STDLIB_INI_LINE_TYPE_COMMENT"
-    )
-    return
-  fi
+      stdlib_ini_tokenizer__ws "${BASH_REMATCH[1]}"
 
-  echo "don't know hard to parse config line:"
-  echo "$line"
-  exit 1
+      printf '%s\n%s\0' \
+        "$STDLIB_INI_TOKEN_KEY" \
+        "${BASH_REMATCH[2]}"
+
+      stdlib_ini_tokenizer__ws "${BASH_REMATCH[3]}"
+
+      printf '%s\n%s\0' \
+        "$STDLIB_INI_TOKEN_VALUE" \
+        "${BASH_REMATCH[4]}"
+
+      stdlib_ini_tokenizer__ws "${BASH_REMATCH[5]}"
+
+    elif [[ "$line" =~ ^([[:blank:]]+)?\[(.+)\]([[:blank:]]+)?$ ]]; then
+
+      stdlib_ini_tokenizer__ws "${BASH_REMATCH[1]}"
+
+      printf '%s\n%s\0' \
+        "$STDLIB_INI_TOKEN_SECTION" \
+        "${BASH_REMATCH[2]}"
+
+      stdlib_ini_tokenizer__ws "${BASH_REMATCH[3]}"
+
+    elif [[ "$line" =~ ^( )*#(.*)$ ]]; then
+
+      printf '%s\n%s\0' \
+        "$STDLIB_INI_TOKEN_COMMENT" \
+        "${BASH_REMATCH[2]}"
+
+    elif [[ "$line" =~ ^[[:blank:]]*$ ]]; then
+
+      printf '%s\n%s\0' \
+        "$STDLIB_INI_TOKEN_WS" \
+        "$line"
+
+    else
+
+      echo "dunno: ${line@Q}"
+      exit 1
+
+    fi
+
+    printf '%s\0' "$STDLIB_INI_TOKEN_NEWLINE"
+
+    # echo "don't know hard to parse config line:"
+    # echo "$line"
+    # exit 1
+
+  done
+
 }
 #
 # config::_test_section() {
@@ -140,26 +173,21 @@ stdlib_ini() {
     shift 2
   fi
 
-  # Either get the init file from stdin, or use the first variable as the full
-  # contents of the string
+  # Either get the file contents from stdin, or tret first var as filename
   local str=""
   if [ $# -gt 0 ]; then
-    str="$1"
+    if [[ ! -e "$1" ]]; then
+      echo "can't find config file: $1"
+      return 1
+    fi
+    str="$(<"$1")"
   else
-    str="$(
-      cat </dev/stdin
-      echo data
-    )"
-    str="${str%data}"
+    stdlib_ini_tokenizer | stdlib_ini_formatter_tokens
   fi
 
   # local config_path
   # config_path="$1"
 
-  # if [[ ! -e "$config_path" ]]; then
-  #   echo "can't find config file: $config_path"
-  #   exit 1
-  # fi
 
   # local section_search_query
   # section_search_query="${2:-}"
@@ -184,8 +212,8 @@ stdlib_ini() {
   #   fi
   # fi
 
-  local -a config
-  config=()
+  # local -a config
+  # config=()
 
   # By default we'll collect and return the whole config, but if you're
   # searching for a paticular value (or section) then it's off by default
@@ -196,25 +224,27 @@ stdlib_ini() {
   #   collecting_config="false"
   # fi
 
-  while IFS=$'\n' read -r line; do
-    stdlib_ini_parse_line "$line"
+  # while IFS=$'\n' read -r line; do
+  #   stdlib_ini_parse_line "$line"
 
-    case "${__stdlib_ini_parse_line_return[0]}" in
+  #   case "${__stdlib_ini_parse_line_return[0]}" in
 
-    "$STDLIB_INI_LINE_TYPE_WS")
-      # Nothing to do here
-      ;;
+  #   "$STDLIB_INI_TOKEN_WS")
+  #     # Nothing to do here
+  #     ;;
 
-    "$STDLIB_INI_LINE_TYPE_COMMENT") ;;
+  #   "$STDLIB_INI_TOKEN_COMMENT") ;;
 
-    "$STDLIB_INI_LINE_TYPE_SECTION")
-      # Parse the line and normalize it
-      ;;
+  #   "$STDLIB_INI_LINE_TYPE_SECTION")
+  #     # Parse the line and normalize it
+  #     ;;
 
-    "$STDLIB_INI_LINE_TYPE_KV") ;;
-    esac
+  #   "$STDLIB_INI_LINE_TYPE_KV") ;;
+  #   esac
 
-  done <<<"$str"
+  # done <<<"$str"
+
+  # echo "$str" | stdlib_ini_formatter_colored
 
   # local config_with_newlines
 
