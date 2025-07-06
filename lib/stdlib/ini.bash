@@ -1,6 +1,8 @@
 stdlib_import "ini/formatter/pretty"
 stdlib_import "ini/formatter/colored"
 stdlib_import "ini/formatter/tokens"
+stdlib_import "ini/formatter/default"
+stdlib_import "debugger"
 
 #
 #
@@ -50,17 +52,30 @@ stdlib_import "ini/formatter/tokens"
 #   fi
 # }
 #
-export STDLIB_INI_TOKEN_KEY="key"
-export STDLIB_INI_TOKEN_VALUE="value"
+
 export STDLIB_INI_TOKEN_COMMENT="comment"
-export STDLIB_INI_TOKEN_SECTION="section"
+
+export STDLIB_INI_TOKEN_KEY="kv_key"
+export STDLIB_INI_TOKEN_OP="kv_op"
+export STDLIB_INI_TOKEN_VAL="kv_val"
+
+export STDLIB_INI_TOKEN_SECTION_START="sc_open"
+export STDLIB_INI_TOKEN_SECTION_KEY="sc_key"
+export STDLIB_INI_TOKEN_SECTION_OP="sc_op"
+export STDLIB_INI_TOKEN_SECTION_VAL="sc_val"
+export STDLIB_INI_TOKEN_SECTION_END="sc_end"
+
 export STDLIB_INI_TOKEN_WS="ws"
 export STDLIB_INI_TOKEN_NEWLINE="nl"
 
 stdlib_ini_tokenizer() {
   #local -r lines="$(</dev/stdin)"
 
-  stdlib_ini_tokenizer__ws () {
+  stdlib_ini_tokenizer__token() {
+    printf '%s\n%s\0' "$@"
+  }
+
+  stdlib_ini_tokenizer__maybe_ws() {
     if [[ "$1" != "" ]]; then
       printf '%s\n%s\0' \
         "$STDLIB_INI_TOKEN_WS" \
@@ -79,52 +94,67 @@ stdlib_ini_tokenizer() {
     #
     # declare -g -a __stdlib_ini_parse_line_return
 
-    if [[ "$line" =~ ^([[:blank:]]+)?([^= ]+)([[:blank:]]+)?=([[:blank:]]+)?([^#]*)([[:blank:]]+)?(#(.+))?$ ]]; then
+    if [[ "$line" =~ ^([[:blank:]]+)?([a-zA-Z0-9_\-]+)([[:blank:]]+)?=([[:blank:]]+)?([^#]*)([[:blank:]]+)?(#(.+))?$ ]]; then
 
-      stdlib_ini_tokenizer__ws "${BASH_REMATCH[1]}"
+      stdlib_ini_tokenizer__maybe_ws "${BASH_REMATCH[1]}"
 
-      printf '%s\n%s\0' \
-        "$STDLIB_INI_TOKEN_KEY" \
+      stdlib_ini_tokenizer__token \
+        "$STDLIB_INI_TOKEN_KV_KEY" \
         "${BASH_REMATCH[2]}"
 
-      stdlib_ini_tokenizer__ws "${BASH_REMATCH[3]}"
+      stdlib_ini_tokenizer__maybe_ws "${BASH_REMATCH[3]}"
 
-      printf '%s\n%s\0' \
-        "$STDLIB_INI_TOKEN_VALUE" \
-        "${BASH_REMATCH[4]}"
+      stdlib_ini_tokenizer__token \
+        "$STDLIB_INI_TOKEN_KV_OP" \
+        "="
 
-      stdlib_ini_tokenizer__ws "${BASH_REMATCH[5]}"
+      stdlib_ini_tokenizer__maybe_ws "${BASH_REMATCH[4]}"
 
-    elif [[ "$line" =~ ^([[:blank:]]+)?\[(.+)\]([[:blank:]]+)?$ ]]; then
+      stdlib_ini_tokenizer__token \
+        "$STDLIB_INI_TOKEN_KV_VAL" \
+        "${BASH_REMATCH[5]}"
 
-      stdlib_ini_tokenizer__ws "${BASH_REMATCH[1]}"
+      # stdlib_ini_tokenizer__maybe_ws "${BASH_REMATCH[6]}"
 
-      printf '%s\n%s\0' \
+    elif [[ "$line" =~ ^([[:blank:]]+)?\[([[:blank:]]+)?(.+)(:(.+))?([[:blank:]]+)?\]([[:blank:]]+)?$ ]]; then
+
+      stdlib_ini_tokenizer__maybe_ws "${BASH_REMATCH[1]}"
+
+      stdlib_debugger
+
+      stdlib_ini_tokenizer__token \
+        "$STDLIB_INI_TOKEN_SECTION_START" \
+        "["
+
+      stdlib_ini_tokenizer__token \
         "$STDLIB_INI_TOKEN_SECTION" \
         "${BASH_REMATCH[2]}"
 
-      stdlib_ini_tokenizer__ws "${BASH_REMATCH[3]}"
+      printf '%s\n%s\0' \
+        "$STDLIB_INI_TOKEN_SECTION_END" \
+        "]"
+
+      stdlib_ini_tokenizer__maybe_ws "${BASH_REMATCH[3]}"
 
     elif [[ "$line" =~ ^( )*#(.*)$ ]]; then
 
-      printf '%s\n%s\0' \
+      stdlib_ini_tokenizer__token \
         "$STDLIB_INI_TOKEN_COMMENT" \
-        "${BASH_REMATCH[2]}"
+        "#${BASH_REMATCH[2]}"
 
     elif [[ "$line" =~ ^[[:blank:]]*$ ]]; then
 
-      printf '%s\n%s\0' \
+      stdlib_ini_tokenizer__token \
         "$STDLIB_INI_TOKEN_WS" \
         "$line"
 
     else
 
-      echo "dunno: ${line@Q}"
-      exit 1
+      stdlib_error_fatal "dunno: ${line@Q}"
 
     fi
 
-    printf '%s\0' "$STDLIB_INI_TOKEN_NEWLINE"
+    printf '%s\n\\n\0' "$STDLIB_INI_TOKEN_NEWLINE"
 
     # echo "don't know hard to parse config line:"
     # echo "$line"
@@ -174,20 +204,59 @@ stdlib_ini() {
   fi
 
   # Either get the file contents from stdin, or tret first var as filename
-  local str=""
-  if [ $# -gt 0 ]; then
-    if [[ ! -e "$1" ]]; then
-      echo "can't find config file: $1"
-      return 1
-    fi
-    str="$(<"$1")"
-  else
-    stdlib_ini_tokenizer | stdlib_ini_formatter_tokens
-  fi
+  # local str=""
+  # if [ $# -gt 0 ]; then
+  #   if [[ ! -e "$1" ]]; then
+  #     echo "can't find config file: $1"
+  #     return 1
+  #   fi
+  #   str="$(<"$1")"
+  # else
+  #   stdlib_ini_tokenizer | stdlib_ini_formatter_tokens
+  # fi
+
+  local formatter="stdlib_ini_formatter_tokens"
+
+  while [ $# -gt 0 ]; do
+    arg="$1"
+    shift
+
+    case "$arg" in
+    --formatter | -f)
+      case "$1" in
+      default)
+        formatter="stdlib_ini_formatter_default"
+        ;;
+      tokens)
+        formatter="stdlib_ini_formatter_tokens"
+        ;;
+      pretty)
+        formatter="stdlib_ini_formatter_pretty"
+        ;;
+      colored)
+        formatter="stdlib_ini_formatter_colored"
+        ;;
+      raw)
+        formatter="stdlib_ini_formatter_raw"
+        ;;
+      *)
+        echo "unknown formatter $1"
+        ;;
+      esac
+      shift
+      ;;
+    *)
+      echo "unknonw option $arg"
+      shift
+      ;;
+    esac
+  done
+
+  # stdlib_ini_tokenizer | "$formatter"
+  stdlib_ini_tokenizer
 
   # local config_path
   # config_path="$1"
-
 
   # local section_search_query
   # section_search_query="${2:-}"
