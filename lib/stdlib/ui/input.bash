@@ -1,3 +1,5 @@
+# shellcheck disable=SC2317
+
 stdlib_import "screen/cursor"
 stdlib_import "input/keyboard"
 
@@ -54,7 +56,7 @@ stdlib_ui_input() {
         if [[ $history_index -eq 0 ]]; then
           draft="${value}"
         fi
-        history_index+=1
+        history_index=$((history_index + 1))
         text="$(tail -n "$history_index" "$history_path" | head -n 1)"
         value="$text"
         cursor="${#value}"
