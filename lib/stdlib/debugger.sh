@@ -1,15 +1,31 @@
 # shellcheck disable=SC2059
 
 stdlib_import "color"
+stdlib_import "ui/input"
+stdlib_import "file/dirname"
+
+STDLIB_DEBUGGER_HISTORY="$XDG_STATE_HOME/stdlib.sh/debugger/history"
 
 stdlib_debugger() {
+  if ! mkdir -p "$(stdlib_file_dirname "$STDLIB_DEBUGGER_HISTORY")"; then
+    stdlib_error_warning "can't make history file for debugger"
+  else
+    touch "$STDLIB_DEBUGGER_HISTORY"
+  fi
+
   printf "${COLOR_DIM}#${COLOR_RESET} ${COLOR_FG_BLUE}stdlib_debugger${COLOR_RESET}\n"
   printf "${COLOR_DIM}# Press CTRL-D to continue with $0${COLOR_RESET}\n"
 
   while true; do
-    printf "▲ "
     local input
-    if read -r input 2>/dev/null </dev/tty; then
+    if input="$(stdlib_ui_input --history "$STDLIB_DEBUGGER_HISTORY" --prompt "▲ ")"; then
+      if [[ "$input" != "" ]]; then
+        # Save the input to the history file if it exists
+        if [[ -e "$STDLIB_DEBUGGER_HISTORY" ]]; then
+          echo "$input" >>"$STDLIB_DEBUGGER_HISTORY"
+        fi
+      fi
+
       # If a variable has been entered, let's be nice and just log it for them
       if [[ "${input:0:1}" == "$" ]]; then
         stdlib_debugger_vardump "$input"

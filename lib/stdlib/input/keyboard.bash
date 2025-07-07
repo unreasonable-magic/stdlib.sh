@@ -1,30 +1,4 @@
-eval "$(stdlib shellenv)"
-
-stdlib_input_keyboard_cleanup() {
-  # (kitty terminal) disable keyboard protocol
-  printf '\e[<1u' >/dev/tty
-
-  # Restore tty to what it was before
-  if [[ -z $__stdlib_input_keyboard_prev_stty ]]; then
-    stty "$__stdlib_input_keyboard_prev_stty"
-    unset __stdlib_input_keyboard_prev_stty
-  fi
-
-  stdlib_trapstack_remove stdlib_input_keyboard_cleanup
-}
-
-__stdlib_input_keyboard_capture_default_callback() {
-  local event="$1"
-  shift
-
-  local key="$1"
-  shift
-
-  local mods
-  IFS="+" mods="$*"
-
-  printf "%s\t%s\t%s\n" "$event" "${key@Q}" "$mods"
-}
+stdlib_import "screen/cursor"
 
 stdlib_input_keyboard_capture() {
   local callback="${1:-__stdlib_input_keyboard_capture_default_callback}"
@@ -50,7 +24,7 @@ stdlib_input_keyboard_capture() {
   stty -echo -icanon intr ''
 
   # Make sure what we've done is cleaned up at the end of the program
-  stdlib_trapstack_add stdlib_input_keyboard_cleanup
+  stdlib_trapstack_add __stdlib_input_keyboard_cleanup
 
   # Keynames are based off this:
   # https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_key_values
@@ -115,7 +89,7 @@ stdlib_input_keyboard_capture() {
         stdlib_error_warning "failed to parse escape seq: $sequence"
       fi
 
-      stdlib_input_keyboard_code_to_key "${key_code}"
+      __stdlib_input_keyboard_code_to_key "${key_code}"
       local -a key_with_mods=("${__stdlib_input_keyboard_code_to_key}")
 
       if [[ "$mod_code" -gt 1 ]]; then
@@ -154,12 +128,36 @@ stdlib_input_keyboard_capture() {
     fi
   done
 
-  stdlib_input_keyboard_cleanup
+  __stdlib_input_keyboard_cleanup
+}
+
+__stdlib_input_keyboard_cleanup() {
+  # (kitty terminal) disable keyboard protocol
+  printf '\e[<1u' >/dev/tty
+
+  # Restore tty to what it was before
+  if [[ -z $__stdlib_input_keyboard_prev_stty ]]; then
+    stty "$__stdlib_input_keyboard_prev_stty"
+    unset __stdlib_input_keyboard_prev_stty
+  fi
+
+  stdlib_trapstack_remove __stdlib_input_keyboard_cleanup
+}
+
+__stdlib_input_keyboard_capture_default_callback() {
+  local event="$1"
+  local key="$2"
+  shift 2
+
+  local mods
+  IFS="+" mods="$*"
+
+  printf "%s\t%s\t%s\n" "$event" "${key@Q}" "$mods"
 }
 
 # I could write a function that figures this out using printf or something, but
 # it's not like these things changes, so I might as well hardcode them
-stdlib_input_keyboard_code_to_key() {
+__stdlib_input_keyboard_code_to_key() {
   local key=""
 
   case "$1" in
