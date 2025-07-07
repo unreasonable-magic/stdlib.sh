@@ -55,10 +55,10 @@ stdlib_screen_cursor() {
   if [[ -n $visible ]]; then
     case "$visible" in
     "true")
-      printf '\e[?25h'
+      printf '\e[?25h' >/dev/tty
       ;;
     "false")
-      printf '\e[?25l'
+      printf '\e[?25l' >/dev/tty
       ;;
     *)
       stdlib_error_log "unknown arg to visible: $visible"
@@ -71,10 +71,10 @@ stdlib_screen_cursor() {
   if [[ -z $style && -n $blink ]]; then
     case "$blink" in
     true)
-      printf '\e[?12h'
+      printf '\e[?12h' >/dev/tty
       ;;
     false)
-      printf '\e[?12l'
+      printf '\e[?12l' >/dev/tty
       ;;
     esac
     __stdlib_screen_cursor_state_blink="$blink"
@@ -84,23 +84,23 @@ stdlib_screen_cursor() {
     case "$style" in
     block)
       if [[ "$blink" == "true" ]]; then
-        printf '\e[1 q'
+        printf '\e[1 q' >/dev/tty
       else
-        printf '\e[2 q'
+        printf '\e[2 q' >/dev/tty
       fi
       ;;
     underline)
       if [[ "$blink" == "true" ]]; then
-        printf '\e[3 q'
+        printf '\e[3 q' >/dev/tty
       else
-        printf '\e[4 q'
+        printf '\e[4 q' >/dev/tty
       fi
       ;;
     bar)
       if [[ "$blink" == "true" ]]; then
-        printf '\e[5 q'
+        printf '\e[5 q' >/dev/tty
       else
-        printf '\e[6 q'
+        printf '\e[6 q' >/dev/tty
       fi
       ;;
     *)
@@ -113,7 +113,7 @@ stdlib_screen_cursor() {
   fi
 
   if [[ -n $color ]]; then
-    printf '\x1b]12;%s\x1b\\' "$color"
+    printf '\x1b]12;%s\x1b\\' "$color" >/dev/tty
     __stdlib_screen_cursor_state_color="$color"
   fi
 
