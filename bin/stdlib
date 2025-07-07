@@ -19,6 +19,7 @@ shellenv)
   printf 'stdlib_import "error"\n'
   printf 'stdlib_import "error/shell_integration"\n'
   printf 'stdlib_import "debugger"\n'
+  printf 'stdlib_import "trapstack"; stdlib_trapstack_init\n'
   ;;
 
 --help)
