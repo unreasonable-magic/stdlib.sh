@@ -5,6 +5,7 @@ stdlib_import "ui/input"
 stdlib_import "file/dirname"
 
 STDLIB_DEBUGGER_HISTORY="$XDG_STATE_HOME/stdlib.sh/debugger/history"
+STDLIB_DEBUGGER_ACTIVE="false"
 
 stdlib_debugger() {
   if ! mkdir -p "$(stdlib_file_dirname "$STDLIB_DEBUGGER_HISTORY")"; then
@@ -15,6 +16,8 @@ stdlib_debugger() {
 
   printf "${COLOR_DIM}#${COLOR_RESET} ${COLOR_FG_BLUE}stdlib_debugger${COLOR_RESET}\n"
   printf "${COLOR_DIM}# Press CTRL-D to continue with $0${COLOR_RESET}\n"
+
+  export STDLIB_DEBUGGER_ACTIVE="true"
 
   while true; do
     local input
@@ -37,6 +40,8 @@ stdlib_debugger() {
       break
     fi
   done
+
+  STDLIB_DEBUGGER_ACTIVE="false"
 }
 
 stdlib_debugger_vardump() {
