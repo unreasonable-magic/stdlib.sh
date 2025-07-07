@@ -42,7 +42,7 @@ stdlib_ui_input() {
     case "$key" in
     Enter)
       printf "\n" >/dev/tty
-      return 1
+      return 2
       ;;
 
     Escape)
@@ -132,11 +132,11 @@ stdlib_ui_input() {
 
   __stdlib_ui_input_render
 
-  local capture_exit_code
   stdlib_input_keyboard_capture __stdlib_ui_input_callback
-  capture_exit_code="$?"
-
-  echo "$value"
-
-  return $capture_exit_code
+  if [[ $? -eq 2 ]]; then
+    echo "$value"
+    return 0
+  else
+    return 1
+  fi
 }
