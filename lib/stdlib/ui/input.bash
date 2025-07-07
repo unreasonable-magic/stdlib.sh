@@ -61,7 +61,6 @@ stdlib_ui_input() {
 
         __stdlib_ui_input_render
       fi
-      return
       ;;
 
     ArrowRight)
@@ -86,7 +85,6 @@ stdlib_ui_input() {
 
         __stdlib_ui_input_render
       fi
-      return
       ;;
 
     ArrowLeft)
@@ -115,6 +113,8 @@ stdlib_ui_input() {
       if [[ "$key" == "c" && "$mod1" == "Control" ]]; then
         value=""
         cursor=0
+        return 1
+      elif [[ "$key" == "d" && "$mod1" == "Control" ]]; then
         return 1
       else
         value="${value:0:$((cursor))}${key}${value:$((cursor))}"

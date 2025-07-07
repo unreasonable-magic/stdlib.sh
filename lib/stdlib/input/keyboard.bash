@@ -26,6 +26,8 @@ stdlib_input_keyboard_capture() {
   # Make sure what we've done is cleaned up at the end of the program
   stdlib_trapstack_add __stdlib_input_keyboard_cleanup
 
+  local exit_code=0
+
   # Keynames are based off this:
   # https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_key_values
 
@@ -39,6 +41,7 @@ stdlib_input_keyboard_capture() {
       if "$callback" "$event_type" 'Enter'; then
         continue
       else
+        exit_code=$?
         break
       fi
     fi
@@ -107,6 +110,7 @@ stdlib_input_keyboard_capture() {
       if "$callback" "$event_type" "${key_with_mods[@]}"; then
         continue
       else
+        exit_code=$?
         break
       fi
     fi
@@ -124,11 +128,14 @@ stdlib_input_keyboard_capture() {
     if "$callback" "$event_type" "${char}"; then
       continue
     else
+      exit_code=$?
       break
     fi
   done
 
   __stdlib_input_keyboard_cleanup
+
+  return $exit_code
 }
 
 __stdlib_input_keyboard_cleanup() {
