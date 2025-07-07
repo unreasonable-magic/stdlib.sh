@@ -17,10 +17,13 @@ __stdlib_input_keyboard_capture_default_callback() {
   local event="$1"
   shift
 
-  local key_as_string
-  IFS="+" key_as_string="$*"
+  local key="$1"
+  shift
 
-  printf "%s\t%s\n" "$event" "$key_as_string"
+  local mods
+  IFS="+" mods="$*"
+
+  printf "%s\t%s\t%s\n" "$event" "${key@Q}" "$mods"
 }
 
 stdlib_input_keyboard_capture() {
