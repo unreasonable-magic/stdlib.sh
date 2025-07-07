@@ -43,6 +43,12 @@ stdlib_ui_input() {
       return 1
       ;;
 
+    Escape)
+      value=""
+      printf "\n" >/dev/tty
+      return 1
+      ;;
+
     ArrowUp)
       if [[ -e "$history_path" ]]; then
         if [[ $history_index -eq 0 ]]; then
@@ -124,7 +130,11 @@ stdlib_ui_input() {
 
   __stdlib_ui_input_render
 
+  local capture_exit_code
   stdlib_input_keyboard_capture __stdlib_ui_input_callback
+  capture_exit_code="$?"
 
   echo "$value"
+
+  return $capture_exit_code
 }
