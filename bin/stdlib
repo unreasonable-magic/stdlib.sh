@@ -37,6 +37,7 @@ shellenv)
     else
       funcname="stdlib_${1//\//_}"
       "${funcname}" "${@:2}"
+      exit $?
     fi
   else
     exec stdlib --help
