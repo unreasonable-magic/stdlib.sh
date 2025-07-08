@@ -2,9 +2,9 @@ stdlib_import "error"
 stdlib_import "maths/divide"
 
 stdlib_animation_timer() {
-  local duration
+  local -i duration
+  local -i fps=10
   local loop alternate reversed
-  local fps="10"
 
   while [ $# -gt 0 ]; do
     arg="$1"
@@ -12,7 +12,28 @@ stdlib_animation_timer() {
 
     case "$arg" in
     --duration)
-      duration="$1"
+      if [[ "$1" =~ ^([0-9]+)(.*)$ ]]; then
+        local -i num="${BASH_REMATCH[1]}"
+        case "${BASH_REMATCH[2]}" in
+        s)
+          duration=$((num * 1000))
+          ;;
+        ms)
+          duration=$num
+          ;;
+        '')
+          stdlib_error_log "missing precison for time (s or ms): $1"
+          return 1
+          ;;
+        *)
+          stdlib_error_log "invalid precison for time: $1"
+          return 1
+          ;;
+        esac
+      else
+        stdlib_error_log "invalid time format for duration: $1"
+        return 1
+      fi
       shift
       ;;
     --fps)
