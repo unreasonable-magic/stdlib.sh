@@ -9,34 +9,34 @@ stdlib_ui_alert() {
 
     case "$arg" in
     --color)
-      color_arg="${color_arg:-$1}"
+      color_arg="$1"
       shift
       ;;
     --icon)
-      icon_arg="${icon_arg:-$1}"
+      icon_arg="$1"
       shift
       ;;
     --border)
-      border_arg="${border_arg:-$1}"
+      border_arg="$1"
       shift
       ;;
     info | success | warning | error)
       case "$arg" in
       info)
-        color_arg="34"
-        icon_arg="󰋽"
+        color_arg="${color_arg:-"34"}"
+        icon_arg="${icon_arg:-"󰋽"}"
         ;;
       success)
-        color_arg="32"
-        icon_arg=""
+        color_arg="${color_arg:-"32"}"
+        icon_arg="${icon_arg:-""}"
         ;;
       warning)
-        color_arg="33"
-        icon_arg=""
+        color_arg="${color_arg:-"33"}"
+        icon_arg="${icon_arg:-""}"
         ;;
       error)
-        color_arg="31"
-        icon_arg=""
+        color_arg="${color_arg:-"31"}"
+        icon_arg="${icon_arg:-""}"
         ;;
       esac
       ;;
