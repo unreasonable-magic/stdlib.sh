@@ -72,7 +72,8 @@ stdlib_animation_timer() {
   local playing="true"
 
   while [[ "$playing" == "true" ]]; do
-    echo "$frame"
+    printf '%s\n' "$frame"
+
     case "$direction" in
 
     forwards)
