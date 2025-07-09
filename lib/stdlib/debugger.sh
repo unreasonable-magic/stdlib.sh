@@ -14,8 +14,8 @@ stdlib_debugger() {
     touch "$STDLIB_DEBUGGER_HISTORY"
   fi
 
-  printf "${COLOR_DIM}#${COLOR_RESET} ${COLOR_FG_BLUE}stdlib_debugger${COLOR_RESET}\n"
-  printf "${COLOR_DIM}# Press CTRL-D to continue with $0${COLOR_RESET}\n"
+  printf "${COLOR_DIM}#${COLOR_RESET} ${COLOR_FG_BLUE}stdlib_debugger${COLOR_RESET}\n" >&2
+  printf "${COLOR_DIM}# Press CTRL-D to continue with $0${COLOR_RESET}\n" >&2
 
   export STDLIB_DEBUGGER_ACTIVE="true"
 
@@ -31,12 +31,12 @@ stdlib_debugger() {
 
       # If a variable has been entered, let's be nice and just log it for them
       if [[ "${input:0:1}" == "$" ]]; then
-        stdlib_debugger_vardump "$input"
+        stdlib_debugger_vardump "$input" >&2
       else
-        eval "$input"
+        eval "$input" >&2
       fi
     else
-      printf "\n"
+      printf "\n" >&2
       break
     fi
   done
