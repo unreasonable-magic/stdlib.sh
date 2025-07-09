@@ -1,14 +1,21 @@
 stdlib_image_print() {
   local path="$1"
-  local cols="$2"
-  local rows="$3"
+  local width="$2"
+  local height="$3"
 
   if [[ "$TERM_PROGRAM" == "iTerm.app" ]]; then
-    "$STDLIB_PATH/contrib/iterm.sh" -W "${cols}" -H "${rows}" "$path"
+    "$STDLIB_PATH/contrib/iterm.sh" -W "${width}" -H "${height}" "$path"
   else
     encoded=$(echo "$path" | tr -d '\n' | base64 | tr -d '=' | tr -d '\n')
 
-    printf "\n\e_Ga=T,q=2,f=100,t=f,c=$cols,r=$rows;%s\e\\ \n\n" "$encoded"
+    if [[ "$width" == *px ]]; then
+      width="${width/px/}"
+      height="${height/px/}"
+      printf "\e_Ga=T,q=2,f=100,t=f,s=$width,v=$height,C=1;%s\e\\" "$encoded"
+    else
+      printf "\e_Ga=T,q=2,f=100,t=f,c=$width,r=$height,C=1;%s\e\\" "$encoded"
+    fi
+
   fi
 }
 
