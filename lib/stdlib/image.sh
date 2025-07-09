@@ -24,7 +24,13 @@ stdlib_image_dimensions() {
 
   if [[ "$path" == *.png ]]; then
     # This is extreemly not portable, but that's not a problem at the moment
-    echo "$(/sbin/file "$path" | grep "PNG image" | awk '{print $5, $7}' | sed 's/,//g')"
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+      local -r width="$(sips -g pixelWidth "$path" | tail -1 | awk '{print $2}')"
+      local -r height="$(sips -g pixelHeight "$path" | tail -1 | awk '{print $2}')"
+      echo "$width $height"
+    else
+      echo "$(/sbin/file "$path" | grep "PNG image" | awk '{print $5, $7}' | sed 's/,//g')"
+    fi
   else
     echo "don't know how to handle $path yet"
     exit 1
