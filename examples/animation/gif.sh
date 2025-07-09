@@ -6,10 +6,16 @@ stdlib_import "animation/timer"
 stdlib_import "image"
 stdlib_import "file/basename"
 
-gif_path="./examples/animation/baby64.gif"
+if [[ "$1" == "" ]]; then
+  stdlib_error_log "missing gif, pass one of these filenames"
+  for path in examples/animation/*.gif; do
+    echo "$(stdlib_file_basename "$path")"
+  done
+  exit 1
+fi
 
-gif_name=""
-stdlib_file_basename -v gif_name "$gif_path"
+gif_name="$1"
+gif_path="./examples/animation/$gif_name"
 
 # todo: replace with ffprobe -v quiet -show_entries format:stream "examples/animation/baby64.gif"
 
@@ -49,26 +55,18 @@ EOF
 
 printf "\n"
 
-shopt -s nullglob
-
-# stdlib_animation_timer --duration 5s --fps 1 | while read -r frame; do
-#   echo "frame $frame / $total"
-# done
-#
-# exit
-
 stdlib screen/cursor visible=false >/dev/null
 
-for file in "$gif_frames_dir"/*; do
+stdlib_animation_timer --duration "${gif_duration}s" --fps "${gif_frame_rate}" --loop |
+  while read -r frame; do
+    printf "\e[?2026h"
+    printf "\e_Ga=d\e\\"
 
-  printf "\e[?2026h"
-  printf "\e_Ga=d\e\\"
-  full_frame_path=$(realpath "$file")
-  stdlib_image_print "$full_frame_path" "${width}px" "${height}px"
-  printf "\e[?2026l"
+    printf -v frame_png "%s/frame_%0.3d.png" "$gif_frames_dir" "$frame"
 
-  sleep 0.1
-
-done
+    full_frame_path=$(realpath "$frame_png")
+    stdlib_image_print "$full_frame_path" "${width}px" "${height}px"
+    printf "\e[?2026l"
+  done
 
 stdlib screen/cursor visible=true >/dev/null
