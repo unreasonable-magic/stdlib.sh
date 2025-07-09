@@ -12,7 +12,7 @@ stdlib_animation_timer() {
 
     case "$arg" in
     --duration)
-      if [[ "$1" =~ ^([0-9]+)(.*)$ ]]; then
+      if [[ "$1" =~ ^([0-9]+\.?[0-9]*)([a-z]+)$ ]]; then
         local -i num="${BASH_REMATCH[1]}"
         case "${BASH_REMATCH[2]}" in
         s)
