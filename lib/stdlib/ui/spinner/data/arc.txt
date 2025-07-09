@@ -1,0 +1,11 @@
+---
+interval=100
+width=1
+frame_count=6
+---
+◜
+◠
+◝
+◞
+◡
+◟

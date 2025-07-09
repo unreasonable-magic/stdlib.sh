@@ -1,0 +1,12 @@
+---
+interval=140
+width=1
+frame_count=7
+---
+ 
+.
+o
+O
+@
+*
+ 

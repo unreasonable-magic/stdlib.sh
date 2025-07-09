@@ -1,0 +1,9 @@
+---
+interval=130
+width=1
+frame_count=4
+---
+-
+\
+|
+/

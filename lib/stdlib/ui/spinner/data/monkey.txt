@@ -1,0 +1,9 @@
+---
+interval=300
+width=2
+frame_count=4
+---
+🙈 
+🙈 
+🙉 
+🙊 

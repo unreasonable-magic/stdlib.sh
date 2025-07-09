@@ -1,0 +1,9 @@
+---
+interval=100
+width=1
+frame_count=4
+---
+d
+q
+p
+b

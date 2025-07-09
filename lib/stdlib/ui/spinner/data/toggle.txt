@@ -1,0 +1,7 @@
+---
+interval=250
+width=1
+frame_count=2
+---
+⊶
+⊷

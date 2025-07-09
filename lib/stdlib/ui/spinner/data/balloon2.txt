@@ -1,0 +1,12 @@
+---
+interval=120
+width=1
+frame_count=7
+---
+.
+o
+O
+°
+O
+o
+.

@@ -1,0 +1,7 @@
+---
+interval=140
+width=2
+frame_count=2
+---
+🚶 
+🏃 

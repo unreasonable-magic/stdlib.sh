@@ -1,0 +1,8 @@
+---
+interval=180
+width=2
+frame_count=3
+---
+🌍 
+🌎 
+🌏 

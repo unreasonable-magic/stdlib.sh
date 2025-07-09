@@ -1,0 +1,11 @@
+---
+interval=200
+width=3
+frame_count=6
+---
+.  
+.. 
+...
+ ..
+  .
+   
