@@ -1,27 +1,18 @@
 stdlib_url_join() {
-  local returnvar
-  if [[ "$1" == "-v" ]]; then
-    returnvar="$2"
-    shift 2
-  fi
+  shopt -s extglob
 
-  local joined
+  local joined_url="${1%%/}"
+  shift
+
   for str in "$@"; do
-    joined+="$str/"
+    # Remove all leading slashes
+    str="${str##*(/)}"
+
+    # Remove all trailing slashes
+    str="${str%%*(/)}"
+
+    joined_url+="/${str}"
   done
 
-  # Globally replace any tripple /// (which may have gotten added during the
-  # join) with a single /
-  joined="${joined//\/\/\///}"
-
-  # Remove trailing / if we have one
-  joined="${joined%%/}"
-
-  if [[ -n "$returnvar" ]]; then
-    declare -g "$returnvar"="$joined"
-  else
-    printf "%s\n" "${joined}"
-  fi
-
-  return 0
+  printf "%s\n" "$joined_url"
 }
