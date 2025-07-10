@@ -15,7 +15,16 @@ if [[ "$1" == "" ]]; then
 fi
 
 gif_name="$1"
+if [[ ! "$gif_name" =~ \.gif$ ]]; then
+  gif_name+=".gif"
+fi
+
 gif_path="./examples/animation/$gif_name"
+
+if [[ ! -e "$gif_path" ]]; then
+  stdlib_error_log "$gif_name doesn't exist"
+  exit 1
+fi
 
 # todo: replace with ffprobe -v quiet -show_entries format:stream "examples/animation/baby64.gif"
 
