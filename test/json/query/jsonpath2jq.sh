@@ -32,3 +32,6 @@ assert "$stdout" == ".users[2:5]"
 
 stdout=$(stdlib_json_query_jsonpath2jq "$.users[?(@.status == 'active')]")
 assert "$stdout" == ".users[] | select(.status == 'active')"
+
+# stdout=$(stdlib_json_query_jsonpath2jq '.name,.email')
+# assert "$stdout" == ".users[] | select(.status == 'active')"
