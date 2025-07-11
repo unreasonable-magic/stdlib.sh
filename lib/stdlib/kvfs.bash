@@ -1,5 +1,6 @@
 stdlib_import "log"
 stdlib_import "error"
+stdlib_import "function/argparser"
 
 declare -g __stdlib_kvfs_keypath_return
 
@@ -65,21 +66,39 @@ stdlib_kvfs_delete() {
 }
 
 stdlib_kvfs_set() {
-  local store="$1"
-  local key="$2"
+  local store_arg key_arg echo_arg
 
-  stdlib_kvfs_keypath --return "$store" "$key"
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --echo)
+        echo_arg="$1"
+        shift
+        ;;
+      *)
+        if [[ "$store_arg" == "" ]]; then
+          store_arg="$1"
+          key_arg="$2"
+          shift 2
+        else
+          stdlib_function_argparser error/invalid_arg "$@"
+          return 1
+        fi
+        ;;
+    esac
+  done
+
+  stdlib_kvfs_keypath --return "$store_arg" "$key_arg"
   local -r keypath="$__stdlib_kvfs_keypath_return"
 
-  if [[ ! -d "$store" ]]; then
-    if [[ -f "$store" ]]; then
-      stdlib_error_log "${store} is a file, needs to be a directory"
+  if [[ ! -d "$store_arg" ]]; then
+    if [[ -f "$store_arg" ]]; then
+      stdlib_error_log "${store_arg} is a file, needs to be a directory"
       return 1
     else
-      if mkdir -p "${store}"; then
-        stdlib_log_debug "create kvfs ${store}"
+      if mkdir -p "${store_arg}"; then
+        stdlib_log_debug "create kvfs ${store_arg}"
       else
-        stdlib_error_log "can't create kfvs directory ${store} (exited with $?)"
+        stdlib_error_log "can't create kfvs directory ${store_arg} (exited with $?)"
         return 1
       fi
     fi
@@ -90,7 +109,7 @@ stdlib_kvfs_set() {
     return 1
   fi
 
-  echo "$key" > "$keypath/key"
+  echo "$key_arg" > "$keypath/key"
 
   if [[ $# -lt 3 ]]; then
     if [[ -t 0 ]]; then
@@ -98,14 +117,21 @@ stdlib_kvfs_set() {
       return 1
     fi
 
-    # direct data from stdin to the file
-    cat > "$keypath/data"
+    stdlib_log_debug "set ${keypath}/data (…stdin…)"
 
-    stdlib_log_debug "set ${keypath}/data=(…stdin…)"
+    if [[ "$echo_arg" ]]; then
+      tee "$keypath/data"
+    else
+      cat > "$keypath/data"
+    fi
   else
     printf '%s' "$3" > "$keypath/data"
 
-    stdlib_log_debug "set ${keypath}/data=${3}"
+    stdlib_log_debug "set ${keypath}/data ${3}"
+
+    if [[ "$echo_arg" ]]; then
+      printf "%s\n" "$3"
+    fi
   fi
 }
 
@@ -156,15 +182,10 @@ stdlib_kvfs_list() {
   done
 }
 
-stdlib_kvfs_create_proxy() {
-  local function_name="$1"
-  shift
-
-  local store_path="$XDG_STATE_HOME/stdlib.sh/kv/$function_name"
-
-  local command_handler_code='
-  local command="$1"
-  shift
+stdlib_kvfs() {
+  local store_path="$1"
+  local command="$2"
+  shift 2
 
   case "$command" in
     set)
@@ -189,10 +210,20 @@ stdlib_kvfs_create_proxy() {
       echo "$store_path"
       ;;
     *)
-      stdlib_error_error "unknown kvfs proxy command $command"
+      stdlib_error_error "unknown kvfs command $command"
       return 1
       ;;
   esac
+}
+
+stdlib_kvfs_create_proxy() {
+  local function_name="$1"
+  shift
+
+  local store_path="$XDG_STATE_HOME/stdlib.sh/kv/$function_name"
+
+  local command_handler_code='
+  stdlib_kvfs "$store_path" "$@"
   '
 
   local function_code="
