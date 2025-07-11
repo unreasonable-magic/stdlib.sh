@@ -85,15 +85,28 @@ stdlib_kvfs_set() {
     fi
   fi
 
-  stdlib_log_debug "set ${keypath}=${3}"
-
   if ! mkdir -p "${keypath}"; then
     stdlib_error_log "can't create directory ${keypath} (exited with $?)"
     return 1
   fi
 
   echo "$key" > "$keypath/key"
-  echo "$3" > "$keypath/data"
+
+  if [[ $# -lt 3 ]]; then
+    if [[ -t 0 ]]; then
+      stdlib_error_log "No value provided and no stdin available"
+      return 1
+    fi
+
+    # direct data from stdin to the file
+    cat > "$keypath/data"
+
+    stdlib_log_debug "set ${keypath}/data=(…stdin…)"
+  else
+    printf '%s' "$3" > "$keypath/data"
+
+    stdlib_log_debug "set ${keypath}/data=${3}"
+  fi
 }
 
 stdlib_kvfs_exists() {
