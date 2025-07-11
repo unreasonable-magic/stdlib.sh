@@ -1,6 +1,6 @@
 stdlib_import "log"
 stdlib_import "error"
-stdlib_import "function/argparser"
+stdlib_import "argparser"
 
 declare -g __stdlib_kvfs_keypath_return
 
@@ -80,7 +80,7 @@ stdlib_kvfs_set() {
           key_arg="$2"
           shift 2
         else
-          stdlib_function_argparser error/invalid_arg "$@"
+          stdlib_argparser error/invalid_arg "$@"
           return 1
         fi
         ;;

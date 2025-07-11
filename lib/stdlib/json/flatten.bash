@@ -1,4 +1,4 @@
-stdlib_import "function/argparser"
+stdlib_import "argparser"
 stdlib_import "json/query/jsonpath2jq"
 
 stdlib_json_flatten() {
@@ -16,7 +16,7 @@ stdlib_json_flatten() {
         shift 2
         ;;
       *)
-        stdlib_function_argparser error/invalid_arg "$@"
+        stdlib_argparser error/invalid_arg "$@"
         return 1
         ;;
     esac
