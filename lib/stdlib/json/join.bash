@@ -20,6 +20,15 @@ stdlib_json_join() {
 
   jq -n '
   reduce inputs as $item ({};
-  . + {(input_filename | split("/")[-1] | split(".")[0]): $item}
+    input_filename as $path |
+    ($path | split("/")) as $parts |
+    if ($parts | length) > 1 then
+      ($parts[-2]) as $dir |
+      ($parts[-1] | split(".")[0]) as $basename |
+      .[$dir][$basename] = $item
+    else
+      ($parts[-1] | split(".")[0]) as $basename |
+      .[$basename] = $item
+    end
   )' "${filenames[@]}"
 }
