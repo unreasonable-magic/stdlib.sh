@@ -6,6 +6,9 @@ stdlib_argparser() {
   error/missing_arg)
     stdlib_error_log "${FUNCNAME[1]} missing arg: $2"
     ;;
+  error/length_mismatch)
+    stdlib_error_log "${FUNCNAME[1]} wrong number of arguments (expected $2)"
+    ;;
   *)
     stdlib_error_fatal "stdlib_argparser: unknown option $1"
     ;;
