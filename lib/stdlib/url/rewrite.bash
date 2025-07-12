@@ -1,4 +1,5 @@
 stdlib_import "url/parse"
+stdlib_import "argparser"
 
 stdlib_url_rewrite() {
   local returnvar
@@ -34,8 +35,8 @@ stdlib_url_rewrite() {
       parts[5]="${value}"
       ;;
     *)
-      echo "invalid arg $arg"
-      exit 1
+      stdlib_argparser error/invalid_arg "$arg"
+      return 1
       ;;
     esac
   done
