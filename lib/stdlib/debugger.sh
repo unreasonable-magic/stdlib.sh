@@ -59,28 +59,28 @@ stdlib_debugger_vardump() {
     if [[ "$declaration" == "declare -a"* ]]; then
       declare -i index=0
 
-      printf "(\n"
+      printf "(\n" >&2
       for item in "${varvalue[@]}"; do
         printf "  ${str_f} ${comment_f}\n" \
           "${item@Q}" \
-          "# $index"
+          "# $index" >&2
         index+=1
       done
-      printf ")\n"
+      printf ")\n" >&2
     elif [[ "$declaration" == "declare -A"* ]]; then
-      printf "(\n"
+      printf "(\n" >&2
       for key in "${!varvalue[@]}"; do
         printf "  ${bracket_f}${str_f}${bracket_f}=${str_f}\n" \
           "[" \
           "${key@Q}" \
           "]" \
-          "${varvalue[$key]@Q}"
+          "${varvalue[$key]@Q}" >&2
       done
-      printf ")\n"
+      printf ")\n" >&2
     else
-      printf "${str_f}\n" "${varvalue@Q}"
+      printf "${str_f}\n" "${varvalue@Q}" >&2
     fi
   else
-    echo "$varname is not declared"
+    echo "$varname is not declared" >&2
   fi
 }
