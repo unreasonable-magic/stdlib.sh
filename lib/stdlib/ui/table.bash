@@ -14,6 +14,30 @@ stdlib_ui_table() {
     shift 2
   fi
 
+  local -r unicode_thick_border_template="
+  ┏━┳━┓
+  ┃ ┃ ┃
+  ┣━╋━┫
+  ┃ ┃ ┃
+  ┣━╋━┫
+  ┃ ┃ ┃
+  ┣━╋━┫
+  ┃ ┃ ┃
+  ┗━┻━┛
+  "
+
+  local -r ascii_border_template="
+  +-+-+
+  | | |
+  +-+-+
+  | | |
+  +-+-+
+  | | |
+  +-+-+
+  | | |
+  +-+-+
+  "
+
   # Read input
   if [[ $# -eq 0 ]]; then
     mapfile -t lines
