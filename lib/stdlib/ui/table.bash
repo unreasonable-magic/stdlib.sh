@@ -1,42 +1,41 @@
 stdlib_import "string/count"
-stdlib_import "string/repeat"
-stdlib_import "string/pad"
-stdlib_import "array/join"
+stdlib_import "ui/table/renderer"
 
 enable dsv
 
+#           0=left 1=joiner 2=repeater 3=right
+# top:      ┌┬─┐
+# divider:  ├┼─┤
+# row:      ││ │
+# bottom:   └┴─┘
+#
+STDLIB_TABLE_TOP=0
+STDLIB_TABLE_DIVIDER=4
+STDLIB_TABLE_ROW=8
+STDLIB_TABLE_BOTTOM=12
+
 stdlib_ui_table() {
-  local lines=() widths=() cols=0
+  local lines=() widths=() column_count=0
 
+  local -a renderer_args=()
   local input_arg="auto"
-  if [[ "$1" == "--input" ]]; then
-    input_arg="$2"
-    shift 2
-  fi
 
-  local -r unicode_thick_border_template="
-  ┏━┳━┓
-  ┃ ┃ ┃
-  ┣━╋━┫
-  ┃ ┃ ┃
-  ┣━╋━┫
-  ┃ ┃ ┃
-  ┣━╋━┫
-  ┃ ┃ ┃
-  ┗━┻━┛
-  "
-
-  local -r ascii_border_template="
-  +-+-+
-  | | |
-  +-+-+
-  | | |
-  +-+-+
-  | | |
-  +-+-+
-  | | |
-  +-+-+
-  "
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --renderer-arg)
+        renderer_args+=("$2")
+        shift 2
+        ;;
+      --input)
+        input_arg="$2"
+        shift 2
+        ;;
+      *)
+        stdlib_argparser error/invalid_arg "$@"
+        return 1
+        ;;
+    esac
+  done
 
   # Read input
   if [[ $# -eq 0 ]]; then
@@ -46,7 +45,8 @@ stdlib_ui_table() {
   fi
 
   # No lines? Nothing to do!
-  [[ ${#lines[@]} -eq 0 ]] && return
+  local -i lines_count=${#lines[@]}
+  [[ $lines_count -eq 0 ]] && return
 
   # Peek at the input arg to see if we've got a header in the data
   local first_row_is_header=false
@@ -88,62 +88,55 @@ stdlib_ui_table() {
   # Split first line to get column count
   local -a first_row
   dsv -a first_row -d "$delim" "${lines[0]}"
-  cols=${#first_row[@]}
+  column_count=${#first_row[@]}
 
   # Initialize widths array
-  for ((i = 0; i < cols; i++)); do
+  for ((i = 0; i < column_count; i++)); do
     widths[i]=0
   done
 
   # Calculate column widths
   for line in "${lines[@]}"; do
     dsv -a row -d "$delim" "${line}"
-    for ((i = 0; i < cols && i < ${#row[@]}; i++)); do
+    for ((i = 0; i < column_count && i < ${#row[@]}; i++)); do
       if [[ ${#row[i]} -gt ${widths[i]} ]]; then
         widths[i]=${#row[i]}
       fi
     done
   done
 
-  # Build border
-  local h_divider="+"
-  for ((i = 0; i < cols; i++)); do
-    h_divider+="${ stdlib_string_repeat "-" $((widths[i] + 2)); }"
-    h_divider+="+"
+  local index=0
+
+  for line in "${lines[@]}"; do
+    if [[ $index -eq 0 ]]; then
+      stdlib_ui_table_renderer \
+        ${renderer_args[*]} \
+        --column-widths-array-ref widths \
+        --line-type "$STDLIB_TABLE_TOP"
+    fi
+
+    dsv -a col -d "$delim" "${line}"
+
+    stdlib_ui_table_renderer \
+      ${renderer_args[*]} \
+      --column-widths-array-ref widths \
+      --column-data-array-ref col \
+      --line-type "$STDLIB_TABLE_ROW"
+
+    if [[ "$first_row_is_header" == "true" && $index -eq 0 ]]; then
+      stdlib_ui_table_renderer \
+        ${renderer_args[*]} \
+        --column-widths-array-ref widths \
+        --line-type "$STDLIB_TABLE_DIVIDER"
+    fi
+
+    index=$((index + 1))
+
+    if [[ $index -eq $lines_count ]]; then
+      stdlib_ui_table_renderer \
+        ${renderer_args[*]} \
+        --column-widths-array-ref widths \
+        --line-type "$STDLIB_TABLE_BOTTOM"
+    fi
   done
-
-  # Print table
-  printf "%s\n" "$h_divider"
-
-  local start_line=0
-
-  if [[ "$first_row_is_header" == "true" ]]; then
-    # Print header
-    dsv -a header -d "$delim" "${lines[0]}"
-
-    local buffer=()
-    for ((i = 0; i < cols; i++)); do
-      # printf "%s | " "${ stdlib_string_pad --width "${widths[i]}" "${header[i]}"; }"
-      buffer+=("${ stdlib_string_pad --width "${widths[i]}" "${header[i]}"; }")
-    done
-
-    printf "| %s |\n" "${ stdlib_array_join -d " | " -a buffer; }"
-    printf "%s\n" "$h_divider"
-
-    start_line=$(($start_line + 1))
-  fi
-
-  # Print data rows
-  for ((r = $start_line; r < ${#lines[@]}; r++)); do
-    dsv -a row -d "$delim" "${lines[r]}"
-
-    local buffer=()
-    for ((i = 0; i < cols; i++)); do
-      buffer+=("${ stdlib_string_pad --width "${widths[i]}" "${row[i]:-}"; }")
-    done
-
-    printf "| %s |\n" "${ stdlib_array_join -d " | " -a buffer; }"
-  done
-
-  printf "%s\n" "$h_divider"
 }
