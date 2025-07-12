@@ -1,5 +1,5 @@
 stdlib_import "json/query/jsonpath2jq"
-stdlib_import "array"
+stdlib_import "array/join"
 
 stdlib_json_pluck() {
   # printf -v sanitized_query "$@"
@@ -10,7 +10,7 @@ stdlib_json_pluck() {
     paths+=(".$arg // \"\"")
   done
 
-  local query=${ stdlib_array_join --delim "," "${paths[@]}"; };
+  local query="${ stdlib_array_join --delim "," -a paths; }"
 
   jq --compact-output --raw-output "$query"
 }

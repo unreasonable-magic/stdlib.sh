@@ -1,3 +1,5 @@
+stdlib_import "array/join"
+
 stdlib_array_serialize() {
   local var_arg
   if [[ "$1" == "-A" ]]; then
@@ -18,5 +20,5 @@ stdlib_array_serialize() {
     lines+=("$line")
   done
 
-  printf "%s\n" ${ stdlib_array_join --delim $'\n' ${lines[*]}; }
+  printf "%s\n" "${ stdlib_array_join --delim $'\n' -a lines; }"
 }
