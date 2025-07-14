@@ -1,6 +1,7 @@
 stdlib_import "log"
 stdlib_import "error"
 stdlib_import "argparser"
+stdlib_import "file/basename"
 
 declare -g __stdlib_kvfs_keypath_return
 
@@ -169,6 +170,19 @@ stdlib_kvfs_get() {
   else
     printf "%s\n" "${value}"
   fi
+}
+
+stdlib_kvfs_info() {
+  local -r store="$1"
+
+  shopt -s nullglob
+  shopt -s extglob
+
+  for file in "$store"/*; do
+    local id="${ stdlib_file_basename "$file"; }";
+    echo "items.${id}.key=$(<"$file/key")"
+    echo "items.${id}.path=${file}"
+  done
 }
 
 stdlib_kvfs_list() {
