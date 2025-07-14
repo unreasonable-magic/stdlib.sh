@@ -49,38 +49,43 @@ stdlib_debugger_vardump() {
   local bracket_f="\e[34m%s\e[0m"
   local comment_f="\e[30m%s\e[0m"
 
-  local varname="$1"
-  [[ "$varname" == "$"* ]] && varname="${varname:1}"
+  for varname in "$@"; do
+    [[ "$varname" == "$"* ]] && varname="${varname:1}"
 
-  declare -n varvalue="$varname"
+    declare -n varvalue="$varname"
 
-  local declaration
-  if declaration="$(declare -p "$varname" 2>/dev/null)"; then
-    if [[ "$declaration" == "declare -a"* ]]; then
-      declare -i index=0
+    local declaration
+    if declaration="$(declare -p "$varname" 2>/dev/null)"; then
+      if [[ "$declaration" == "declare -a"* ]]; then
+        declare -i index=0
 
-      printf "(\n" >&2
-      for item in "${varvalue[@]}"; do
-        printf "  ${str_f} ${comment_f}\n" \
-          "${item@Q}" \
-          "# $index" >&2
-        index+=1
-      done
-      printf ")\n" >&2
-    elif [[ "$declaration" == "declare -A"* ]]; then
-      printf "(\n" >&2
-      for key in "${!varvalue[@]}"; do
-        printf "  ${bracket_f}${str_f}${bracket_f}=${str_f}\n" \
-          "[" \
-          "${key@Q}" \
-          "]" \
-          "${varvalue[$key]@Q}" >&2
-      done
-      printf ")\n" >&2
+        printf "$varname=(\n" >&2
+        for item in "${varvalue[@]}"; do
+          printf "  ${str_f} ${comment_f}\n" \
+            "${item@Q}" \
+            "# $index" >&2
+          index+=1
+        done
+        printf ")\n" >&2
+      elif [[ "$declaration" == "declare -A"* ]]; then
+        printf "$varname=(\n" >&2
+        for key in "${!varvalue[@]}"; do
+          printf "  ${bracket_f}${str_f}${bracket_f}=${str_f}\n" \
+            "[" \
+            "${key@Q}" \
+            "]" \
+            "${varvalue[$key]@Q}" >&2
+        done
+        printf ")\n" >&2
+      else
+        printf "$varname=${str_f}\n" "${varvalue@Q}" >&2
+      fi
     else
-      printf "${str_f}\n" "${varvalue@Q}" >&2
+      echo "$varname is not declared" >&2
     fi
-  else
-    echo "$varname is not declared" >&2
-  fi
+  done
+}
+
+pp() {
+  stdlib_debugger_vardump "$@"
 }
