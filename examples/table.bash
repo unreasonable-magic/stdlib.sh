@@ -4,6 +4,32 @@ records="${ sqlite3 test/fixtures/northwind.db "select OrderID, ShipName, ShipCi
 
 echo
 stdlib ui/alert info <<'EOF'
+# Border control
+
+Turn them on and off, as well as color
+EOF
+echo
+
+echo "$records" |
+  stdlib ui/table --renderer-arg "--border-left false" --renderer-arg "--border-right false"
+
+echo "$records" |
+  stdlib ui/table --renderer-arg "--border-top false" --renderer-arg "--border-bottom false"
+
+echo "$records" |
+  stdlib ui/table --renderer-arg "--border false"
+
+exit
+
+echo
+
+echo "$records" |
+  stdlib ui/table --renderer-arg "--style blocks" --renderer-arg "--cell-padding-left 5" --renderer-arg "--cell-padding-right 5"
+
+echo
+
+echo
+stdlib ui/alert info <<'EOF'
 # Padding
 
 How do these look?

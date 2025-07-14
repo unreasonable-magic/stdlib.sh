@@ -108,12 +108,12 @@ stdlib_ui_table() {
   local index=0
 
   for line in "${lines[@]}"; do
-    if [[ $index -eq 0 ]]; then
-      stdlib_ui_table_renderer \
-        ${renderer_args[*]} \
-        --column-widths-array-ref widths \
-        --line-type "$STDLIB_TABLE_TOP"
-    fi
+    # if [[ $index -eq 0 ]]; then
+    #   stdlib_ui_table_renderer \
+    #     ${renderer_args[*]} \
+    #     --column-widths-array-ref widths \
+    #     --line-type "$STDLIB_TABLE_TOP"
+    # fi
 
     dsv -a col -d "$delim" "${line}"
 
@@ -121,22 +121,24 @@ stdlib_ui_table() {
       ${renderer_args[*]} \
       --column-widths-array-ref widths \
       --column-data-array-ref col \
+      --row-index "$index" \
+      --rows-index "$index" \
       --line-type "$STDLIB_TABLE_ROW"
 
-    if [[ "$first_row_is_header" == "true" && $index -eq 0 ]]; then
-      stdlib_ui_table_renderer \
-        ${renderer_args[*]} \
-        --column-widths-array-ref widths \
-        --line-type "$STDLIB_TABLE_DIVIDER"
-    fi
+    # if [[ "$first_row_is_header" == "true" && $index -eq 0 ]]; then
+    #   stdlib_ui_table_renderer \
+    #     ${renderer_args[*]} \
+    #     --column-widths-array-ref widths \
+    #     --line-type "$STDLIB_TABLE_DIVIDER"
+    # fi
 
     index=$((index + 1))
 
-    if [[ $index -eq $lines_count ]]; then
-      stdlib_ui_table_renderer \
-        ${renderer_args[*]} \
-        --column-widths-array-ref widths \
-        --line-type "$STDLIB_TABLE_BOTTOM"
-    fi
+    # if [[ $index -eq $lines_count ]]; then
+    #   stdlib_ui_table_renderer \
+    #     ${renderer_args[*]} \
+    #     --column-widths-array-ref widths \
+    #     --line-type "$STDLIB_TABLE_BOTTOM"
+    # fi
   done
 }

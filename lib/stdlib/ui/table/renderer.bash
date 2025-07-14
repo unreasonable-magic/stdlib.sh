@@ -115,6 +115,15 @@ stdlib_ui_table_renderer() {
   local -i cell_padding_left_arg=1
   local -i cell_padding_right_arg=1
 
+  local border_arg="true"
+  local border_top_arg="true"
+  local border_right_arg="true"
+  local border_bottom_arg="true"
+  local border_left_arg="true"
+
+  local -i row_index=0
+  local -i row_total=0
+
   while [ $# -gt 0 ]; do
     case "$1" in
       --column-widths-array-ref)
@@ -127,6 +136,26 @@ stdlib_ui_table_renderer() {
         ;;
       --style)
         style_arg="$2"
+        shift 2
+        ;;
+      --border)
+        border_arg="$2"
+        shift 2
+        ;;
+      --border-top)
+        border_top_arg="$2"
+        shift 2
+        ;;
+      --border-right)
+        border_right_arg="$2"
+        shift 2
+        ;;
+      --border-bottom)
+        border_bottom_arg="$2"
+        shift 2
+        ;;
+      --border-left)
+        border_left_arg="$2"
         shift 2
         ;;
       --cell-padding-left)
@@ -150,10 +179,14 @@ stdlib_ui_table_renderer() {
 
   local chars="${__stdlib_ui_table_styles[$style_arg]:$line_type_arg:4}"
 
-  local left_char="${chars:0:1}"
+  local left_char=""
+  if [[ "$border_arg" != "false" && "$border_left_arg" == "true" ]]; then left_char="${chars:0:1}"; fi
+
   local joiner_char="${chars:1:1}"
   local repeater_char="${chars:2:1}"
-  local right_char="${chars:3:1}"
+
+  local right_char=""
+  if [[ "$border_arg" != "false" && "$border_right_arg" == "true" ]]; then right_char="${chars:3:1}"; fi
 
   declare -n column_widths="${column_widths_array_ref_arg}"
   local buffer=()
