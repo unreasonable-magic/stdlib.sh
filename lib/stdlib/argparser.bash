@@ -10,7 +10,7 @@ stdlib_argparser() {
     stdlib_error_log "${FUNCNAME[1]} wrong number of arguments (expected $2)"
     ;;
   *)
-    stdlib_error_fatal "stdlib_argparser: unknown option $1"
+    stdlib_error_fatal "not a valid option for stdlib_argparser '$1'"
     ;;
   esac
 }
