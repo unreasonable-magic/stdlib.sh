@@ -10,5 +10,6 @@ stdlib_error_warning() {
 # Prints an error to stderr then exits
 stdlib_error_fatal() {
   stdlib_error_log "$@"
+  stdlib_error_stacktrace
   exit 1
 }
