@@ -37,14 +37,14 @@ stdlib_import() {
 
   # If we've gotten this far, then the file might just work
   # if we try it, let's see...
-  if [ -e "$path" ]; then
+  if [ -f "$path" ]; then
     if ! source "$path"; then
       stdlib_error_log "could not import $path"
       stdlib_error_stacktrace
       exit 1
     fi
   else
-    echo "stdlib_import: no such file $path" >&2
+    stdlib_error_log "stdlib_import: no such file $path"
     exit 1
   fi
 }
