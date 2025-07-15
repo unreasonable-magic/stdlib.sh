@@ -11,7 +11,7 @@ command_not_found_handle() {
     {
       sleep 3
       echo "took too long to exit, force killing..." >&2
-      kill -9 "$$"
+      kill -9 "$$" &>/dev/null
     } &
     local plan_b_pid=$?
 
@@ -22,8 +22,8 @@ command_not_found_handle() {
       exit 1
     else
       # kill -9 "$$"
-      kill $plan_b_pid
-      kill $$
+      kill $plan_b_pid &>/dev/null
+      kill $$ &>/dev/null
     fi
   fi
 }
