@@ -106,9 +106,11 @@ stdlib_test() {
 
   '')
     stdlib_argparser error/length_mismatch 1
+    return 1
     ;;
   *)
     stdlib_argparser error/invalid_arg "$@"
+    return 1
     ;;
   esac
 }

@@ -1,3 +1,5 @@
+stdlib_import "test"
+
 declare -a stdlib_source_stack=()
 
 stdlib_source() {
@@ -7,9 +9,24 @@ stdlib_source() {
   local path="$1"
   shift
 
+  local -i returned_exit_status
+
   stdlib_source_stack+=("$path")
-  source "$path" "$@"
-  local -i returned_exit_status="$?"
+  if stdlib_test file/is_regular "$path"; then
+    source "$path" "$@"
+    returned_exit_status="$?"
+  else
+    # Try and debug as to why the path couldn't be sourced
+    if stdlib_test file/is_dir "$path"; then
+      stdlib_error_log "$path can't be sourced as it's a directory"
+    elif stdlib_test file/is_missing "$path"; then
+      stdlib_error_log "$path doesn't exist"
+    else
+      stdlib_error_log "$path isn't a regular file"
+    fi
+    stdlib_error_stacktrace
+    returned_exit_status=1
+  fi
 
   # Recreate array and remove last element
   new_stdlib_source_stack=()
