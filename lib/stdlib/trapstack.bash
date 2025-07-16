@@ -27,7 +27,7 @@ stdlib_trapstack_broadcast() {
     # Sometimes parts of the array can become unset if they're removed at
     # runtime, so ignore any unset parts of the array
     if [[ -n "$function_name" ]]; then
-      "${function_name}" "$exit_code"
+      "${function_name}" "$signal" "$exit_code"
     fi
   done
 
