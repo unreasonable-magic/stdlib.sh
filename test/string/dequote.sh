@@ -12,11 +12,14 @@ assert "$stdout" == "hello world"
 stdout=$(stdlib_string_dequote '"He said \"hello\" to me"')
 assert "$stdout" == 'He said "hello" to me'
 
-stdout=$(stdlib_string_dequote "'It\'s a beautiful day'")
+stdout=$(stdlib_string_dequote "'It'\''s a beautiful day'")
 assert "$stdout" == "It's a beautiful day"
 
 stdout=$(stdlib_string_dequote "hello world")
 assert "$stdout" == "hello world"
+
+stdout=$(stdlib_string_dequote "'hello\nworld'")
+assert "$stdout" == $'hello\nworld'
 
 stdout=$(stdlib_string_dequote '"hello world'\''')
 assert "$stdout" == '"hello world'\'''

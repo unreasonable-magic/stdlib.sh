@@ -1,9 +1,15 @@
-stdlib_string_dequote() {
-  local input="$1"
+stdlib_import "test"
 
-  # Nothing to do if there's no string
-  if [[ -z "$input" ]]; then
-    printf "%s\n" "$input"
+stdlib_string_dequote() {
+  local input
+  if [ $# -gt 0 ]; then
+    input="$1"
+  else
+    input="$(cat)"
+  fi
+
+  if stdlib_test string/is_empty "$input"; then
+    printf "\n"
     return
   fi
 
@@ -18,7 +24,7 @@ stdlib_string_dequote() {
     dequoted="${dequoted//\\\"/\"}"
   elif [[ "$first_char" == "'" && "$last_char" == "'" && ${#input} -ge 2 ]]; then
     dequoted="${input:1:-1}"
-    dequoted="${dequoted//\\\'/\'}"
+    dequoted="${dequoted//"'\''"/"'"}"
   fi
 
   printf "%s\n" "$dequoted"
