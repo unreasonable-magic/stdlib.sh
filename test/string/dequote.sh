@@ -19,7 +19,7 @@ stdout=$(stdlib_string_dequote "hello world")
 assert "$stdout" == "hello world"
 
 stdout=$(stdlib_string_dequote "'hello\nworld'")
-assert "$stdout" == $'hello\nworld'
+assert "$stdout" == 'hello\nworld'
 
 stdout=$(stdlib_string_dequote '"hello world'\''')
 assert "$stdout" == '"hello world'\'''
