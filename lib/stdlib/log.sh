@@ -13,9 +13,17 @@ LAST_TIME=${START_TIME}
 
 stdlib_log() {
   local -i level=$1
+  shift
 
   if [[ $__log_current_level -le $level ]]; then
-    local message="$2"
+    local message="$1"
+    shift
+
+    if [[ "$#" -gt 0 ]]; then
+      printf -v message "$message" "$@"
+    else
+      printf -v message "%s" "$message"
+    fi
 
     local current_time=${EPOCHREALTIME}
 
@@ -94,17 +102,17 @@ stdlib_log_set_level() {
 }
 
 stdlib_log_debug() {
-  stdlib_log $STDLIB_LOG_LEVEL_DEBUG "$1"
+  stdlib_log $STDLIB_LOG_LEVEL_DEBUG "$@"
 }
 
 stdlib_log_info() {
-  stdlib_log $STDLIB_LOG_LEVEL_INFO "$1"
+  stdlib_log $STDLIB_LOG_LEVEL_INFO "$@"
 }
 
 stdlib_log_warn() {
-  stdlib_log $STDLIB_LOG_LEVEL_WARN "$1"
+  stdlib_log $STDLIB_LOG_LEVEL_WARN "$@"
 }
 
 stdlib_log_error() {
-  stdlib_log $STDLIB_LOG_LEVEL_ERROR "$1"
+  stdlib_log $STDLIB_LOG_LEVEL_ERROR "$@"
 }
