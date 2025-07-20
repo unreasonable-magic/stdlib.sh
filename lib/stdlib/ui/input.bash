@@ -1,6 +1,6 @@
 # shellcheck disable=SC2317
 
-stdlib_import "screen/cursor"
+stdlib_import "terminal/cursor"
 stdlib_import "input/keyboard"
 
 stdlib_ui_input() {
@@ -29,7 +29,7 @@ stdlib_ui_input() {
 
   local -i history_index=0
 
-  stdlib_screen_cursor style=bar blink=true >/dev/null
+  stdlib_terminal_cursor style=bar blink=true >/dev/null
 
   __stdlib_ui_input_render() {
     printf "\e[2K\r%s%s\e[%dG" "$prompt" "$value" "$((cursor + ${#prompt} + 1))" >/dev/tty

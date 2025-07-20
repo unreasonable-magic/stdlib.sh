@@ -2,25 +2,25 @@
 #export CURSOR_UNDERLINE="CURSOR_UNDERLINE"
 #export CURSOR_BAR="CURSOR_BAR"
 
-declare -g __stdlib_screen_cursor_state_init
-declare -g __stdlib_screen_cursor_state_visible
-declare -g __stdlib_screen_cursor_state_style
-declare -g __stdlib_screen_cursor_state_blink
-declare -g __stdlib_screen_cursor_state_color
+declare -g __stdlib_terminal_cursor_state_init
+declare -g __stdlib_terminal_cursor_state_visible
+declare -g __stdlib_terminal_cursor_state_style
+declare -g __stdlib_terminal_cursor_state_blink
+declare -g __stdlib_terminal_cursor_state_color
 
-stdlib_screen_cursor_init() {
-  if [[ -z $__stdlib_screen_cursor_state_init ]]; then
-    __stdlib_screen_cursor_state_style="default"
-    __stdlib_screen_cursor_state_visible="true"
-    __stdlib_screen_cursor_state_blink="false"
-    __stdlib_screen_cursor_state_color="?"
+stdlib_terminal_cursor_init() {
+  if [[ -z $__stdlib_terminal_cursor_state_init ]]; then
+    __stdlib_terminal_cursor_state_style="default"
+    __stdlib_terminal_cursor_state_visible="true"
+    __stdlib_terminal_cursor_state_blink="false"
+    __stdlib_terminal_cursor_state_color="?"
 
-    __stdlib_screen_cursor_state_init="true"
+    __stdlib_terminal_cursor_state_init="true"
   fi
 }
 
-stdlib_screen_cursor() {
-  stdlib_screen_cursor_init
+stdlib_terminal_cursor() {
+  stdlib_terminal_cursor_init
 
   local visible
   local style
@@ -65,7 +65,7 @@ stdlib_screen_cursor() {
       return 1
       ;;
     esac
-    __stdlib_screen_cursor_state_visible="$visible"
+    __stdlib_terminal_cursor_state_visible="$visible"
   fi
 
   if [[ -z $style && -n $blink ]]; then
@@ -77,9 +77,9 @@ stdlib_screen_cursor() {
       printf '\e[?12l' >/dev/tty
       ;;
     esac
-    __stdlib_screen_cursor_state_blink="$blink"
+    __stdlib_terminal_cursor_state_blink="$blink"
   elif [[ -n $style ]]; then
-    blink="${blink:-"$__stdlib_screen_cursor_state_blink"}"
+    blink="${blink:-"$__stdlib_terminal_cursor_state_blink"}"
 
     case "$style" in
     block)
@@ -109,17 +109,17 @@ stdlib_screen_cursor() {
       ;;
     esac
 
-    __stdlib_screen_cursor_state_style="$style"
+    __stdlib_terminal_cursor_state_style="$style"
   fi
 
   if [[ -n $color ]]; then
     printf '\x1b]12;%s\x1b\\' "$color" >/dev/tty
-    __stdlib_screen_cursor_state_color="$color"
+    __stdlib_terminal_cursor_state_color="$color"
   fi
 
   printf "visible=%s\nstyle=%s\nblink=%s\ncolor=%s\n" \
-    "$__stdlib_screen_cursor_state_visible" \
-    "$__stdlib_screen_cursor_state_style" \
-    "$__stdlib_screen_cursor_state_blink" \
-    "$__stdlib_screen_cursor_state_color"
+    "$__stdlib_terminal_cursor_state_visible" \
+    "$__stdlib_terminal_cursor_state_style" \
+    "$__stdlib_terminal_cursor_state_blink" \
+    "$__stdlib_terminal_cursor_state_color"
 }

@@ -1,7 +1,7 @@
 stdlib_import "error"
 
 stdlib_trapstack_init() {
-  if [[ -z $__stdlib_screen_cursor_state_init ]]; then
+  if [[ -z $__stdlib_trapstack_init ]]; then
     trap 'stdlib_trapstack_broadcast EXIT $?' EXIT
     trap 'stdlib_trapstack_broadcast INT $?' INT
     trap 'stdlib_trapstack_broadcast TERM $?' TERM
