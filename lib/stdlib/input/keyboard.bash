@@ -1,4 +1,4 @@
-stdlib_import "screen/cursor"
+stdlib_import "terminal/cursor"
 
 stdlib_input_keyboard_capture() {
   local callback="${1:-__stdlib_input_keyboard_capture_default_callback}"
