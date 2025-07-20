@@ -37,6 +37,10 @@ shellenv)
     else
       funcname="stdlib_${1//\//_}"
       "${funcname}" "${@:2}"
+      # Also print anything that ended up in REPLY
+      if [[ -n "$REPLY" ]]; then
+        printf "%s\n" "$REPLY"
+      fi
       exit $?
     fi
   else
