@@ -64,7 +64,7 @@ EOF
 
 printf "\n"
 
-stdlib screen/cursor visible=false >/dev/null
+stdlib terminal/cursor visible=false >/dev/null
 
 stdlib_animation_timer --duration "${gif_duration}s" --fps "${gif_frame_rate}" --loop |
   while read -r frame; do
@@ -78,4 +78,4 @@ stdlib_animation_timer --duration "${gif_duration}s" --fps "${gif_frame_rate}" -
     printf "\e[?2026l"
   done
 
-stdlib screen/cursor visible=true >/dev/null
+stdlib terminal/cursor visible=true >/dev/null

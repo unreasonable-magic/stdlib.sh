@@ -3,7 +3,7 @@ eval "$(stdlib shellenv)"
 cmd="visible=true blink=false style=underline"
 
 run() {
-  stdlib screen/cursor $cmd
+  stdlib terminal/cursor $cmd
 }
 
 run
