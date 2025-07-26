@@ -3,10 +3,19 @@ stdlib_import "terminal/reader"
 stdlib_import "terminal/reader/readkey"
 stdlib_import "array/join"
 stdlib_import "param/join"
+stdlib_import "trapstack"
 
 enable kv
 
-stdlib_terminal_color_change() {
+stdlib_terminal_palette_stack_push() {
+  printf '\e[#P'
+}
+
+stdlib_terminal_palette_stack_pop() {
+  printf '\e[#Q'
+}
+
+stdlib_terminal_palette_color_set() {
   # Turn the key=value params into an assoc array
   local -A args_kv
   kv -A args_kv -s "=" <<< "${ stdlib_param_join --delim $'\n' "$@"; }"
@@ -28,12 +37,12 @@ stdlib_terminal_color_change() {
   printf "\033]21;%s\007" "$ansi" > /dev/tty
 }
 
-stdlib_terminal_color_reset() {
+stdlib_terminal_palette_color_reset() {
   # Passing no value to a color will reset it
   printf "\033]21;%s\007" "${ stdlib_param_join --delim ";" "$@"; }" > /dev/tty
 }
 
-stdlib_terminal_color_query() {
+stdlib_terminal_palette_query() {
   local values_only_arg=false
   if [[ "$1" == "--values-only" ]]; then
     values_only_arg=true
