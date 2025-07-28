@@ -16,7 +16,7 @@ stdlib_color_name() {
     return 1
   fi
 
-  printf "%s\n" "${ stdlib_string_underscore "$1"; }"
+  printf "@%s\n" "${ stdlib_string_underscore "$1"; }"
 }
 
 stdlib_color_name_parse() {

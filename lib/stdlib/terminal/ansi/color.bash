@@ -14,7 +14,7 @@ stdlib_import "color/parse"
 # rgb
 # \e[38;2;255;0;0m (red fg)
 # \e[48;2;255;0;0m (red bg)
-stdlib_terminal_color() {
+stdlib_terminal_ansi_color() {
   local target="$1"
   local color="$2"
 
@@ -23,16 +23,17 @@ stdlib_terminal_color() {
     return 1
   fi
 
+  # 
   if [[ $color =~ ^[0-9]+$ ]]; then
-    stdlib_terminal_color_parse_256 "$target" "$color"
+    stdlib_terminal_ansi_color_convert_256 "$target" "$color"
   elif [[ $color =~ ^[a-z_]+$ ]]; then
-    stdlib_terminal_color_parse_16 "$target" "$color"
+    stdlib_terminal_ansi_color_convert_16 "$target" "$color"
   elif stdlib_color_parse "$color"; then
-    stdlib_terminal_color_parse_rgb "$target" "${COLOR_RGB[@]}"
+    stdlib_terminal_ansi_color_convert_rgb "$target" "${COLOR_RGB[@]}"
   fi
 }
 
-stdlib_terminal_color_parse_rgb() {
+stdlib_terminal_ansi_color_convert_rgb() {
   local target="$1"
   local red="$2"
   local green="$3"
@@ -50,7 +51,7 @@ stdlib_terminal_color_parse_rgb() {
   printf "%s\n" "$code"
 }
 
-stdlib_terminal_color_parse_256() {
+stdlib_terminal_ansi_color_convert_256() {
   local target="$1"
   local color="$2"
 
@@ -66,7 +67,7 @@ stdlib_terminal_color_parse_256() {
   printf "%s\n" "$code"
 }
 
-stdlib_terminal_color_parse_16() {
+stdlib_terminal_ansi_color_convert_16() {
   local target="$1"
   local color="$2"
 
@@ -97,7 +98,7 @@ stdlib_terminal_color_parse_16() {
     code="7"
     ;;
   *)
-    stdlib_argparser error/invald_arg "not a color $color"
+    stdlib_argparser error/invalid_arg "not a color $color"
     return 1
     ;;
   esac
@@ -115,8 +116,15 @@ stdlib_terminal_color_parse_16() {
       code="4${code}"
     fi
   elif [[ "$target" == "underline" ]]; then
-    stdlib_argparser error/invald_arg "$target incompatible with 16 color parser"
-    return 1
+    # You can't set underline colors using the 8-16 color format, so we'll reach
+    # into the 256 color range and use those instead:
+    # 0-7: standard colors (as in ESC [ 30–37 m)
+    # 8–15: high intensity colors (as in ESC [ 90–97 m)
+    if [[ "$color" == "bright_"* ]]; then
+      code="58;5;$((8 + code))"
+    else
+      code="58;5;${code}"
+    fi
   fi
 
   printf "%s\n" "$code"
