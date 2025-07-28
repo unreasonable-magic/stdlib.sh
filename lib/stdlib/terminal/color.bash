@@ -1,4 +1,5 @@
 stdlib_import "argparser"
+stdlib_import "color/parse"
 
 # 8-16 colors
 # \e[31m (red fg)
@@ -22,18 +23,38 @@ stdlib_terminal_color() {
     return 1
   fi
 
-  if [[ $color =~ ^[0-9]+$ ]] ; then
+  if [[ $color =~ ^[0-9]+$ ]]; then
     stdlib_terminal_color_parse_256 "$target" "$color"
-  else
+  elif [[ $color =~ ^[a-z_]+$ ]]; then
     stdlib_terminal_color_parse_16 "$target" "$color"
+  elif stdlib_color_parse "$color"; then
+    stdlib_terminal_color_parse_rgb "$target" "${COLOR_RGB[@]}"
   fi
+}
+
+stdlib_terminal_color_parse_rgb() {
+  local target="$1"
+  local red="$2"
+  local green="$3"
+  local blue="$4"
+
+  local code
+  if [[ "$target" == "foreground" ]]; then
+    code="38;2;${red};${green};${blue}"
+  elif [[ "$target" == "background" ]]; then
+    code="48;2;${red};${green};${blue}"
+  elif [[ "$target" == "underline" ]]; then
+    code="58;2;${red};${green};${blue}"
+  fi
+
+  printf "%s\n" "$code"
 }
 
 stdlib_terminal_color_parse_256() {
   local target="$1"
   local color="$2"
-  local code
 
+  local code
   if [[ "$target" == "foreground" ]]; then
     code="38;5;${color}"
   elif [[ "$target" == "background" ]]; then
@@ -48,37 +69,37 @@ stdlib_terminal_color_parse_256() {
 stdlib_terminal_color_parse_16() {
   local target="$1"
   local color="$2"
-  local code
 
+  local code
   case "$color" in
-    black|bright_black)
-      code="0"
-      ;;
-    red|bright_red)
-      code="1"
-      ;;
-    green|bright_green)
-      code="2"
-      ;;
-    yellow|bright_yellow)
-      code="3"
-      ;;
-    blue|bright_blue)
-      code="4"
-      ;;
-    magenta|bright_magenta)
-      code="5"
-      ;;
-    cyan|bright_cyan)
-      code="6"
-      ;;
-    white|bright_white)
-      code="7"
-      ;;
-    *)
-      stdlib_argparser error/invald_arg "not a color $color"
-      return 1
-      ;;
+  black | bright_black)
+    code="0"
+    ;;
+  red | bright_red)
+    code="1"
+    ;;
+  green | bright_green)
+    code="2"
+    ;;
+  yellow | bright_yellow)
+    code="3"
+    ;;
+  blue | bright_blue)
+    code="4"
+    ;;
+  magenta | bright_magenta)
+    code="5"
+    ;;
+  cyan | bright_cyan)
+    code="6"
+    ;;
+  white | bright_white)
+    code="7"
+    ;;
+  *)
+    stdlib_argparser error/invald_arg "not a color $color"
+    return 1
+    ;;
   esac
 
   if [[ "$target" == "foreground" ]]; then
