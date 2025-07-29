@@ -1,5 +1,5 @@
 stdlib_import "argparser"
-stdlib_import "color/parse"
+stdlib_import "color"
 
 # 8-16 colors
 # \e[31m (red fg)
@@ -28,24 +28,26 @@ stdlib_terminal_ansi_color() {
     stdlib_terminal_ansi_color_convert_256 "$target" "$color"
   elif [[ $color =~ ^[a-z_]+$ ]]; then
     stdlib_terminal_ansi_color_convert_16 "$target" "$color"
-  elif stdlib_color_parse "$color"; then
-    stdlib_terminal_ansi_color_convert_rgb "$target" "${COLOR[1]}" "${COLOR[2]}" "${COLOR[3]}"
+  else
+    local ansi
+    ansi="${ stdlib_color --format ansi "$color"; }"
+    if [[ $? -eq 0 ]]; then
+      stdlib_terminal_ansi_color_convert_rgb "$target" "$ansi"
+    fi
   fi
 }
 
 stdlib_terminal_ansi_color_convert_rgb() {
   local target="$1"
-  local red="$2"
-  local green="$3"
-  local blue="$4"
+  local ansi="$2"
 
   local code
   if [[ "$target" == "foreground" ]]; then
-    code="38;2;${red};${green};${blue}"
+    code="38;2;${ansi}"
   elif [[ "$target" == "background" ]]; then
-    code="48;2;${red};${green};${blue}"
+    code="48;2;${ansi}"
   elif [[ "$target" == "underline" ]]; then
-    code="58;2;${red};${green};${blue}"
+    code="58;2;${ansi}"
   fi
 
   printf "%s\n" "$code"
