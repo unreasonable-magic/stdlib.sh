@@ -2,8 +2,16 @@ stdlib_import "string/underscore"
 stdlib_import "terminal/palette"
 
 stdlib_color_type_xterm_format() {
-  # Save ourselves a bunch a time and pull the saved named from COLOR if we have
-  # it
+  # The ansi calls back to us if it's asked to render an xterm color
+  if [[ "$1" == "--ansi" ]]; then
+    if [[ "${COLOR[0]}" == "xterm" ]]; then
+      printf "5;%s\n" "${COLOR[5]}"
+      return
+    else
+      return 1
+    fi
+  fi
+
   if [[ "${COLOR[0]}" == "xterm" ]]; then
     printf "xterm:%s\n" "${COLOR[4]}"
     return
@@ -34,7 +42,7 @@ stdlib_color_type_xterm_format() {
   done <<< "$response"
 
   # Finally! We have our number, now we can find the key that matches the number
-  stdlib_color_type_xterm_data find-key-by-value "$number"
+  printf "xterm:%s" "${ stdlib_color_type_xterm_data find-key-by-value "$number"; }"
 }
 
 stdlib_color_type_xterm_parse() {
@@ -63,9 +71,10 @@ stdlib_color_type_xterm_parse() {
     # type in COLOR with our name
     COLOR[0]="xterm"
 
-    # We'll also tack onto the end the color name so when we go back to printing
-    # this value again we don't need to requery the terminal
+    # We'll also tack onto the end the color name and key so when we go back to
+    # printing this value again we don't need to requery the terminal
     COLOR[4]="$key"
+    COLOR[5]="$number"
 
     return 0
   fi
@@ -363,7 +372,7 @@ stdlib_color_type_xterm_data() {
         local key
         for key in "${!__stdlib_color_type_xterm_data[@]}"; do
           if [[ "${__stdlib_color_type_xterm_data["$key"]}" == "$2" ]]; then
-            printf "xterm:%s\n" "$key"
+            printf "%s\n" "$key"
             return
           fi
         done
