@@ -4,7 +4,7 @@ stdlib_import "color/type/hex"
 stdlib_import "color/type/x11"
 stdlib_import "color/type/kv"
 stdlib_import "color/type/ansi"
-stdlib_import "color/type/name"
+stdlib_import "color/type/web"
 
 stdlib_color() {
   local format_arg
@@ -47,7 +47,7 @@ stdlib_color_parse() {
   if stdlib_color_type_hex_parse "$1"; then return; fi
   if stdlib_color_type_kv_parse "$1"; then return; fi
   if stdlib_color_type_ansi_parse "$1"; then return; fi
-  if stdlib_color_type_name_parse "$1"; then return; fi
+  if stdlib_color_type_web_parse "$1"; then return; fi
 
   return 1
 }
@@ -59,7 +59,7 @@ stdlib_color_format() {
     hex) stdlib_color_type_hex_format ;;
     kv) stdlib_color_type_kv_format ;;
     ansi) stdlib_color_type_ansi_format ;;
-    name) stdlib_color_type_name_format ;;
+    web) stdlib_color_type_web_format ;;
     *) stdlib_argparser error/invalid_arg "unknown format $1"; return 1 ;;
   esac
 }
