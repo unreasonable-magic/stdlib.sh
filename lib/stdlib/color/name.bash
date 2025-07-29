@@ -1,30 +1,47 @@
-stdlib_import "color/ansi"
 stdlib_import "array/join"
 stdlib_import "string/underscore"
 
 stdlib_color_name_format() {
-  printf "@%s\n" "${ stdlib_string_underscore "$1"; }"
+  __stdlib_color_name_load_list
+
+  local value
+  printf -v value "%s;%s;%s" "${COLOR[1]}" "${COLOR[2]}" "${COLOR[3]}"
+
+  # This is really slow, but I don't think converting a color back to it's named
+  # value will be a popular function. We could always cache and pre-calc another
+  # map with value->key, but that's a later job if we need.
+  local key
+  for key in "${!__stdlib_color_name_list[@]}"; do
+    if [[ "${__stdlib_color_name_list["$key"]}" == "$value" ]]; then
+      printf "@%s\n" "$key"
+      return
+    fi
+  done
 }
 
 stdlib_color_name_parse() {
-  # Named colors must start with a @
-  if [[ "$1" != "@"* ]]; then
-    return 1
+  if [[ "$1" == "@"* ]]; then
+    __stdlib_color_name_load_list
+
+    local name="${ stdlib_string_underscore "$1"; }"
+
+    local color="${__stdlib_color_name_list["$name"]}"
+    if [[ "$color" == "" ]]; then
+      return 1
+    fi
+
+    IFS=";" read -r -a rgb <<< "$color"
+    declare -g -a COLOR=(
+      "name"
+      "${rgb[0]}"
+      "${rgb[1]}"
+      "${rgb[2]}"
+    )
+
+    return 0
   fi
 
-  __stdlib_color_name_load_list
-
-  local name="${ stdlib_string_underscore "$1"; }"
-  local color="${__stdlib_color_name_list["$name"]}"
-  if [[ "$color" == "" ]]; then
-    return 1
-  fi
-
-  if ! stdlib_color_ansi_parse "$color"; then
-    return 1
-  fi
-
-  return 0
+  return 1
 }
 
 stdlib_color_name_list() {
