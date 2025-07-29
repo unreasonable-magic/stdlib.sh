@@ -20,6 +20,11 @@ stdlib_color_name() {
 }
 
 stdlib_color_name_parse() {
+  # Named colors must start with a @
+  if [[ "$1" != "@"* ]]; then
+    return 1
+  fi
+
   __stdlib_color_name_load_list
 
   local name="${ stdlib_string_underscore "$1"; }"
