@@ -1,24 +1,8 @@
-stdlib_import "argparser"
-stdlib_import "color/parse"
+STDLIB_COLOR_HEX_REGEX="^[[:space:]]*#([0-9a-fA-F]{3}([0-9a-fA-F]{3})?)[[:space:]]*$"
 
-stdlib_color_hex() {
-  local input="${| stdlib_argparser_parse "$@"; }"
-
-  if [[ "$input" == "" ]]; then
-    stdlib_argparser error/missing_arg "nothing to parse"
-    return 1
-  fi
-
-  if ! stdlib_color_parse "$input"; then
-    stdlib_argparser error/invalid_arg "can't parse ${input@Q}"
-    return 1
-  fi
-
-  # Now print the parsed RGB back to hex
+stdlib_color_hex_format() {
   printf "#%02x%02x%02x\n" "${COLOR[1]}" "${COLOR[2]}" "${COLOR[3]}"
 }
-
-STDLIB_COLOR_HEX_REGEX="^[[:space:]]*#([0-9a-fA-F]{3}([0-9a-fA-F]{3})?)[[:space:]]*$"
 
 stdlib_color_hex_parse() {
   if [[ "$1" =~ $STDLIB_COLOR_HEX_REGEX ]]; then

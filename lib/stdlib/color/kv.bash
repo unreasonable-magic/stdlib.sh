@@ -1,26 +1,10 @@
-stdlib_import "string/count"
-stdlib_import "argparser"
-stdlib_import "color/parse"
-
 enable kv
 
-stdlib_color_kv() {
-  local input="${| stdlib_argparser_parse "$@"; }"
+STDLIB_COLOR_KV_REGEX="^(red|green|blue)=(.*)$"
 
-  if [[ "$input" == "" ]]; then
-    stdlib_argparser error/missing_arg "nothing to parse"
-    return 1
-  fi
-
-  if ! stdlib_color_parse "$input"; then
-    stdlib_argparser error/invalid_arg "can't parse ${input@Q}"
-    return 1
-  fi
-
+stdlib_color_kv_format() {
   printf "red=%s green=%s blue=%s\n" "${COLOR[1]}" "${COLOR[2]}" "${COLOR[3]}"
 }
-
-STDLIB_COLOR_KV_REGEX="^(red|green|blue)=(.*)$"
 
 stdlib_color_kv_parse() {
   if [[ "$1" =~ $STDLIB_COLOR_KV_REGEX ]]; then

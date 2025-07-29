@@ -2,31 +2,7 @@ stdlib_import "string/count"
 stdlib_import "argparser"
 stdlib_import "color/parse"
 
-# Handles a few different input types:
-#
-#     $ stdlib color/rgb "rgb(5 5 5)"
-#     $ stdlib color/rgb "rgb(5, 5, 5)"
-#     $ echo "rgb(5 5 5)" | stdlib color/rgb
-#     $ echo "rgb(5 5 5)" | stdlib color/rgb -
-#
-#     $ stdlib color/rgb 5 5 5
-#
-#     $ echo -e "1\n2\n3" | stdlib color/rgb - - -
-#     $ echo -e "2" | stdlib color/rgb 1 - 3
-#
-stdlib_color_rgb() {
-  local input="${| stdlib_argparser_parse "$@"; }"
-
-  if [[ "$input" == "" ]]; then
-    stdlib_argparser error/missing_arg "nothing to parse"
-    return 1
-  fi
-
-  if ! stdlib_color_parse "$input"; then
-    stdlib_argparser error/invalid_arg "can't parse ${input@Q}"
-    return 1
-  fi
-
+stdlib_color_rgb_format() {
   # Now we've parsed the color, let's extract the rgb values
   local -a rgb=()
   rgb[0]="${COLOR[1]:-0}"

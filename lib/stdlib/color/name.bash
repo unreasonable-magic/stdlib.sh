@@ -1,21 +1,8 @@
-stdlib_import "argparser"
 stdlib_import "color/rgb"
 stdlib_import "array/join"
 stdlib_import "string/underscore"
 
-stdlib_color_name() {
-  local input="${| stdlib_argparser_parse "$@"; }"
-
-  if [[ "$input" == "" ]]; then
-    stdlib_argparser error/missing_arg "nothing to parse"
-    return 1
-  fi
-
-  if ! stdlib_color_parse "$input"; then
-    stdlib_argparser error/invalid_arg "can't parse ${input@Q}"
-    return 1
-  fi
-
+stdlib_color_name_format() {
   printf "@%s\n" "${ stdlib_string_underscore "$1"; }"
 }
 

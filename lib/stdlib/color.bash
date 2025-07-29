@@ -8,7 +8,28 @@ stdlib_color() {
     return 1
   fi
 
-  stdlib_color_parse "$input"
+  if ! stdlib_color_parse "$input"; then
+    return 1
+  fi
 
-  pp COLOR
+  case "${COLOR[0]}" in
+    rgb)
+      stdlib_color_rgb_format
+      ;;
+    x11)
+      stdlib_color_x11_format
+      ;;
+    hex)
+      stdlib_color_hex_format
+      ;;
+    kv)
+      stdlib_color_kv_format
+      ;;
+    name)
+      stdlib_color_name_format
+      ;;
+    *)
+      stdlib_argparser error/invalid_arg "unknown format ${COLOR[0]}"
+      ;;
+  esac
 }
