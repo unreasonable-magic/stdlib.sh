@@ -1,6 +1,5 @@
 stdlib_import "string/count"
 stdlib_import "argparser"
-stdlib_import "color/parse"
 
 STDLIB_COLOR_RGB_REGEX="^[[:space:]]*rgb\([[:space:]]*([0-9]+)[[:space:]]*,?[[:space:]]*([0-9]+)[[:space:]]*,?[[:space:]]*([0-9]+)[[:space:]]*\)[[:space:]]*$"
 
