@@ -47,9 +47,23 @@ stdlib_color_type_xterm_format() {
 
 stdlib_color_type_xterm_parse() {
   if [[ "$1" == "xterm:"* ]]; then
-    # First thing we need to do is find the color in the list
+    local number
     local key="${ stdlib_string_underscore "${1/xterm://}"; }"
-    local number="${ stdlib_color_type_xterm_data find-value-by-key "$key"; }"
+
+    # Handle both names (yellow4) or a direct number (100)
+    if [[ "$key" =~ ^[0-9]+$ ]]; then
+      # Ensure the number is within bounds before using it
+      if [[ "$key" -ge 0 && "$key" -le 255 ]]; then
+        number="$key"
+        key="${ stdlib_color_type_xterm_data find-key-by-value "$number"; }"
+      else
+        return 1
+      fi
+    else
+      number="${ stdlib_color_type_xterm_data find-value-by-key "$key"; }"
+    fi
+
+    # No number found? Give up.
     if [[ "$number" == "" ]]; then
       return 1
     fi
