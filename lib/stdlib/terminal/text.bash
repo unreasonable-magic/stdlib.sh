@@ -1,5 +1,5 @@
 stdlib_import "argparser"
-stdlib_import "terminal/ansi/color"
+stdlib_import "color"
 
 enable kv
 
@@ -111,13 +111,22 @@ stdlib_terminal_text() {
               ;;
           esac
         else
-          # Need to run over 2 lines otherwise we swallow the exit code
-          local color
-          color="${ stdlib_terminal_ansi_color "${key/_color/}" "$value"; }"
+          value="${ stdlib_color --format ansi "$value"; }"
           if [[ ! $? -eq 0 ]]; then
             return 1
           fi
-          ansi+="$color;"
+
+          case "$key" in
+            foreground)
+              ansi+="38;$value"
+              ;;
+            background)
+              ansi+="48;$value"
+              ;;
+            underline_color)
+              ansi+="58;$value"
+              ;;
+          esac
         fi
         ;;
 
