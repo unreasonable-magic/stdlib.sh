@@ -2,6 +2,8 @@ stdlib_import "string/count"
 stdlib_import "argparser"
 stdlib_import "color/parse"
 
+STDLIB_COLOR_RGB_REGEX="^[[:space:]]*rgb\([[:space:]]*([0-9]+)[[:space:]]*,?[[:space:]]*([0-9]+)[[:space:]]*,?[[:space:]]*([0-9]+)[[:space:]]*\)[[:space:]]*$"
+
 stdlib_color_rgb_format() {
   # Now we've parsed the color, let's extract the rgb values
   local -a rgb=()
@@ -21,14 +23,8 @@ stdlib_color_rgb_format() {
   printf "rgb(%s, %s, %s)\n" "${rgb[@]}"
 }
 
-# Matches rgb(red, green, blue) and rgb(red green blue)
-STDLIB_COLOR_RGB_REGEX="^[[:space:]]*rgb\([[:space:]]*([0-9]+)[[:space:]]*,?[[:space:]]*([0-9]+)[[:space:]]*,?[[:space:]]*([0-9]+)[[:space:]]*\)[[:space:]]*$"
-
-# Matches ansi style red;green;blue
-STDLIB_COLOR_RGB_ANSI_REGEX="^[[:space:]]*([0-9]+);([0-9]+);([0-9]+)[[:space:]]*$"
-
 stdlib_color_rgb_parse() {
-  if [[ "$1" =~ $STDLIB_COLOR_RGB_REGEX || "$1" =~ $STDLIB_COLOR_RGB_ANSI_REGEX ]]; then
+  if [[ "$1" =~ $STDLIB_COLOR_RGB_REGEX ]]; then
     declare -g -a COLOR=(
       "rgb"
       "${BASH_REMATCH[1]}"

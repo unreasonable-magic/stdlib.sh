@@ -1,4 +1,4 @@
-stdlib_import "color/rgb"
+stdlib_import "color/ansi"
 stdlib_import "array/join"
 stdlib_import "string/underscore"
 
@@ -20,7 +20,7 @@ stdlib_color_name_parse() {
     return 1
   fi
 
-  if ! stdlib_color_rgb_parse "$color"; then
+  if ! stdlib_color_ansi_parse "$color"; then
     return 1
   fi
 

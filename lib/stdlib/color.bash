@@ -25,6 +25,9 @@ stdlib_color() {
     kv)
       stdlib_color_kv_format
       ;;
+    ansi)
+      stdlib_color_ansi_format
+      ;;
     name)
       stdlib_color_name_format
       ;;
