@@ -17,7 +17,7 @@ stdlib_color_kv() {
     return 1
   fi
 
-  printf "red=%s green=%s blue=%s\n" "${COLOR_RGB[1]}" "${COLOR_RGB[2]}" "${COLOR_RGB[3]}"
+  printf "red=%s green=%s blue=%s\n" "${COLOR[1]}" "${COLOR[2]}" "${COLOR[3]}"
 }
 
 STDLIB_COLOR_KV_REGEX="^(red|green|blue)=(.*)$"
@@ -25,7 +25,7 @@ STDLIB_COLOR_KV_REGEX="^(red|green|blue)=(.*)$"
 stdlib_color_kv_parse() {
   if [[ "$1" =~ $STDLIB_COLOR_KV_REGEX ]]; then
     if kv -s '=' <<<"$1"; then
-      declare -g -a COLOR_RGB=(
+      declare -g -a COLOR=(
         "kv"
         "${KV["red"]}"
         "${KV["green"]}"

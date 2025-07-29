@@ -29,9 +29,9 @@ stdlib_color_rgb() {
 
   # Now we've parsed the color, let's extract the rgb values
   local -a rgb=()
-  rgb[0]="${COLOR_RGB[1]:-0}"
-  rgb[1]="${COLOR_RGB[2]:-0}"
-  rgb[2]="${COLOR_RGB[3]:-0}"
+  rgb[0]="${COLOR[1]:-0}"
+  rgb[1]="${COLOR[2]:-0}"
+  rgb[2]="${COLOR[3]:-0}"
 
   # Before we return the final version, make sure it looks like a valid
   if ! stdlib_color_rgb_validate_channel "red" "${rgb[0]}"; then
@@ -53,7 +53,7 @@ STDLIB_COLOR_RGB_ANSI_REGEX="^[[:space:]]*([0-9]+);([0-9]+);([0-9]+)[[:space:]]*
 
 stdlib_color_rgb_parse() {
   if [[ "$1" =~ $STDLIB_COLOR_RGB_REGEX || "$1" =~ $STDLIB_COLOR_RGB_ANSI_REGEX ]]; then
-    declare -g -a COLOR_RGB=(
+    declare -g -a COLOR=(
       "rgb"
       "${BASH_REMATCH[1]}"
       "${BASH_REMATCH[2]}"

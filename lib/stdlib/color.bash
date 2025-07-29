@@ -10,5 +10,5 @@ stdlib_color() {
 
   stdlib_color_parse "$input"
 
-  pp COLOR_RGB
+  pp COLOR
 }

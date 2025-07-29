@@ -15,7 +15,7 @@ stdlib_color_x11() {
   fi
 
   # Now print the parsed RGB back to x11 format
-  printf "rgb:%02x/%02x/%02x\n" "${COLOR_RGB[1]}" "${COLOR_RGB[2]}" "${COLOR_RGB[3]}"
+  printf "rgb:%02x/%02x/%02x\n" "${COLOR[1]}" "${COLOR[2]}" "${COLOR[3]}"
 }
 
 STDLIB_COLOR_X11_REGEX='^[[:space:]]*rgb\:([0-9a-fA-F]{2})/([0-9a-fA-F]{2})/([0-9a-fA-F]{2})[[:space:]]*$'
@@ -28,14 +28,14 @@ stdlib_color_x11_parse() {
     local green="$((0x${BASH_REMATCH[2]}))"
     local blue="$((0x${BASH_REMATCH[3]}))"
 
-    declare -g -a COLOR_RGB=(
+    declare -g -a COLOR=(
       "x11"
       "$red"
       "$green"
       "$blue"
     )
 
-    export COLOR_RGB
+    export COLOR
     return 0
   fi
 

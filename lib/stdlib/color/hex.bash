@@ -15,7 +15,7 @@ stdlib_color_hex() {
   fi
 
   # Now print the parsed RGB back to hex
-  printf "#%02x%02x%02x\n" "${COLOR_RGB[1]}" "${COLOR_RGB[2]}" "${COLOR_RGB[3]}"
+  printf "#%02x%02x%02x\n" "${COLOR[1]}" "${COLOR[2]}" "${COLOR[3]}"
 }
 
 STDLIB_COLOR_HEX_REGEX="^[[:space:]]*#([0-9a-fA-F]{3}([0-9a-fA-F]{3})?)[[:space:]]*$"
@@ -44,14 +44,14 @@ stdlib_color_hex_parse() {
     green="$((0x$green))"
     blue="$((0x$blue))"
 
-    declare -g -a COLOR_RGB=(
+    declare -g -a COLOR=(
       "hex"
       "$red"
       "$green"
       "$blue"
     )
 
-    export COLOR_RGB
+    export COLOR
 
     return 0
   fi
