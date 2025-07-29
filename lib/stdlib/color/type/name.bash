@@ -1,8 +1,8 @@
 stdlib_import "array/join"
 stdlib_import "string/underscore"
 
-stdlib_color_name_format() {
-  __stdlib_color_name_load_list
+stdlib_color_type_name_format() {
+  __stdlib_color_type_name_load_list
 
   local value
   printf -v value "%s;%s;%s" "${COLOR[1]}" "${COLOR[2]}" "${COLOR[3]}"
@@ -11,21 +11,21 @@ stdlib_color_name_format() {
   # value will be a popular function. We could always cache and pre-calc another
   # map with value->key, but that's a later job if we need.
   local key
-  for key in "${!__stdlib_color_name_list[@]}"; do
-    if [[ "${__stdlib_color_name_list["$key"]}" == "$value" ]]; then
+  for key in "${!__stdlib_color_type_name_list[@]}"; do
+    if [[ "${__stdlib_color_type_name_list["$key"]}" == "$value" ]]; then
       printf "@%s\n" "$key"
       return
     fi
   done
 }
 
-stdlib_color_name_parse() {
+stdlib_color_type_name_parse() {
   if [[ "$1" == "@"* ]]; then
-    __stdlib_color_name_load_list
+    __stdlib_color_type_name_load_list
 
     local name="${ stdlib_string_underscore "$1"; }"
 
-    local color="${__stdlib_color_name_list["$name"]}"
+    local color="${__stdlib_color_type_name_list["$name"]}"
     if [[ "$color" == "" ]]; then
       return 1
     fi
@@ -44,19 +44,19 @@ stdlib_color_name_parse() {
   return 1
 }
 
-stdlib_color_name_list() {
-  __stdlib_color_name_load_list
+stdlib_color_type_name_list() {
+  __stdlib_color_type_name_load_list
 
   local -a keys=()
-  for name in "${!__stdlib_color_name_list[@]}"; do
+  for name in "${!__stdlib_color_type_name_list[@]}"; do
     keys+=("$name")
   done
 
   printf "%s\n" "${ stdlib_array_join --delim $'\n' -a keys; }"
 }
 
-__stdlib_color_name_load_list() {
-  declare -A -g __stdlib_color_name_list=(
+__stdlib_color_type_name_load_list() {
+  declare -A -g __stdlib_color_type_name_list=(
     ["cloudy_blue"]="172;194;217"
     ["dark_pastel_green"]="86;174;87"
     ["dust"]="178;153;110"
@@ -1008,7 +1008,7 @@ __stdlib_color_name_load_list() {
     ["purple"]="126;30;156"
   )
 
-  __stdlib_color_name_load_list() {
+  __stdlib_color_type_name_load_list() {
     :
   }
 }

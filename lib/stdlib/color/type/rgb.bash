@@ -1,10 +1,10 @@
 STDLIB_COLOR_RGB_REGEX="^[[:space:]]*rgb\([[:space:]]*([0-9]+)[[:space:]]*,?[[:space:]]*([0-9]+)[[:space:]]*,?[[:space:]]*([0-9]+)[[:space:]]*\)[[:space:]]*$"
 
-stdlib_color_rgb_format() {
+stdlib_color_type_rgb_format() {
   printf "rgb(%s, %s, %s)\n" "${COLOR[1]}" "${COLOR[2]}" "${COLOR[3]}"
 }
 
-stdlib_color_rgb_parse() {
+stdlib_color_type_rgb_parse() {
   if [[ "$1" =~ $STDLIB_COLOR_RGB_REGEX ]]; then
     declare -g -a COLOR=(
       "rgb"

@@ -1,10 +1,10 @@
 stdlib_import "error"
-stdlib_import "color/rgb"
-stdlib_import "color/hex"
-stdlib_import "color/x11"
-stdlib_import "color/kv"
-stdlib_import "color/ansi"
-stdlib_import "color/name"
+stdlib_import "color/type/rgb"
+stdlib_import "color/type/hex"
+stdlib_import "color/type/x11"
+stdlib_import "color/type/kv"
+stdlib_import "color/type/ansi"
+stdlib_import "color/type/name"
 
 stdlib_color() {
   local format_arg
@@ -42,24 +42,24 @@ stdlib_color() {
 }
 
 stdlib_color_parse() {
-  if stdlib_color_rgb_parse "$1"; then return; fi
-  if stdlib_color_x11_parse "$1"; then return; fi
-  if stdlib_color_hex_parse "$1"; then return; fi
-  if stdlib_color_kv_parse "$1"; then return; fi
-  if stdlib_color_ansi_parse "$1"; then return; fi
-  if stdlib_color_name_parse "$1"; then return; fi
+  if stdlib_color_type_rgb_parse "$1"; then return; fi
+  if stdlib_color_type_x11_parse "$1"; then return; fi
+  if stdlib_color_type_hex_parse "$1"; then return; fi
+  if stdlib_color_type_kv_parse "$1"; then return; fi
+  if stdlib_color_type_ansi_parse "$1"; then return; fi
+  if stdlib_color_type_name_parse "$1"; then return; fi
 
   return 1
 }
 
 stdlib_color_format() {
   case "$1" in
-    rgb) stdlib_color_rgb_format ;;
-    x11) stdlib_color_x11_format ;;
-    hex) stdlib_color_hex_format ;;
-    kv) stdlib_color_kv_format ;;
-    ansi) stdlib_color_ansi_format ;;
-    name) stdlib_color_name_format ;;
+    rgb) stdlib_color_type_rgb_format ;;
+    x11) stdlib_color_type_x11_format ;;
+    hex) stdlib_color_type_hex_format ;;
+    kv) stdlib_color_type_kv_format ;;
+    ansi) stdlib_color_type_ansi_format ;;
+    name) stdlib_color_type_name_format ;;
     *) stdlib_argparser error/invalid_arg "unknown format $1"; return 1 ;;
   esac
 }

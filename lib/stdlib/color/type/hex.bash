@@ -1,10 +1,10 @@
 STDLIB_COLOR_HEX_REGEX="^[[:space:]]*#([0-9a-fA-F]{3}([0-9a-fA-F]{3})?)[[:space:]]*$"
 
-stdlib_color_hex_format() {
+stdlib_color_type_hex_format() {
   printf "#%02x%02x%02x\n" "${COLOR[1]}" "${COLOR[2]}" "${COLOR[3]}"
 }
 
-stdlib_color_hex_parse() {
+stdlib_color_type_hex_parse() {
   if [[ "$1" =~ $STDLIB_COLOR_HEX_REGEX ]]; then
     local hex="${BASH_REMATCH[1]}"
     local red green blue
