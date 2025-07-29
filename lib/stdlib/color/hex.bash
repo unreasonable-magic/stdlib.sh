@@ -19,11 +19,10 @@ stdlib_color_hex() {
 }
 
 STDLIB_COLOR_HEX_REGEX="^[[:space:]]*#([0-9a-fA-F]{3}([0-9a-fA-F]{3})?)[[:space:]]*$"
-STDLIB_COLOR_HEX_X11_REGEX='^[[:space:]]*rgb\:([0-9a-fA-F]{2}/[0-9a-fA-F]{2}/[0-9a-fA-F]{2})[[:space:]]*$'
 
 stdlib_color_hex_parse() {
-  if [[ "$1" =~ $STDLIB_COLOR_HEX_REGEX || "$1" =~ $STDLIB_COLOR_HEX_X11_REGEX ]]; then
-    local hex="${BASH_REMATCH[1]//\//}"
+  if [[ "$1" =~ $STDLIB_COLOR_HEX_REGEX ]]; then
+    local hex="${BASH_REMATCH[1]}"
     local red green blue
 
     # When hex only has 3 charaters, then each character needs to be duplicated,
