@@ -13,8 +13,9 @@ stdlib_array_serialize() {
   fi
 
   declare -n var_ref="${var_arg}"
-  declare -a lines=()
+  local -a lines=()
 
+  local key line
   for key in "${!var_ref[@]}"; do
     printf -v line "%s=%s" "$key" "${var_ref[$key]}"
     lines+=("$line")
