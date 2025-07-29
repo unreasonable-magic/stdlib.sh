@@ -29,7 +29,7 @@ stdlib_terminal_ansi_color() {
   elif [[ $color =~ ^[a-z_]+$ ]]; then
     stdlib_terminal_ansi_color_convert_16 "$target" "$color"
   elif stdlib_color_parse "$color"; then
-    stdlib_terminal_ansi_color_convert_rgb "$target" "${COLOR_RGB[@]}"
+    stdlib_terminal_ansi_color_convert_rgb "$target" "${COLOR_RGB[1]}" "${COLOR_RGB[2]}" "${COLOR_RGB[3]}"
   fi
 }
 

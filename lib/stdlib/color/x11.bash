@@ -15,7 +15,7 @@ stdlib_color_x11() {
   fi
 
   # Now print the parsed RGB back to x11 format
-  printf "rgb:%02x/%02x/%02x\n" "${COLOR_RGB[0]}" "${COLOR_RGB[1]}" "${COLOR_RGB[2]}"
+  printf "rgb:%02x/%02x/%02x\n" "${COLOR_RGB[1]}" "${COLOR_RGB[2]}" "${COLOR_RGB[3]}"
 }
 
 STDLIB_COLOR_X11_REGEX='^[[:space:]]*rgb\:([0-9a-fA-F]{2})/([0-9a-fA-F]{2})/([0-9a-fA-F]{2})[[:space:]]*$'
