@@ -1,9 +1,13 @@
-stdlib_import "array/join"
 stdlib_import "string/underscore"
 stdlib_import "terminal/palette"
 
 stdlib_color_type_xterm_format() {
-  __stdlib_color_type_xterm_load_list
+  # Save ourselves a bunch a time and pull the saved named from COLOR if we have
+  # it
+  if [[ "${COLOR[0]}" == "xterm" ]]; then
+    printf "xterm:%s\n" "${COLOR[4]}"
+    return
+  fi
 
   # First we need to convert the color into a format we can search on
   local x11_formatted="${ stdlib_color_type_x11_format; }"
@@ -29,23 +33,15 @@ stdlib_color_type_xterm_format() {
     fi
   done <<< "$response"
 
-  # Finally! We have our number, now we can find the name that matches the number
-  local key
-  for key in "${!__stdlib_color_type_xterm_list[@]}"; do
-    if [[ "${__stdlib_color_type_xterm_list["$key"]}" == "$number" ]]; then
-      printf "xterm:%s\n" "$key"
-      return
-    fi
-  done
+  # Finally! We have our number, now we can find the key that matches the number
+  stdlib_color_type_xterm_data find-key-by-value "$number"
 }
 
 stdlib_color_type_xterm_parse() {
   if [[ "$1" == "xterm:"* ]]; then
-    __stdlib_color_type_xterm_load_list
-
     # First thing we need to do is find the color in the list
-    local name="${ stdlib_string_underscore "${1/xterm://}"; }"
-    local number="${__stdlib_color_type_xterm_list["$name"]}"
+    local key="${ stdlib_string_underscore "${1/xterm://}"; }"
+    local number="${ stdlib_color_type_xterm_data find-value-by-key "$key"; }"
     if [[ "$number" == "" ]]; then
       return 1
     fi
@@ -67,25 +63,18 @@ stdlib_color_type_xterm_parse() {
     # type in COLOR with our name
     COLOR[0]="xterm"
 
+    # We'll also tack onto the end the color name so when we go back to printing
+    # this value again we don't need to requery the terminal
+    COLOR[4]="$key"
+
     return 0
   fi
 
   return 1
 }
 
-stdlib_color_type_xterm_list() {
-  __stdlib_color_type_xterm_load_list
-
-  local -a keys=()
-  for name in "${!__stdlib_color_type_xterm_list[@]}"; do
-    keys+=("$name")
-  done
-
-  printf "%s\n" "${ stdlib_array_join --delim $'\n' -a keys; }"
-}
-
-__stdlib_color_type_xterm_load_list() {
-  declare -A -g __stdlib_color_type_xterm_list=(
+stdlib_color_type_xterm_data() {
+  declare -A -g __stdlib_color_type_xterm_data=(
     ["black"]=0
     ["red"]=1
     ["green"]=2
@@ -344,7 +333,56 @@ __stdlib_color_type_xterm_load_list() {
     ["grey93"]=255
   )
 
-  __stdlib_color_type_xterm_load_list() {
-    :
+  stdlib_color_type_xterm_data() {
+    case "$1" in
+      keys)
+        local key buffer
+        for key in "${!__stdlib_color_type_xterm_data[@]}"; do
+          buffer+="$key"$'\n'
+        done
+        printf "%s" "$buffer"
+        ;;
+
+      values)
+        local value buffer
+        for value in "${__stdlib_color_type_xterm_data[@]}"; do
+          buffer+="$value"$'\n'
+        done
+        printf "%s" "$buffer"
+        ;;
+
+      find-value-by-key)
+        if [[ -v __stdlib_color_type_xterm_data["$2"] ]]; then
+          printf "%s\n" "${__stdlib_color_type_xterm_data["$2"]}"
+        else
+          return 1
+        fi
+        ;;
+
+      find-key-by-value)
+        local key
+        for key in "${!__stdlib_color_type_xterm_data[@]}"; do
+          if [[ "${__stdlib_color_type_xterm_data["$key"]}" == "$2" ]]; then
+            printf "xterm:%s\n" "$key"
+            return
+          fi
+        done
+        return 1
+        ;;
+
+      "")
+        local key buffer
+        for key in "${!__stdlib_color_type_xterm_data[@]}"; do
+          buffer+="${key}=${__stdlib_color_type_xterm_data["$key"]}"$'\n'
+        done
+        printf "%s" "$buffer"
+        ;;
+
+      *)
+        stdlib_argparser error/invalid_arg "$1"
+        return 1
+    esac
   }
+
+  stdlib_color_type_xterm_data "$@"
 }
