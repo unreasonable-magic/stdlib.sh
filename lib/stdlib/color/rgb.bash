@@ -2,8 +2,6 @@ stdlib_import "string/count"
 stdlib_import "argparser"
 stdlib_import "color/parse"
 
-enable kv
-
 # Handles a few different input types:
 #
 #     $ stdlib color/rgb "rgb(5 5 5)"
@@ -15,8 +13,6 @@ enable kv
 #
 #     $ echo -e "1\n2\n3" | stdlib color/rgb - - -
 #     $ echo -e "2" | stdlib color/rgb 1 - 3
-#
-#     $ echo -e "red=1\ngreen=2\nblue=3" | stdlib color/rgb
 #
 stdlib_color_rgb() {
   local input="${| stdlib_argparser_parse "$@"; }"
@@ -52,9 +48,6 @@ stdlib_color_rgb() {
 # Matches rgb(red, green, blue) and rgb(red green blue)
 STDLIB_COLOR_RGB_REGEX="^[[:space:]]*rgb\([[:space:]]*([0-9]+)[[:space:]]*,?[[:space:]]*([0-9]+)[[:space:]]*,?[[:space:]]*([0-9]+)[[:space:]]*\)[[:space:]]*$"
 
-# Matches red=xx
-STDLIB_COLOR_RGB_KV_REGEX="^(red|green|blue)=(.+)$"
-
 # Matches ansi style red;green;blue
 STDLIB_COLOR_RGB_ANSI_REGEX="^[[:space:]]*([0-9]+);([0-9]+);([0-9]+)[[:space:]]*$"
 
@@ -65,19 +58,6 @@ stdlib_color_rgb_parse() {
       "${BASH_REMATCH[2]}"
       "${BASH_REMATCH[3]}"
     )
-    return 0
-  elif [[ "$1" =~ $STDLIB_COLOR_RGB_KV_REGEX ]]; then
-    if kv -s '=' <<<"$1"; then
-      declare -g -a COLOR_RGB=(
-        "${KV["red"]}"
-        "${KV["green"]}"
-        "${KV["blue"]}"
-      )
-      return 0
-    fi
-  elif [[ "${ stdlib_string_count "$1" $'\n'; }" -gt "1" ]]; then
-    declare -g -a COLOR_RGB=()
-    read -r -a COLOR_RGB -d $'\0' <<< "$1"
     return 0
   fi
 
