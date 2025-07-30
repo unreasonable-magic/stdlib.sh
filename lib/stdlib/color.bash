@@ -83,11 +83,13 @@ enable fltexpr
 
 stdlib_color_evaluate_component() {
   local component="$1"
+  local min=0
+  local max=255
 
   # Support random numbers, i.e. red=~ or red=30~40
   if [[ "$component" =~ ^(([0-9]+)(%)?)?~(([0-9]+)(%)?)?$ ]]; then
-    local min="${BASH_REMATCH[2]:-0}"
-    local max="${BASH_REMATCH[5]:-255}"
+    local random_range_min="${BASH_REMATCH[2]:-"$min"}"
+    local random_range_max="${BASH_REMATCH[5]:-"$max"}"
 
     # Are either of the values a %?
     if [[ "${BASH_REMATCH[3]}" == "%" || "${BASH_REMATCH[6]}" == "%" ]]; then
@@ -97,7 +99,7 @@ stdlib_color_evaluate_component() {
       fi
     fi
 
-    fltexpr "component = min + fmod(RANDOM, (max - min + 1))"
+    fltexpr "component = random_range_min + fmod(RANDOM, (random_range_max - random_range_min + 1))"
 
     # Now that we've generated the random number, let's see if we need to
     # convert it back into a % so it can be expanded next
@@ -108,7 +110,7 @@ stdlib_color_evaluate_component() {
 
   # Support passing percentages to a componnent, i.e. red=50%
   if [[ "$component" =~ ^([0-9]+)%$ ]]; then
-    fltexpr "component = 255 * (${BASH_REMATCH[1]}/100)"
+    fltexpr "component = max * (${BASH_REMATCH[1]}/100)"
   fi
 
   printf "%s\n" "$component"
