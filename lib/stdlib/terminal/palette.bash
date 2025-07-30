@@ -89,6 +89,7 @@ stdlib_terminal_palette_query() {
   if [[ $# -eq 0 ]]; then
     query="foreground=?;background=?;selection_background=?;selection_foreground=?;cursor=?;cursor_text=?"
   else
+    local arg
     for arg in "$@"; do
       query+="${arg}=?;"
     done
