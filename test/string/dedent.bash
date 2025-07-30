@@ -13,6 +13,15 @@ stdout=$(printf "$string" | stdlib_string_dedent)
 assert "$stdout" == $'this\nwill\n  be\nfixed'
 
 string="
+  this
+  will
+    be
+  fixed
+"
+stdout=$(stdlib_string_dedent "$string")
+assert "$stdout" == $'this\nwill\n  be\nfixed'
+
+string="
 indentation
 is
 zero

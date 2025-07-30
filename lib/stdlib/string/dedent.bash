@@ -5,10 +5,14 @@ stdlib_string_dedent() {
   local line
   local indent_to_remove=999999
 
-  # Read all lines into array
-  while IFS= read -r line; do
-    lines+=("$line")
-  done
+  if [[ "$1" != "" ]]; then
+    readarray -t lines <<< "$1"
+  else
+    # Read all lines into array
+    while IFS= read -r line; do
+      lines+=("$line")
+    done
+  fi
 
   # Remove empty lines from the beginning
   while [[ ${#lines[@]} -gt 0 && (-z "${lines[0]}" || "${lines[0]}" =~ ^[[:space:]]*$) ]]; do
