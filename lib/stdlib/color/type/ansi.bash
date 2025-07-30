@@ -21,7 +21,7 @@ stdlib_color_type_ansi_format() {
     # that
     printf "${COLOR[4]}\n"
   else
-    printf "2;%s;%s;%s\n" "${COLOR[1]}" "${COLOR[2]}" "${COLOR[3]}"
+    printf "2;%0.f;%0.f;%0.f\n" "${COLOR[1]:-0}" "${COLOR[2]:-0}" "${COLOR[3]:-0}"
   fi
 }
 

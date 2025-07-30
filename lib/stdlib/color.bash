@@ -21,11 +21,14 @@ stdlib_color() {
     return 1
   fi
 
-  # Reset the global COLOR variable that is populated during parsing
-  unset COLOR
-
   # Parse the color (this will load an array into COLOR)
   if ! stdlib_color_parse "$input"; then
+    return 1
+  fi
+
+  # Convert any special values into actual numbers (modifies the current COLOR
+  # variable)
+  if ! stdlib_color_evaluate; then
     return 1
   fi
 
@@ -43,6 +46,9 @@ stdlib_color() {
 }
 
 stdlib_color_parse() {
+  # Reset the global COLOR variable that is populated during parsing
+  unset COLOR
+
   if stdlib_color_type_rgb_parse "$1"; then return; fi
   if stdlib_color_type_x11_parse "$1"; then return; fi
   if stdlib_color_type_hex_parse "$1"; then return; fi
@@ -52,6 +58,12 @@ stdlib_color_parse() {
   if stdlib_color_type_xterm_parse "$1"; then return; fi
 
   return 1
+}
+
+stdlib_color_evaluate() {
+  if ! COLOR[1]="${ stdlib_color_evaluate_component "${COLOR[1]}"; }"; then return 1; fi
+  if ! COLOR[2]="${ stdlib_color_evaluate_component "${COLOR[2]}"; }"; then return 1; fi
+  if ! COLOR[3]="${ stdlib_color_evaluate_component "${COLOR[3]}"; }"; then return 1; fi
 }
 
 stdlib_color_format() {
@@ -67,6 +79,41 @@ stdlib_color_format() {
   esac
 }
 
+enable fltexpr
+
+stdlib_color_evaluate_component() {
+  local component="$1"
+
+  # Support random numbers, i.e. red=~ or red=30~40
+  if [[ "$component" =~ ^(([0-9]+)(%)?)?~(([0-9]+)(%)?)?$ ]]; then
+    local min="${BASH_REMATCH[2]:-0}"
+    local max="${BASH_REMATCH[5]:-255}"
+
+    # Are either of the values a %?
+    if [[ "${BASH_REMATCH[3]}" == "%" || "${BASH_REMATCH[6]}" == "%" ]]; then
+      # If they are, then they both need to be a %
+      if [[ "${BASH_REMATCH[3]}" == "" || "${BASH_REMATCH[6]}" == "" ]]; then
+        return 1
+      fi
+    fi
+
+    fltexpr "component = min + fmod(RANDOM, (max - min + 1))"
+
+    # Now that we've generated the random number, let's see if we need to
+    # convert it back into a % so it can be expanded next
+    if [[ "${BASH_REMATCH[3]}" == "%" ]]; then
+      component="${component}%"
+    fi
+  fi
+
+  # Support passing percentages to a componnent, i.e. red=50%
+  if [[ "$component" =~ ^([0-9]+)%$ ]]; then
+    fltexpr "component = 255 * (${BASH_REMATCH[1]}/100)"
+  fi
+
+  printf "%s\n" "$component"
+}
+
 stdlib_color_validate_component() {
   local component="$1"
   local value="$2"
@@ -77,13 +124,15 @@ stdlib_color_validate_component() {
   fi
 
   # Make sure it's a number
-  if [[ ! "$value" =~ ^-?[0-9]+$ ]]; then
+  if [[ ! "$value" =~ ^-?[0-9]+(\.[0-9]+)?$ ]]; then
     stdlib_error "$component($value) is not a number"
     return 1
   fi
 
-  # And that it's between 0 and 255
-  if [[ ${value} -lt 0 || ${value} -gt 255 ]]; then
+  # And that it's between 0 and 255 (need to use fltexpr as there might be
+  # decimals in the value, which are technically valid RGB, but don't make sense
+  # when it's time to display them)
+  if ! fltexpr "value >= 0 ? (value <= 255 ? 1 : 0) : 0"; then
     stdlib_error "$component($value) is out of bounds (0-255)"
     return 1
   fi

@@ -1,7 +1,13 @@
 STDLIB_COLOR_X11_REGEX='^[[:space:]]*rgb\:([0-9a-fA-F]{2})/([0-9a-fA-F]{2})/([0-9a-fA-F]{2})[[:space:]]*$'
 
 stdlib_color_type_x11_format() {
-  printf "rgb:%02x/%02x/%02x\n" "${COLOR[1]}" "${COLOR[2]}" "${COLOR[3]}"
+  # Round the numbers before converting to hex
+  local red green blue
+  printf -v red "%0.f" "${COLOR[1]:-0}"
+  printf -v green "%0.f" "${COLOR[2]:-0}"
+  printf -v blue "%0.f" "${COLOR[3]:-0}"
+
+  printf "rgb:%02x/%02x/%02x\n" "$red" "$green" "$blue"
 }
 
 stdlib_color_type_x11_parse() {

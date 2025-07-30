@@ -1,7 +1,7 @@
-STDLIB_COLOR_RGB_REGEX="^[[:space:]]*rgb\([[:space:]]*([0-9]+)[[:space:]]*,?[[:space:]]*([0-9]+)[[:space:]]*,?[[:space:]]*([0-9]+)[[:space:]]*\)[[:space:]]*$"
+STDLIB_COLOR_RGB_REGEX="^[[:space:]]*rgb\([[:space:]]*([^, ]+)[[:space:]]*,?[[:space:]]*([^, ]+)[[:space:]]*,?[[:space:]]*([^, ]+)[[:space:]]*\)[[:space:]]*$"
 
 stdlib_color_type_rgb_format() {
-  printf "rgb(%s, %s, %s)\n" "${COLOR[1]}" "${COLOR[2]}" "${COLOR[3]}"
+  printf "rgb(%0.f, %0.f, %0.f)\n" "${COLOR[1]:-0}" "${COLOR[2]:-0}" "${COLOR[3]:-0}"
 }
 
 stdlib_color_type_rgb_parse() {
