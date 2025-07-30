@@ -1,8 +1,20 @@
 stdlib_import "string/dedent"
+stdlib_import "test"
 
 stdlib_function_comment() {
   local filepath="$1"
   local funcname="$2"
+
+  # This isn't an exhaustive regex to match function names, but this is good
+  # enough for now
+  if [[ ! "$funcname" =~ ^[a-zA-Z0-0_]+$ ]]; then
+    return 1
+  fi
+
+  # Also make sure the file exists before we try and read from it
+  if ! stdlib_test file/exists "$filepath"; then
+    return 1
+  fi
 
   local comment line
   while read -r line; do
@@ -20,7 +32,7 @@ stdlib_function_comment() {
         continue
       fi
 
-      if [[ "$line" =~ ^stdlib_terminal_printf\(\)[[:space:]]*\{$ ]]; then
+      if [[ "$line" =~ ^$funcname\(\)[[:space:]]*\{$ ]]; then
         # Huzzah, we found it!
         stdlib_string_dedent "$comment"
         return
