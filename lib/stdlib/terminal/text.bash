@@ -44,7 +44,7 @@ stdlib_terminal_text() {
   #       ['dim']=''
   #     )
   #
-  local input="${| stdlib_argparser_parse "$@"; }"
+  local input="${| stdlib_argparser_parse -- "$@"; }"
   kv -s "=" <<< "$input"
 
   # Loop through each member of the assoc array and collect all the ansi codes

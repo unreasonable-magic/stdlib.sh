@@ -14,7 +14,7 @@ stdlib_color() {
     shift 2
   fi
 
-  local input="${| stdlib_argparser_parse "$@"; }"
+  local input="${| stdlib_argparser_parse -- "$@"; }"
 
   if [[ "$input" == "" ]]; then
     stdlib_argparser error/missing_arg "nothing to parse"

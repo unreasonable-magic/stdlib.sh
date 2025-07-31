@@ -16,6 +16,15 @@ stdlib_argparser() {
 }
 
 stdlib_argparser_parse() {
+  while [[ $# -gt 0 ]]; do
+    local arg="$1"
+    shift 1
+
+    if [[ "$arg" == "--" ]]; then
+      break
+    fi
+  done
+
   # If we've not been given any params, and there's something on stdin we should
   # read, let's set the params so we'll read them all in
   if [[ $# -eq 0 && ! -t 0 ]]; then

@@ -22,7 +22,7 @@ enable kv
 # }
 
 stdlib_terminal_palette_color_set() {
-  local input="${| stdlib_argparser_parse "$@"; }"
+  local input="${| stdlib_argparser_parse -- "$@"; }"
   if [[ "$input" == "" ]]; then
     stdlib_argparser error/missing_arg "nothing to parse"
     return 1
