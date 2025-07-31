@@ -6,6 +6,7 @@ stdlib_import "color/type/kv"
 stdlib_import "color/type/ansi"
 stdlib_import "color/type/web"
 stdlib_import "color/type/xterm"
+stdlib_import "color/type/hsl"
 
 stdlib_color() {
   local format_arg
@@ -56,6 +57,7 @@ stdlib_color_parse() {
   if stdlib_color_type_ansi_parse "$1"; then return; fi
   if stdlib_color_type_web_parse "$1"; then return; fi
   if stdlib_color_type_xterm_parse "$1"; then return; fi
+  if stdlib_color_type_hsl_parse "$1"; then return; fi
 
   return 1
 }
@@ -75,6 +77,7 @@ stdlib_color_format() {
     ansi) stdlib_color_type_ansi_format ;;
     web) stdlib_color_type_web_format ;;
     xterm) stdlib_color_type_xterm_format ;;
+    hsl) stdlib_color_type_hsl_format ;;
     *) stdlib_argparser error/invalid_arg "unknown format $1"; return 1 ;;
   esac
 }
