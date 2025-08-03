@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 eval "$(stdlib shellenv)"
 
 stdlib_import "assert"
@@ -90,3 +91,166 @@ assert "$baz" == "30"
 
 # Clean up temp file
 rm -f /tmp/stdlib_test_output.txt
+
+# Test mathematical constants
+assert "$(stdlib_maths "PI > 3.14")" == "1"
+assert "$(stdlib_maths "PI < 3.15")" == "1"
+assert "$(stdlib_maths "E > 2.71")" == "1"
+assert "$(stdlib_maths "E < 2.72")" == "1"
+
+# Test basic mathematical functions that work
+assert "$(stdlib_maths "abs(-5)")" == "5"
+assert "$(stdlib_maths "abs(5)")" == "5"
+assert "$(stdlib_maths "sqrt(16)")" == "4"
+assert "$(stdlib_maths "sqrt(25)")" == "5"
+
+# Test power functions
+assert "$(stdlib_maths "pow(2, 3)")" == "8"
+assert "$(stdlib_maths "pow(5, 2)")" == "25"
+assert "$(stdlib_maths "pow(10, 0)")" == "1"
+
+# Test mathematical expressions with constants
+assert "$(stdlib_maths "PI * 2 > 6.28")" == "1"
+assert "$(stdlib_maths "E * E > 7.3")" == "1"
+
+# Test additional mathematical functions
+# Logarithmic functions
+assert "$(stdlib_maths "log(E)")" == "1"
+assert "$(stdlib_maths "log10(100)")" == "2"
+assert "$(stdlib_maths "log2(8)")" == "3"
+assert "$(stdlib_maths "log1p(0)")" == "0"
+
+# Trigonometric functions
+assert "$(stdlib_maths "sin(0)")" == "0"
+assert "$(stdlib_maths "cos(0)")" == "1"
+assert "$(stdlib_maths "tan(0)")" == "0"
+assert "$(stdlib_maths "atan(0)")" == "0"
+assert "$(stdlib_maths "asin(0)")" == "0"
+assert "$(stdlib_maths "acos(1)")" == "0"
+
+# Hyperbolic functions
+assert "$(stdlib_maths "sinh(0)")" == "0"
+assert "$(stdlib_maths "cosh(0)")" == "1"
+assert "$(stdlib_maths "tanh(0)")" == "0"
+
+# Exponential functions
+assert "$(stdlib_maths "exp(0)")" == "1"
+assert "$(stdlib_maths "exp2(3)")" == "8"
+assert "$(stdlib_maths "expm1(0)")" == "0"
+
+# Rounding functions
+assert "$(stdlib_maths "floor(3.7)")" == "3"
+assert "$(stdlib_maths "ceil(3.2)")" == "4"
+assert "$(stdlib_maths "round(3.5)")" == "4"
+assert "$(stdlib_maths "trunc(3.7)")" == "3"
+assert "$(stdlib_maths "rint(3.5)")" == "4"
+assert "$(stdlib_maths "nearbyint(3.5)")" == "4"
+
+# Root functions
+assert "$(stdlib_maths "cbrt(27)")" == "3"
+assert "$(stdlib_maths "cbrt(8)")" == "2"
+
+# Two-argument functions
+assert "$(stdlib_maths "atan2(1, 1) > 0.78")" == "1"
+assert "$(stdlib_maths "copysign(5, -1)")" == "-5"
+assert "$(stdlib_maths "fdim(5, 3)")" == "2"
+assert "$(stdlib_maths "fmax(5, 3)")" == "5"
+assert "$(stdlib_maths "fmin(5, 3)")" == "3"
+assert "$(stdlib_maths "fmod(7, 3)")" == "1"
+assert "$(stdlib_maths "hypot(3, 4)")" == "5"
+assert "$(stdlib_maths "remainder(7, 3)")" == "1"
+assert "$(stdlib_maths "ldexp(1, 3)")" == "8"
+assert "$(stdlib_maths "scalbn(2, 3)")" == "16"
+
+# Three-argument function
+assert "$(stdlib_maths "fma(2, 3, 4)")" == "10"
+
+# Classification functions
+assert "$(stdlib_maths "isfinite(5)")" == "1"
+assert "$(stdlib_maths "isnormal(5)")" == "1"
+assert "$(stdlib_maths "signbit(-5)")" == "1"
+assert "$(stdlib_maths "signbit(5)")" == "0"
+
+# Comparison functions
+assert "$(stdlib_maths "isgreater(5, 3)")" == "1"
+assert "$(stdlib_maths "isgreaterequal(5, 5)")" == "1"
+assert "$(stdlib_maths "isless(3, 5)")" == "1"
+assert "$(stdlib_maths "islessequal(3, 3)")" == "1"
+assert "$(stdlib_maths "islessgreater(3, 5)")" == "1"
+
+# Additional comprehensive tests for all working functions
+# More trig functions
+assert "$(stdlib_maths "acos(0.5) > 1.04")" == "1"
+assert "$(stdlib_maths "acosh(2) > 1.31")" == "1"
+assert "$(stdlib_maths "asin(0.5) > 0.52")" == "1"
+assert "$(stdlib_maths "asinh(1) > 0.88")" == "1"
+assert "$(stdlib_maths "atan(1) > 0.78")" == "1"
+assert "$(stdlib_maths "atanh(0.5) > 0.54")" == "1"
+
+# Error functions
+assert "$(stdlib_maths "erf(1) > 0.84")" == "1"
+assert "$(stdlib_maths "erfc(1) < 0.16")" == "1"
+
+# Bessel functions
+assert "$(stdlib_maths "j0(1) > 0.76")" == "1"
+assert "$(stdlib_maths "j1(1) > 0.44")" == "1"
+assert "$(stdlib_maths "y0(1) > 0.08")" == "1"
+assert "$(stdlib_maths "y1(1) < -0.78")" == "1"
+assert "$(stdlib_maths "jn(2, 1) > 0.11")" == "1"
+assert "$(stdlib_maths "yn(2, 1) < -1.65")" == "1"
+
+# Gamma functions
+assert "$(stdlib_maths "lgamma(5) > 3.17")" == "1"
+assert "$(stdlib_maths "tgamma(5)")" == "24"
+
+# More logarithmic tests
+assert "$(stdlib_maths "log1p(1) > 0.69")" == "1"
+assert "$(stdlib_maths "logb(16)")" == "4"
+
+# More exponential tests
+assert "$(stdlib_maths "expm1(1) > 1.71")" == "1"
+
+# Additional two-argument functions
+assert "$(stdlib_maths "ldexp(2, 3)")" == "16"
+assert "$(stdlib_maths "scalbn(3, 2)")" == "12"
+
+# Test roundp function
+assert "$(stdlib_maths "roundp(2.34234234, 2)")" == "2.34"
+assert "$(stdlib_maths "roundp(3.14159, 3)")" == "3.142"
+assert "$(stdlib_maths "roundp(10.9999, 2)")" == "11"
+
+# Test nextafter function
+assert "$(stdlib_maths "nextafter(1, 2) > 1")" == "1"
+assert "$(stdlib_maths "nextafter(1, 0) < 1")" == "1"
+
+# Test cotangent functions
+assert "$(stdlib_maths "cot(PI/4) > 0.99")" == "1"
+assert "$(stdlib_maths "coth(1) > 1.31")" == "1"
+
+# Test additional classification functions
+assert "$(stdlib_maths "fpclassify(5)")" == "4"
+assert "$(stdlib_maths "iszero(0)")" == "1"
+assert "$(stdlib_maths "iszero(1)")" == "0"
+assert "$(stdlib_maths "ilogb(8)")" == "3"
+assert "$(stdlib_maths "ilogb(16)")" == "4"
+
+# Test additional constants
+assert "$(stdlib_maths "GAMMA > 0.577")" == "1"
+assert "$(stdlib_maths "GAMMA < 0.578")" == "1"
+assert "$(stdlib_maths "DBL_MIN > 0")" == "1"
+assert "$(stdlib_maths "DBL_MAX > 1e308")" == "1"
+
+# Test special value functions (nan, inf)
+assert "$(stdlib_maths "isnan(nan)")" == "1"
+assert "$(stdlib_maths "isinf(inf)")" == "1"
+assert "$(stdlib_maths "isinf(-inf)")" == "1"
+assert "$(stdlib_maths "isfinite(inf)")" == "0"
+assert "$(stdlib_maths "isfinite(5)")" == "1"
+assert "$(stdlib_maths "issubnormal(DBL_MIN/2)")" == "1"
+assert "$(stdlib_maths "isunordered(nan, 5)")" == "1"
+assert "$(stdlib_maths "isunordered(nan, nan)")" == "1"
+
+# Test arithmetic with special values
+assert "$(stdlib_maths "isnan(0 * inf)")" == "1"
+assert "$(stdlib_maths "isinf(5 + inf)")" == "1"
+assert "$(stdlib_maths "isnan(sqrt(-1))")" == "1"
