@@ -123,8 +123,9 @@ stdlib_maths() {
     echo "Examples: 1 + 1, sin(PI/2), 5 > 3, isnan(5), foo = 1 + 2"
     echo ""
     
-    # Initialize a session variable to track assignments
-    local repl_vars=""
+    # Initialize global session variables to track assignments and previous result
+    declare -g _stdlib_repl_vars=""
+    declare -g _stdlib_previous_result=""
     
     while true; do
       # Only show prompt if stdin is a terminal
@@ -148,11 +149,8 @@ stdlib_maths() {
         break
       fi
       
-      # Process the expression with REPL flag and variable context
-      _stdlib_maths_eval "$format_string" true "$repl_vars"
-      
-      # Update the variable context
-      repl_vars="$_stdlib_repl_vars"
+      # Process the expression with REPL flag (using global variables)
+      _stdlib_maths_eval "$format_string" true
     done
     return 0
   fi
@@ -164,14 +162,15 @@ stdlib_maths() {
 _stdlib_maths_eval() {
   local format_string="$1"
   local is_repl="$2"
-  local repl_vars="$3"
-  shift 3
+  shift 2
   
   local __stdlib_maths_result exit_code
   
   # In REPL mode, restore previous variables
-  if [[ "$is_repl" == true ]] && [[ -n "$repl_vars" ]]; then
-    eval "$repl_vars"
+  if [[ "$is_repl" == true ]]; then
+    if [[ -n "$_stdlib_repl_vars" ]]; then
+      eval "$_stdlib_repl_vars"
+    fi
   fi
   
   # Create a working copy of the format string
@@ -229,6 +228,7 @@ _stdlib_maths_eval() {
   # Convert true/false to 1/0 for fltexpr
   expression="${expression//true/1}"
   expression="${expression//false/0}"
+  
 
   # Check if the expression is a variable assignment (starts with identifier =)
   local is_assignment=false
@@ -240,7 +240,13 @@ _stdlib_maths_eval() {
     # For assignments, execute directly with fltexpr
     # Capture stderr to detect actual errors vs false expressions
     local error_output
-    error_output=$(fltexpr "$expression" 2>&1 >/dev/null)
+    # In REPL mode, set _ variable first, then execute assignment
+    if [[ "$is_repl" == true ]] && [[ -n "$_stdlib_previous_result" ]]; then
+      fltexpr "_ = $_stdlib_previous_result" 2>/dev/null
+      error_output=$(fltexpr "$expression" 2>&1 >/dev/null)
+    else
+      error_output=$(fltexpr "$expression" 2>&1 >/dev/null)
+    fi
     exit_code="$?"
     
     # If there's error output, it's an actual error (not just false)
@@ -260,7 +266,13 @@ _stdlib_maths_eval() {
       expr_part="${expr_part#* }"  # Remove leading spaces (better)
       
       # Evaluate the expression to get the result
-      fltexpr "__temp_result = ($expr_part)" 2>/dev/null
+      # In REPL mode, set _ variable first, then evaluate expression
+      if [[ -n "$_stdlib_previous_result" ]]; then
+        fltexpr "_ = $_stdlib_previous_result" 2>/dev/null
+        fltexpr "__temp_result = ($expr_part)" 2>/dev/null
+      else
+        fltexpr "__temp_result = ($expr_part)" 2>/dev/null
+      fi
       printf "%s\n" "$__temp_result"
       
       # Store the variable for future use (export to global state)
@@ -272,11 +284,20 @@ _stdlib_maths_eval() {
       else
         _stdlib_repl_vars="$var_name=$__temp_result"
       fi
+      
+      # Store the assigned value as the previous result too
+      _stdlib_previous_result="$__temp_result"
     fi
   else
     # For expressions, evaluate and print result
     # First try to evaluate the expression
-    fltexpr "__stdlib_maths_result = ($expression)" 2>/tmp/stdlib_maths_error.$$
+    # In REPL mode, set _ variable first, then evaluate expression
+    if [[ "$is_repl" == true ]] && [[ -n "$_stdlib_previous_result" ]]; then
+      fltexpr "_ = $_stdlib_previous_result" 2>/dev/null
+      fltexpr "__stdlib_maths_result = ($expression)" 2>/tmp/stdlib_maths_error.$$
+    else
+      fltexpr "__stdlib_maths_result = ($expression)" 2>/tmp/stdlib_maths_error.$$
+    fi
     exit_code="$?"
     
     # Read any error output
@@ -304,16 +325,27 @@ _stdlib_maths_eval() {
       is_boolean=true
     fi
     
-    # Print the result and set appropriate exit code
+    # Store result for REPL mode and print
+    local output_result
+    local exit_code_to_return
+    
     if [[ "$is_boolean" == true ]] && [[ "$__stdlib_maths_result" == "1" ]]; then
-      printf "true\n"
-      return 0
+      output_result="true"
+      exit_code_to_return=0
     elif [[ "$is_boolean" == true ]] && [[ "$__stdlib_maths_result" == "0" ]]; then
-      printf "false\n"
-      return 1
+      output_result="false"
+      exit_code_to_return=1
     else
-      printf "%s\n" "$__stdlib_maths_result"
-      return 0
+      output_result="$__stdlib_maths_result"
+      exit_code_to_return=0
     fi
+    
+    # In REPL mode, store the result for next iteration
+    if [[ "$is_repl" == true ]]; then
+      _stdlib_previous_result="$__stdlib_maths_result"
+    fi
+    
+    printf "%s\n" "$output_result"
+    return $exit_code_to_return
   fi
 }
