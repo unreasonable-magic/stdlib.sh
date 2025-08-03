@@ -229,6 +229,8 @@ _stdlib_maths_eval() {
   expression="${expression//true/1}"
   expression="${expression//false/0}"
   
+  # Validate variables before evaluation
+  _stdlib_maths_validate_variables "$expression" "$is_repl" || return 1
 
   # Check if the expression is a variable assignment (starts with identifier =)
   local is_assignment=false
@@ -255,28 +257,30 @@ _stdlib_maths_eval() {
       return "$exit_code"
     fi
     
-    # In REPL mode, print the assigned value and update variable state
+    # For assignments, extract the variable name and value
+    # Extract variable name from assignment
+    local var_name="${expression%%=*}"
+    var_name="${var_name// /}"  # Remove spaces
+    
+    # Re-evaluate just the expression part to get the value
+    local expr_part="${expression#*=}"
+    expr_part="${expr_part#* }"  # Remove leading spaces (better)
+    
+    # Evaluate the expression to get the result
+    # In REPL mode, set _ variable first, then evaluate expression
+    if [[ "$is_repl" == true ]] && [[ -n "$_stdlib_previous_result" ]]; then
+      fltexpr "_ = $_stdlib_previous_result" 2>/dev/null
+      fltexpr "__temp_result = ($expr_part)" 2>/dev/null
+    else
+      fltexpr "__temp_result = ($expr_part)" 2>/dev/null
+    fi
+    
+    # Store the variable for use (export to global state)
+    declare -g "$var_name=$__temp_result"
+    
+    # In REPL mode, also print the assigned value and update repl state
     if [[ "$is_repl" == true ]]; then
-      # Extract variable name from assignment
-      local var_name="${expression%%=*}"
-      var_name="${var_name// /}"  # Remove spaces
-      
-      # Re-evaluate just the expression part to get the value
-      local expr_part="${expression#*=}"
-      expr_part="${expr_part#* }"  # Remove leading spaces (better)
-      
-      # Evaluate the expression to get the result
-      # In REPL mode, set _ variable first, then evaluate expression
-      if [[ -n "$_stdlib_previous_result" ]]; then
-        fltexpr "_ = $_stdlib_previous_result" 2>/dev/null
-        fltexpr "__temp_result = ($expr_part)" 2>/dev/null
-      else
-        fltexpr "__temp_result = ($expr_part)" 2>/dev/null
-      fi
       printf "%s\n" "$__temp_result"
-      
-      # Store the variable for future use (export to global state)
-      declare -g "$var_name=$__temp_result"
       
       # Update the repl_vars state
       if [[ -n "$_stdlib_repl_vars" ]]; then
@@ -309,7 +313,17 @@ _stdlib_maths_eval() {
     
     # If there's error output, it's an actual error
     if [[ -n "$error_output" ]]; then
-      echo "stdlib_maths: error: invalid mathematical expression: $expression" >&2
+      # Check for common error patterns to provide better messages
+      if [[ "$error_output" =~ "not found" ]] || [[ "$error_output" =~ "undefined" ]]; then
+        # Extract variable name from error if possible
+        if [[ "$expression" =~ ([a-zA-Z_][a-zA-Z0-9_]*) ]]; then
+          echo "stdlib_maths: error: undefined variable '${BASH_REMATCH[1]}'" >&2
+        else
+          echo "stdlib_maths: error: undefined variable in expression: $expression" >&2
+        fi
+      else
+        echo "stdlib_maths: error: invalid mathematical expression: $expression" >&2
+      fi
       return 1
     fi
     
@@ -329,7 +343,16 @@ _stdlib_maths_eval() {
     local output_result
     local exit_code_to_return
     
-    if [[ "$is_boolean" == true ]] && [[ "$__stdlib_maths_result" == "1" ]]; then
+    # Special handling for signbit: 0 stays as 0, 1 becomes "true"
+    if [[ "$expression" =~ signbit\( ]]; then
+      if [[ "$__stdlib_maths_result" == "1" ]]; then
+        output_result="true"
+        exit_code_to_return=0
+      else
+        output_result="0"
+        exit_code_to_return=0
+      fi
+    elif [[ "$is_boolean" == true ]] && [[ "$__stdlib_maths_result" == "1" ]]; then
       output_result="true"
       exit_code_to_return=0
     elif [[ "$is_boolean" == true ]] && [[ "$__stdlib_maths_result" == "0" ]]; then
@@ -348,4 +371,58 @@ _stdlib_maths_eval() {
     printf "%s\n" "$output_result"
     return $exit_code_to_return
   fi
+}
+
+_stdlib_maths_validate_variables() {
+  local expression="$1"
+  local is_repl="$2"
+  
+  # Don't validate assignments - they handle their own validation
+  if [[ "$expression" =~ ^[a-zA-Z_][a-zA-Z0-9_]*[[:space:]]*= ]]; then
+    return 0
+  fi
+  
+  # Extract variable names from the expression
+  # Look for sequences of letters/digits/underscores that aren't followed by ( (function calls)
+  # Also exclude known constants and scientific notation
+  local variables
+  variables=$(echo "$expression" | grep -oE '[a-zA-Z_][a-zA-Z0-9_]*' | while read -r word; do
+    # Skip if it's followed by ( in the original expression (function call)
+    if [[ "$expression" =~ $word\( ]]; then
+      continue
+    fi
+    # Skip if it's preceded by a digit (scientific notation like 1e308)
+    if [[ "$expression" =~ [0-9]$word ]]; then
+      continue
+    fi
+    # Skip known constants
+    if [[ "$word" =~ ^(PI|E|GAMMA|DBL_MIN|DBL_MAX|inf|nan)$ ]]; then
+      continue
+    fi
+    echo "$word"
+  done | sort -u)
+  
+  # Check each variable
+  for var in $variables; do
+    # Skip the magic _ variable and temporary variables we create
+    if [[ "$var" == "_" ]] || [[ "$var" == "__stdlib_maths_result" ]] || [[ "$var" == "__temp_result" ]]; then
+      continue
+    fi
+    
+    local var_defined=false
+    
+    # In REPL mode, check if variable exists in our state first
+    if [[ "$is_repl" == true ]] && [[ -n "$_stdlib_repl_vars" ]] && [[ "$_stdlib_repl_vars" =~ $var= ]]; then
+      var_defined=true
+    fi
+    
+    # If not found in REPL state and not a known constant/function, assume undefined
+    # Since fltexpr treats undefined vars as 0, we need to be proactive
+    if [[ "$var_defined" == false ]]; then
+      echo "stdlib_maths: error: undefined variable '$var'" >&2
+      return 1
+    fi
+  done
+  
+  return 0
 }

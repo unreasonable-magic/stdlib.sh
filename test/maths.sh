@@ -54,8 +54,8 @@ assert "$(cat /tmp/stdlib_test_output.txt)" == ""
 assert "$percent_calc" == "30"
 
 # Test error conditions
-# No format string
-stdlib_maths 2>&1 | grep -q "no format string provided"
+# No format string now starts REPL mode
+echo "" | stdlib_maths 2>&1 | grep -q "interactive mode"
 assert "$?" == "0"
 
 # Not enough arguments
@@ -230,7 +230,7 @@ assert "$(stdlib_maths "coth(1) > 1.31")" == "true"
 # Test additional classification functions
 assert "$(stdlib_maths "fpclassify(5)")" == "4"
 assert "$(stdlib_maths "iszero(0)")" == "true"
-assert "$(stdlib_maths "iszero(1)")" == "0"
+assert "$(stdlib_maths "iszero(1)")" == "false"
 assert "$(stdlib_maths "ilogb(8)")" == "3"
 assert "$(stdlib_maths "ilogb(16)")" == "4"
 
@@ -322,3 +322,44 @@ while IFS= read -r line; do
         ((line_count++))
     fi
 done <<< "$output"
+
+# Test variable validation - undefined variables should fail
+stdlib_maths "undefined_var + 1" 2>/dev/null
+assert "$?" == "1"
+
+stdlib_maths "foo + bar" 2>/dev/null  
+assert "$?" == "1"
+
+stdlib_maths "sin(undefined_var)" 2>/dev/null
+assert "$?" == "1"
+
+# Test that error messages are appropriate
+error_output=$(stdlib_maths "missing_var + 5" 2>&1)
+assert "$error_output" =~ "undefined variable 'missing_var'"
+
+error_output=$(stdlib_maths "log(unknown_var)" 2>&1)
+assert "$error_output" =~ "undefined variable 'unknown_var'"
+
+# Test that functions are correctly identified and not flagged as undefined variables
+assert "$(stdlib_maths "sin(PI/2)")" == "1"
+assert "$(stdlib_maths "log(E)")" == "1"
+assert "$(stdlib_maths "sqrt(16) + cos(0)")" == "5"
+
+# Test that constants are correctly identified
+assert "$(stdlib_maths "PI > 3")" == "true"
+assert "$(stdlib_maths "E + GAMMA")" == "3.295497493360578"
+
+# Test REPL mode variable validation
+repl_output=$(echo -e "foo=5\nbar=foo+10\nundefined_var+1\nexit" | stdlib_maths 2>&1)
+assert "$repl_output" =~ "undefined variable 'undefined_var'"
+
+# Test that magic _ variable works and is not flagged as undefined
+repl_output=$(echo -e "1+2\nresult=_\nresult*2\nexit" | stdlib_maths | grep -v "interactive mode" | grep -v "Examples" | grep -v "^$")
+expected_lines=("3" "3" "6")
+line_count=0
+while IFS= read -r line; do
+    if [[ -n "$line" ]]; then
+        assert "$line" == "${expected_lines[$line_count]}"
+        ((line_count++))
+    fi
+done <<< "$repl_output"
