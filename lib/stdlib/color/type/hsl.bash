@@ -119,9 +119,7 @@ stdlib_color_type_hsl_format() {
     hue=$(stdlib_maths "%n * 60.0" "$hue")
 
     # Ensure hue is positive
-    if stdlib_maths --quiet "%n < 0" "$hue"; then
-      hue=$(stdlib_maths "%n + 360.0" "$hue")
-    fi
+    hue=$(stdlib_maths "abs(%n)" "$hue")
   fi
 
   # Convert to percentage and round appropriately
@@ -184,9 +182,9 @@ stdlib_color_type_hsl_parse() {
     #
     local chroma
     if ((lightness <= 50)); then
-      chroma=$(stdlib_maths "(%n/100) * (2 * (%n/100))" "$saturation" "$lightness")
+      chroma=$(stdlib_maths "%percentage * (2 * %percentage)" "$saturation" "$lightness")
     else
-      chroma=$(stdlib_maths "(%n/100) * (2 - 2 * (%n/100))" "$saturation" "$lightness")
+      chroma=$(stdlib_maths "%percentage * (2 - 2 * %percentage)" "$saturation" "$lightness")
     fi
 
     # Now calcualte how much we need of the secondary color
@@ -228,7 +226,7 @@ stdlib_color_type_hsl_parse() {
     # either be a positive or a negative depending on whether or not we need to
     # make it darker or lighter
     local minimum_rgb_value
-    minimum_rgb_value=$(stdlib_maths "(%n/100) - (%n / 2)" "$lightness" "$chroma")
+    minimum_rgb_value=$(stdlib_maths "%percentage - (%n / 2)" "$lightness" "$chroma")
 
     # Now we can mix in the minimum_rgb_value into each red, green and blue
     # value
