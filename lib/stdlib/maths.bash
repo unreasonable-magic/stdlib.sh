@@ -111,6 +111,7 @@
 
 enable fltexpr
 stdlib_import "duration"
+stdlib_import "string/code_highlight"
 
 stdlib_maths() {
   local __stdlib_maths_result exit_code
@@ -148,6 +149,7 @@ stdlib_maths() {
       if [[ "$format_string" == "exit" ]] || [[ "$format_string" == "quit" ]]; then
         break
       fi
+      
       
       # Process the expression with REPL flag (using global variables)
       _stdlib_maths_eval "$format_string" true
@@ -280,7 +282,12 @@ _stdlib_maths_eval() {
     
     # In REPL mode, also print the assigned value and update repl state
     if [[ "$is_repl" == true ]]; then
-      printf "%s\n" "$__temp_result"
+      # Highlight the assignment result if running interactively
+      if [[ -t 0 ]]; then
+        printf "%s\n" "$(stdlib_string_code_highlight "$__temp_result")"
+      else
+        printf "%s\n" "$__temp_result"
+      fi
       
       # Update the repl_vars state
       if [[ -n "$_stdlib_repl_vars" ]]; then
@@ -363,12 +370,18 @@ _stdlib_maths_eval() {
       exit_code_to_return=0
     fi
     
-    # In REPL mode, store the result for next iteration
+    # In REPL mode, store the result for next iteration and highlight output
     if [[ "$is_repl" == true ]]; then
       _stdlib_previous_result="$__stdlib_maths_result"
+      # Highlight the output result if running interactively
+      if [[ -t 0 ]]; then
+        printf "%s\n" "$(stdlib_string_code_highlight "$output_result")"
+      else
+        printf "%s\n" "$output_result"
+      fi
+    else
+      printf "%s\n" "$output_result"
     fi
-    
-    printf "%s\n" "$output_result"
     return $exit_code_to_return
   fi
 }
