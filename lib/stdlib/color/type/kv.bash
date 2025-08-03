@@ -1,3 +1,5 @@
+stdlib_import "string/wordsplit"
+
 enable kv
 
 STDLIB_COLOR_KV_REGEX="^(red|green|blue)=(.*)$"
@@ -8,7 +10,7 @@ stdlib_color_type_kv_format() {
 
 stdlib_color_type_kv_parse() {
   if [[ "$1" =~ $STDLIB_COLOR_KV_REGEX ]]; then
-    if kv -s '=' <<<"$1"; then
+    if kv -s '=' <<<"${ stdlib_string_wordsplit "$1"; }"; then
       declare -g -a COLOR=(
         "kv"
         "${KV["red"]}"

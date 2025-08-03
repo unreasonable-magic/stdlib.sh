@@ -289,11 +289,11 @@ assert "$?" == "0"
 stdlib_maths "isnan(nan)" >/dev/null  
 assert "$?" == "0"
 
-# False expressions should return exit code 1
+# False expressions should return exit code 0 (by default)
 stdlib_maths "5 < 3" >/dev/null
-assert "$?" == "1"
+assert "$?" == "0"
 stdlib_maths "isnan(5)" >/dev/null
-assert "$?" == "1"
+assert "$?" == "0"
 
 # Non-boolean expressions should return exit code 0
 stdlib_maths "5 + 3" >/dev/null
@@ -363,3 +363,127 @@ while IFS= read -r line; do
         ((line_count++))
     fi
 done <<< "$repl_output"
+
+# Test logical AND operator (&&)
+assert "$(stdlib_maths "(5 > 3) && (2 < 4)")" == "true"
+assert "$(stdlib_maths "(5 < 3) && (2 < 4)")" == "false"
+assert "$(stdlib_maths "(5 > 3) && (2 > 4)")" == "false"
+assert "$(stdlib_maths "(1 == 1) && (2 == 2)")" == "true"
+
+# Test isbetween virtual function
+assert "$(stdlib_maths "isbetween(5, 1, 10)")" == "true"
+assert "$(stdlib_maths "isbetween(0, 1, 10)")" == "false"
+assert "$(stdlib_maths "isbetween(15, 1, 10)")" == "false"
+assert "$(stdlib_maths "isbetween(1, 1, 10)")" == "true"
+assert "$(stdlib_maths "isbetween(10, 1, 10)")" == "true"
+assert "$(stdlib_maths "isbetween(5.5, 1, 10)")" == "true"
+
+# Test clamp virtual function
+assert "$(stdlib_maths "clamp(-2, 0, 100)")" == "0"
+assert "$(stdlib_maths "clamp(101, 0, 100)")" == "100"
+assert "$(stdlib_maths "clamp(50, 0, 100)")" == "50"
+assert "$(stdlib_maths "clamp(0, 0, 100)")" == "0"
+assert "$(stdlib_maths "clamp(100, 0, 100)")" == "100"
+assert "$(stdlib_maths "clamp(2.5, 1.0, 3.0)")" == "2.5"
+assert "$(stdlib_maths "clamp(0.5, 1.0, 3.0)")" == "1"
+
+# Test modulo operator %
+assert "$(stdlib_maths "7 % 3")" == "1"
+assert "$(stdlib_maths "10 % 4")" == "2"
+assert "$(stdlib_maths "8 % 2")" == "0"
+assert "$(stdlib_maths "10.5 % 3")" == "1.5"
+assert "$(stdlib_maths "15 % 7")" == "1"
+
+# Test maximum virtual function
+assert "$(stdlib_maths "maximum(1, 3, 2)")" == "3"
+assert "$(stdlib_maths "maximum(5, 2, 8, 1)")" == "8"
+assert "$(stdlib_maths "maximum(10, 10)")" == "10"
+assert "$(stdlib_maths "maximum(-5, -2, -8)")" == "-2"
+assert "$(stdlib_maths "maximum(1.5, 2.3, 1.9)")" == "2.3"
+assert "$(stdlib_maths "maximum(PI, E, 3)")" == "3.141592653589793"
+
+# Test minimum virtual function
+assert "$(stdlib_maths "minimum(1, 3, 2)")" == "1"
+assert "$(stdlib_maths "minimum(5, 2, 8, 1)")" == "1"
+assert "$(stdlib_maths "minimum(10, 10)")" == "10"
+assert "$(stdlib_maths "minimum(-5, -2, -8)")" == "-8"
+assert "$(stdlib_maths "minimum(1.5, 2.3, 1.9)")" == "1.5"
+assert "$(stdlib_maths "minimum(PI, E, 3)")" == "2.718281828459045"
+
+# Test exit codes for boolean expressions with new operators
+# && expressions should return proper exit codes (0 by default)
+stdlib_maths "(5 > 3) && (2 < 4)" >/dev/null
+assert "$?" == "0"
+stdlib_maths "(5 < 3) && (2 < 4)" >/dev/null
+assert "$?" == "0"
+
+# isbetween should return proper exit codes (0 by default)
+stdlib_maths "isbetween(5, 1, 10)" >/dev/null
+assert "$?" == "0"
+stdlib_maths "isbetween(15, 1, 10)" >/dev/null
+assert "$?" == "0"
+
+# Test average virtual function
+assert "$(stdlib_maths "average(1, 2, 3, 4)")" == "2.5"
+assert "$(stdlib_maths "average(10, 20)")" == "15"
+assert "$(stdlib_maths "average(1, 2, 3, 4, 5)")" == "3"
+assert "$(stdlib_maths "average(-2, 2)")" == "0"
+assert "$(stdlib_maths "average(1.5, 2.5, 3.5)")" == "2.5"
+assert "$(stdlib_maths "average(PI, E, 1)")" == "2.2866248273496126"
+
+# Test sum virtual function
+assert "$(stdlib_maths "sum(1, 2, 3, 4)")" == "10"
+assert "$(stdlib_maths "sum(10, 20)")" == "30"
+assert "$(stdlib_maths "sum(1, 2, 3, 4, 5)")" == "15"
+assert "$(stdlib_maths "sum(-2, 2)")" == "0"
+assert "$(stdlib_maths "sum(1.5, 2.5, 3.5)")" == "7.5"
+assert "$(stdlib_maths "sum(PI, E, 1)")" == "6.859874482048838"
+
+# Test --dry-run option with basic virtual function compilation
+echo "Testing basic virtual function compilation with --dry-run:"
+
+# Test simple cases only to avoid infinite loops
+assert "$(stdlib_maths --dry-run "isbetween(5, 1, 10)")" == "((5 >= 1) ? ((5 <= 10) ? 1 : 0) : 0)"
+assert "$(stdlib_maths --dry-run "clamp(50, 0, 100)")" == "((50 < 0) ? 0 : ((50 > 100) ? 100 : 50))"
+assert "$(stdlib_maths --dry-run "7 % 3")" == "fmod(7, 3)"
+assert "$(stdlib_maths --dry-run "average(1, 2, 3)")" == "((1 + 2 + 3) / 3)"
+assert "$(stdlib_maths --dry-run "sum(1, 2, 3)")" == "(1 + 2 + 3)"
+
+# Test --quiet and --exit-code options
+echo "Testing --quiet and --exit-code options:"
+
+# Test that regular boolean expressions always return exit code 0
+stdlib_maths "5 > 3" >/dev/null
+assert "$?" == "0"
+stdlib_maths "5 < 3" >/dev/null
+assert "$?" == "0"
+
+# Test --exit-code option (output still shown, but exit codes change)
+assert "$(stdlib_maths --exit-code "5 > 3")" == "true"
+stdlib_maths --exit-code "5 > 3" >/dev/null
+assert "$?" == "0"
+assert "$(stdlib_maths --exit-code "5 < 3")" == "false"
+stdlib_maths --exit-code "5 < 3" >/dev/null
+assert "$?" == "1"
+
+# Test --quiet option (no output, exit codes change)
+assert "$(stdlib_maths --quiet "5 > 3")" == ""
+stdlib_maths --quiet "5 > 3" >/dev/null
+assert "$?" == "0"
+assert "$(stdlib_maths --quiet "5 < 3")" == ""
+stdlib_maths --quiet "5 < 3" >/dev/null
+assert "$?" == "1"
+
+# Test -q short option
+assert "$(stdlib_maths -q "10 + 5")" == ""
+stdlib_maths -q "10 + 5" >/dev/null
+assert "$?" == "0"
+
+# Test that non-boolean expressions work with quiet
+assert "$(stdlib_maths --quiet "2 + 2")" == ""
+stdlib_maths --quiet "2 + 2" >/dev/null
+assert "$?" == "0"
+
+# Test invalid option handling
+stdlib_maths --invalid-option "1 + 1" 2>/dev/null
+assert "$?" == "1"

@@ -1,8 +1,9 @@
 _assert_show_context() {
-  # $(caller 1) gets caller of the function that called us
-  local -r caller_info="$(caller 1)"
-  local -r -i line_number="${caller_info%% *}"
-  local -r file_path="${caller_info#* }"
+  # $(caller) returns the line number and the file path
+  local -a caller_info
+  IFS=' ' read  -r -a caller_info <<< "${ caller 1; }"
+  local -r -i line_number="${caller_info[0]}"
+  local -r file_path="${caller_info[2]}"
 
   # Show a peak of the file that ran the assertion
   bat --theme="jellybeans" -n -r "$((line_number - 1)):$line_number" "$file_path"
