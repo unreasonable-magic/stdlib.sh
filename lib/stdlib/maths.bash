@@ -150,6 +150,7 @@ enable fltexpr
 stdlib_import "duration"
 stdlib_import "percentage"
 stdlib_import "string/code_highlight"
+stdlib_import "maths/repl"
 
 stdlib_maths() {
   local __stdlib_maths_result exit_code
@@ -197,40 +198,9 @@ stdlib_maths() {
 
   # If no arguments, start REPL mode (interactive or from stdin)
   if [[ -z "$format_string" ]]; then
-    echo "stdlib_maths interactive mode (Ctrl+C or 'exit' to quit)"
-    echo "Examples: 1 + 1, sin(PI/2), 5 > 3, isnan(5), foo = 1 + 2"
-    echo ""
-
-    # Initialize global session variables to track assignments and previous result
-    declare -g _stdlib_repl_vars=""
-    declare -g _stdlib_previous_result=""
-
-    while true; do
-      # Only show prompt if stdin is a terminal
-      if [[ -t 0 ]]; then
-        printf "maths> "
-      fi
-
-      if ! read -r format_string; then
-        # EOF reached
-        if [[ -t 0 ]]; then
-          echo ""
-        fi
-        break
-      fi
-
-      # Skip empty lines
-      [[ -z "$format_string" ]] && continue
-
-      # Exit commands
-      if [[ "$format_string" == "exit" ]] || [[ "$format_string" == "quit" ]]; then
-        break
-      fi
-
-      # Process the expression with REPL flag (using global variables)
-      _stdlib_maths_eval "$format_string" true false false false "$format" "$@"
-    done
-    return 0
+    # Call the REPL function with the format option
+    stdlib_maths_repl "$format" "$@"
+    return $?
   fi
 
   # Call the main evaluation function
