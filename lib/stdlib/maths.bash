@@ -103,7 +103,7 @@
 #   stdlib_maths "sin(PI/2)"             → 1
 #   stdlib_maths "pow(2, 8)"             → 256
 #   stdlib_maths "sqrt(%n)" 16           → 4
-#   stdlib_maths "%p of sqrt(%n)" "50%" 64 → 4
+#   stdlib_maths "%percentage of sqrt(%n)" "50%" 64 → 4
 #   stdlib_maths "result = PI * 2"       → sets result=6.28... (no output)
 #   stdlib_maths "5 > 3"                 → true (exit 0, usable in conditionals)
 #   stdlib_maths "5 < 3"                 → false (exit 1, usable in conditionals)
@@ -126,6 +126,8 @@
 #   stdlib_maths --quiet "5 > 3"        → no output, exit 0 if true, exit 1 if false
 #   stdlib_maths -q "5 < 3"             → no output, exit 1 (false)
 #   stdlib_maths --exit-code "5 > 3"    → "true", exit 0 if true, exit 1 if false
+#   stdlib_maths --format percentage "0.25" → 25%
+#   stdlib_maths --format duration "3661" → 1 hour 1 minute 1 second
 #   if stdlib_maths "5 > 3"; then echo "works!"; fi → works! (always exit 0 by default)
 #   if stdlib_maths --quiet "5 > 3"; then echo "works!"; fi → works! (exit 0 if true)
 #   stdlib_maths                         → starts interactive REPL mode
@@ -135,6 +137,7 @@
 #   --dry-run    Show the transformed expression without evaluating it
 #   --quiet, -q  Suppress output to stdout and enable --exit-code behavior
 #   --exit-code  Return exit status 1 for false boolean expressions (0 otherwise)
+#   --format     Format the output as 'number' (default), 'percentage', or 'duration'
 #
 # REPL Mode Features:
 #   - Compact output (no extra newlines)
@@ -145,6 +148,7 @@
 
 enable fltexpr
 stdlib_import "duration"
+stdlib_import "percentage"
 stdlib_import "string/code_highlight"
 
 stdlib_maths() {
@@ -152,6 +156,7 @@ stdlib_maths() {
   local dry_run=false
   local quiet=false
   local exit_code_mode=false
+  local format="number"  # Default format
 
   # Parse options
   while [[ $# -gt 0 ]]; do
@@ -168,6 +173,14 @@ stdlib_maths() {
       --exit-code)
         exit_code_mode=true
         shift
+        ;;
+      --format)
+        format="$2"
+        if [[ "$format" != "number" && "$format" != "percentage" && "$format" != "duration" ]]; then
+          echo "stdlib_maths: error: invalid format '$format'. Must be one of: number, percentage, duration" >&2
+          return 1
+        fi
+        shift 2
         ;;
       -*)
         echo "stdlib_maths: unknown option: $1" >&2
@@ -215,13 +228,13 @@ stdlib_maths() {
       fi
 
       # Process the expression with REPL flag (using global variables)
-      _stdlib_maths_eval "$format_string" true false false false "$@"
+      _stdlib_maths_eval "$format_string" true false false false "$format" "$@"
     done
     return 0
   fi
 
   # Call the main evaluation function
-  _stdlib_maths_eval "$format_string" false "$dry_run" "$quiet" "$exit_code_mode" "$@"
+  _stdlib_maths_eval "$format_string" false "$dry_run" "$quiet" "$exit_code_mode" "$format" "$@"
 }
 
 _stdlib_maths_eval() {
@@ -230,7 +243,8 @@ _stdlib_maths_eval() {
   local dry_run="$3"
   local quiet="$4"
   local exit_code_mode="$5"
-  shift 5
+  local format="$6"
+  shift 6
 
   local __stdlib_maths_result exit_code
 
@@ -247,7 +261,7 @@ _stdlib_maths_eval() {
   local -a args=("$@")
 
   # Process placeholders in order they appear
-  while [[ "$expression" =~ (%[npd]) ]]; do
+  while [[ "$expression" =~ (%[n]|%duration|%percentage) ]]; do
     if [[ $arg_index -ge ${#args[@]} ]]; then
       echo "stdlib_maths: error: not enough arguments for format string" >&2
       return 1
@@ -256,21 +270,21 @@ _stdlib_maths_eval() {
     local placeholder="${BASH_REMATCH[1]}"
     local arg="${args[$arg_index]}"
 
-    if [[ "$placeholder" == "%p" ]]; then
+    if [[ "$placeholder" == "%percentage" ]]; then
       # Strip % sign if present and convert to decimal
       if [[ "$arg" =~ ^([0-9]+\.?[0-9]*)%?$ ]]; then
         local value="${BASH_REMATCH[1]}"
-        expression="${expression/\%p/(${value}/100)}"
+        expression="${expression/\%percentage/(${value}/100)}"
       else
         echo "stdlib_maths: error: invalid percentage value: $arg" >&2
         return 1
       fi
-    elif [[ "$placeholder" == "%d" ]]; then
+    elif [[ "$placeholder" == "%duration" ]]; then
       # Convert duration to seconds using stdlib_duration
       local duration_seconds
       duration_seconds=$(stdlib_duration "$arg" --total-seconds)
       if [[ $? -eq 0 ]]; then
-        expression="${expression/\%d/${duration_seconds}}"
+        expression="${expression/\%duration/${duration_seconds}}"
       else
         echo "stdlib_maths: error: invalid duration format: $arg" >&2
         return 1
@@ -560,6 +574,27 @@ _stdlib_maths_eval() {
       exit_code_to_return=0
     fi
 
+    # Apply formatting to the output_result
+    local formatted_result="$output_result"
+    if [[ "$format" != "number" ]] && [[ "$is_boolean" != true ]]; then
+      # Only format non-boolean numeric results
+      case "$format" in
+        percentage)
+          # Convert to percentage format
+          # Multiply by 100 and add % sign
+          local percentage_value=$(awk "BEGIN {printf \"%.10g\", $__stdlib_maths_result * 100}")
+          formatted_result="${percentage_value}%"
+          ;;
+        duration)
+          # Convert to duration using stdlib_duration
+          # Round to nearest integer for seconds
+          local seconds=$(printf "%.0f" "$__stdlib_maths_result")
+          # Call stdlib_duration in a way that ensures it's available
+          formatted_result=$(stdlib_duration "$seconds")
+          ;;
+      esac
+    fi
+    
     # Output result unless quiet mode is enabled
     if [[ "$quiet" != true ]]; then
       # In REPL mode, store the result for next iteration and highlight output
@@ -567,12 +602,12 @@ _stdlib_maths_eval() {
         _stdlib_previous_result="$__stdlib_maths_result"
         # Highlight the output result if running interactively
         if [[ -t 0 ]]; then
-          printf "%s\n" "$(stdlib_string_code_highlight "$output_result")"
+          printf "%s\n" "$(stdlib_string_code_highlight "$formatted_result")"
         else
-          printf "%s\n" "$output_result"
+          printf "%s\n" "$formatted_result"
         fi
       else
-        printf "%s\n" "$output_result"
+        printf "%s\n" "$formatted_result"
       fi
     elif [[ "$is_repl" == true ]]; then
       # In REPL mode, still need to store the result even if quiet

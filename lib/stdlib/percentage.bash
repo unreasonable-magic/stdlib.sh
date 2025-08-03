@@ -1,6 +1,6 @@
 stdlib_import "test"
 
-stdlib_percent() {
+stdlib_percentageage() {
   local returnvar
   local force_decimal=false
   
@@ -16,7 +16,7 @@ stdlib_percent() {
         shift
         ;;
       *)
-        echo "stdlib_percent: error: unknown option: $1" >&2
+        echo "stdlib_percentage: error: unknown option: $1" >&2
         return 1
         ;;
     esac
@@ -34,13 +34,13 @@ stdlib_percent() {
   
   # Check if we got input from either source
   if [[ -z "$input" ]]; then
-    echo "stdlib_percent: error: no input provided" >&2
+    echo "stdlib_percentage: error: no input provided" >&2
     return 1
   fi
   
   # If input doesn't end with %, validate it's a number
   if [[ ! "$input" =~ %$ ]] && ! stdlib_test type/is_number "$input"; then
-    echo "stdlib_percent: error: input must be a number or percentage, got: $input" >&2
+    echo "stdlib_percentage: error: input must be a number or percentage, got: $input" >&2
     return 1
   fi
   
