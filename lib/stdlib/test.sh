@@ -96,6 +96,21 @@ stdlib_test() {
     [ -n "$2" ]
     ;;
 
+  # Types
+
+  type/is_number)
+    # Check if it's a valid number (integer or decimal/float)
+    [[ "$2" =~ ^-?[0-9]+\.?[0-9]*$ ]]
+    ;;
+  type/is_integer)
+    # Check if it's a valid integer (no decimal point)
+    [[ "$2" =~ ^-?[0-9]+$ ]]
+    ;;
+  type/is_decimal|type/is_float)
+    # Check if it's a valid decimal/float (has decimal point)
+    [[ "$2" =~ ^-?[0-9]+\.[0-9]+$ ]]
+    ;;
+
   # Shell
 
   shellopt/is_enabled)

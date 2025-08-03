@@ -1,12 +1,15 @@
-assert() {
-  # $(caller) returns the line number and the file path
-  local -r caller_info="$(caller)"
+_assert_show_context() {
+  # $(caller 1) gets caller of the function that called us
+  local -r caller_info="$(caller 1)"
   local -r -i line_number="${caller_info%% *}"
   local -r file_path="${caller_info#* }"
 
   # Show a peak of the file that ran the assertion
-  # TODO: extract this into a stdlib function
   bat --theme="jellybeans" -n -r "$((line_number - 1)):$line_number" "$file_path"
+}
+
+assert() {
+  _assert_show_context
 
   # Run the test
   local left="$1"
@@ -27,6 +30,36 @@ assert() {
     echo "     ✅ ${left@Q} ${operation} ${right@Q}"
   else
     echo "     ❌ ${left@Q} ${operation} ${right@Q}"
+    exit 1
+  fi
+}
+
+assert_success() {
+  _assert_show_context
+
+  # Run the command and check exit status
+  "$@"
+  local exit_code=$?
+
+  if [[ $exit_code -eq 0 ]]; then
+    echo "     ✅ $* succeeded"
+  else
+    echo "     ❌ $* failed with exit code $exit_code"
+    exit 1
+  fi
+}
+
+assert_failure() {
+  _assert_show_context
+
+  # Run the command and check exit status
+  "$@"
+  local exit_code=$?
+
+  if [[ $exit_code -ne 0 ]]; then
+    echo "     ✅ $* failed as expected"
+  else
+    echo "     ❌ $* succeeded but was expected to fail"
     exit 1
   fi
 }
