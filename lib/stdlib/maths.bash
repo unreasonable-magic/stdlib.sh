@@ -60,10 +60,10 @@
 # Classification Functions:
 #   fpclassify(x)   - classify floating-point value
 #   isfinite(x)     - test for finite value
-#   isinf(x)        - test for infinity (only works with inf/-inf)
-#   isnan(x)        - test for NaN (only works with nan)
+#   isinf(x)        - test for infinity
+#   isnan(x)        - test for NaN
 #   isnormal(x)     - test for normal value
-#   issubnormal(x)  - test for subnormal value (only works with subnormals)
+#   issubnormal(x)  - test for subnormal value
 #   iszero(x)       - test for zero
 #   ilogb(x)        - extract exponent as integer
 #   signbit(x)      - test sign bit
@@ -75,7 +75,7 @@
 #   isless(x, y)         - x < y (handles NaN)
 #   islessequal(x, y)    - x <= y (handles NaN)
 #   islessgreater(x, y)  - (x < y) || (x > y) (handles NaN)
-#   isunordered(x, y)    - test if either is NaN (only works with nan)
+#   isunordered(x, y)    - test if either is NaN
 #
 # Constants:
 #   PI       - π (3.14159...)
@@ -91,6 +91,14 @@
 #   stdlib_maths "sqrt(%n)" 16           → 4
 #   stdlib_maths "%p of sqrt(%n)" "50%" 64 → 4
 #   stdlib_maths "result = PI * 2"       → sets result=6.28... (no output)
+#   stdlib_maths "5 > 3"                 → true (exit 0, usable in conditionals)
+#   stdlib_maths "5 < 3"                 → false (exit 1, usable in conditionals)
+#   stdlib_maths "isnan(5)"              → false (exit 1)
+#   stdlib_maths "isnan(nan)"            → true (exit 0)
+#   stdlib_maths "5 > 3 ? 42 : 0"       → 42 (ternary operator, exit 0)
+#   stdlib_maths "5 < 3 ? 42 : 0"       → 0 (exit 0)
+#   stdlib_maths "1 < 2 ? true : false" → true (exit 0)
+#   if stdlib_maths "5 > 3"; then echo "works!"; fi
 
 enable fltexpr
 stdlib_import "duration"
@@ -157,6 +165,10 @@ stdlib_maths() {
 
   # Convert "of" to multiplication
   expression="${expression// of / * }"
+  
+  # Convert true/false to 1/0 for fltexpr
+  expression="${expression//true/1}"
+  expression="${expression//false/0}"
 
   # Check if the expression is a variable assignment (starts with identifier =)
   local is_assignment=false
@@ -166,21 +178,57 @@ stdlib_maths() {
 
   if [[ "$is_assignment" == true ]]; then
     # For assignments, execute directly with fltexpr
-    fltexpr "$expression"
+    # Capture stderr to detect actual errors vs false expressions
+    local error_output
+    error_output=$(fltexpr "$expression" 2>&1 >/dev/null)
     exit_code="$?"
-    if [[ ! "$exit_code" -eq 0 ]]; then
-      echo "stdlib_maths: error: invalid mathematical expression: $expression" >&2
+    
+    # If there's error output, it's an actual error (not just false)
+    if [[ -n "$error_output" ]]; then
+      echo "stdlib_maths: error: $error_output" >&2
       return "$exit_code"
     fi
   else
     # For expressions, evaluate and print result
-    fltexpr "__stdlib_maths_result = ($expression)"
+    # First try to evaluate the expression
+    fltexpr "__stdlib_maths_result = ($expression)" 2>/tmp/stdlib_maths_error.$$
     exit_code="$?"
-    if [[ ! "$exit_code" -eq 0 ]]; then
-      echo "stdlib_maths: error: invalid mathematical expression: $expression" >&2
-      return "$exit_code"
+    
+    # Read any error output
+    local error_output=""
+    if [[ -f /tmp/stdlib_maths_error.$$ ]]; then
+      error_output=$(cat /tmp/stdlib_maths_error.$$)
+      rm -f /tmp/stdlib_maths_error.$$
     fi
-
-    printf "%s\n" "$__stdlib_maths_result"
+    
+    # If there's error output, it's an actual error
+    if [[ -n "$error_output" ]]; then
+      echo "stdlib_maths: error: invalid mathematical expression: $expression" >&2
+      return 1
+    fi
+    
+    # Check if this is a boolean expression
+    local is_boolean=false
+    if [[ "$expression" =~ is[a-z]+\( ]] || \
+       ([[ ! "$expression" =~ \? ]] && \
+        ([[ "$expression" =~ \< ]] || [[ "$expression" =~ \> ]] || \
+         [[ "$expression" =~ == ]] || [[ "$expression" =~ != ]] || \
+         [[ "$expression" =~ \<= ]] || [[ "$expression" =~ \>= ]])) || \
+       ([[ "$expression" =~ \? ]] && [[ "$expression" =~ \?[[:space:]]*1[[:space:]]*:[[:space:]]*0 ]]); then
+      # Boolean functions, simple comparisons, or ternary expressions that return 1/0
+      is_boolean=true
+    fi
+    
+    # Print the result and set appropriate exit code
+    if [[ "$is_boolean" == true ]] && [[ "$__stdlib_maths_result" == "1" ]]; then
+      printf "true\n"
+      return 0
+    elif [[ "$is_boolean" == true ]] && [[ "$__stdlib_maths_result" == "0" ]]; then
+      printf "false\n"
+      return 1
+    else
+      printf "%s\n" "$__stdlib_maths_result"
+      return 0
+    fi
   fi
 }

@@ -93,10 +93,10 @@ assert "$baz" == "30"
 rm -f /tmp/stdlib_test_output.txt
 
 # Test mathematical constants
-assert "$(stdlib_maths "PI > 3.14")" == "1"
-assert "$(stdlib_maths "PI < 3.15")" == "1"
-assert "$(stdlib_maths "E > 2.71")" == "1"
-assert "$(stdlib_maths "E < 2.72")" == "1"
+assert "$(stdlib_maths "PI > 3.14")" == "true"
+assert "$(stdlib_maths "PI < 3.15")" == "true"
+assert "$(stdlib_maths "E > 2.71")" == "true"
+assert "$(stdlib_maths "E < 2.72")" == "true"
 
 # Test basic mathematical functions that work
 assert "$(stdlib_maths "abs(-5)")" == "5"
@@ -110,8 +110,8 @@ assert "$(stdlib_maths "pow(5, 2)")" == "25"
 assert "$(stdlib_maths "pow(10, 0)")" == "1"
 
 # Test mathematical expressions with constants
-assert "$(stdlib_maths "PI * 2 > 6.28")" == "1"
-assert "$(stdlib_maths "E * E > 7.3")" == "1"
+assert "$(stdlib_maths "PI * 2 > 6.28")" == "true"
+assert "$(stdlib_maths "E * E > 7.3")" == "true"
 
 # Test additional mathematical functions
 # Logarithmic functions
@@ -151,7 +151,7 @@ assert "$(stdlib_maths "cbrt(27)")" == "3"
 assert "$(stdlib_maths "cbrt(8)")" == "2"
 
 # Two-argument functions
-assert "$(stdlib_maths "atan2(1, 1) > 0.78")" == "1"
+assert "$(stdlib_maths "atan2(1, 1) > 0.78")" == "true"
 assert "$(stdlib_maths "copysign(5, -1)")" == "-5"
 assert "$(stdlib_maths "fdim(5, 3)")" == "2"
 assert "$(stdlib_maths "fmax(5, 3)")" == "5"
@@ -166,49 +166,49 @@ assert "$(stdlib_maths "scalbn(2, 3)")" == "16"
 assert "$(stdlib_maths "fma(2, 3, 4)")" == "10"
 
 # Classification functions
-assert "$(stdlib_maths "isfinite(5)")" == "1"
-assert "$(stdlib_maths "isnormal(5)")" == "1"
-assert "$(stdlib_maths "signbit(-5)")" == "1"
+assert "$(stdlib_maths "isfinite(5)")" == "true"
+assert "$(stdlib_maths "isnormal(5)")" == "true"
+assert "$(stdlib_maths "signbit(-5)")" == "true"
 assert "$(stdlib_maths "signbit(5)")" == "0"
 
 # Comparison functions
-assert "$(stdlib_maths "isgreater(5, 3)")" == "1"
-assert "$(stdlib_maths "isgreaterequal(5, 5)")" == "1"
-assert "$(stdlib_maths "isless(3, 5)")" == "1"
-assert "$(stdlib_maths "islessequal(3, 3)")" == "1"
-assert "$(stdlib_maths "islessgreater(3, 5)")" == "1"
+assert "$(stdlib_maths "isgreater(5, 3)")" == "true"
+assert "$(stdlib_maths "isgreaterequal(5, 5)")" == "true"
+assert "$(stdlib_maths "isless(3, 5)")" == "true"
+assert "$(stdlib_maths "islessequal(3, 3)")" == "true"
+assert "$(stdlib_maths "islessgreater(3, 5)")" == "true"
 
 # Additional comprehensive tests for all working functions
 # More trig functions
-assert "$(stdlib_maths "acos(0.5) > 1.04")" == "1"
-assert "$(stdlib_maths "acosh(2) > 1.31")" == "1"
-assert "$(stdlib_maths "asin(0.5) > 0.52")" == "1"
-assert "$(stdlib_maths "asinh(1) > 0.88")" == "1"
-assert "$(stdlib_maths "atan(1) > 0.78")" == "1"
-assert "$(stdlib_maths "atanh(0.5) > 0.54")" == "1"
+assert "$(stdlib_maths "acos(0.5) > 1.04")" == "true"
+assert "$(stdlib_maths "acosh(2) > 1.31")" == "true"
+assert "$(stdlib_maths "asin(0.5) > 0.52")" == "true"
+assert "$(stdlib_maths "asinh(1) > 0.88")" == "true"
+assert "$(stdlib_maths "atan(1) > 0.78")" == "true"
+assert "$(stdlib_maths "atanh(0.5) > 0.54")" == "true"
 
 # Error functions
-assert "$(stdlib_maths "erf(1) > 0.84")" == "1"
-assert "$(stdlib_maths "erfc(1) < 0.16")" == "1"
+assert "$(stdlib_maths "erf(1) > 0.84")" == "true"
+assert "$(stdlib_maths "erfc(1) < 0.16")" == "true"
 
 # Bessel functions
-assert "$(stdlib_maths "j0(1) > 0.76")" == "1"
-assert "$(stdlib_maths "j1(1) > 0.44")" == "1"
-assert "$(stdlib_maths "y0(1) > 0.08")" == "1"
-assert "$(stdlib_maths "y1(1) < -0.78")" == "1"
-assert "$(stdlib_maths "jn(2, 1) > 0.11")" == "1"
-assert "$(stdlib_maths "yn(2, 1) < -1.65")" == "1"
+assert "$(stdlib_maths "j0(1) > 0.76")" == "true"
+assert "$(stdlib_maths "j1(1) > 0.44")" == "true"
+assert "$(stdlib_maths "y0(1) > 0.08")" == "true"
+assert "$(stdlib_maths "y1(1) < -0.78")" == "true"
+assert "$(stdlib_maths "jn(2, 1) > 0.11")" == "true"
+assert "$(stdlib_maths "yn(2, 1) < -1.65")" == "true"
 
 # Gamma functions
-assert "$(stdlib_maths "lgamma(5) > 3.17")" == "1"
+assert "$(stdlib_maths "lgamma(5) > 3.17")" == "true"
 assert "$(stdlib_maths "tgamma(5)")" == "24"
 
 # More logarithmic tests
-assert "$(stdlib_maths "log1p(1) > 0.69")" == "1"
+assert "$(stdlib_maths "log1p(1) > 0.69")" == "true"
 assert "$(stdlib_maths "logb(16)")" == "4"
 
 # More exponential tests
-assert "$(stdlib_maths "expm1(1) > 1.71")" == "1"
+assert "$(stdlib_maths "expm1(1) > 1.71")" == "true"
 
 # Additional two-argument functions
 assert "$(stdlib_maths "ldexp(2, 3)")" == "16"
@@ -220,37 +220,83 @@ assert "$(stdlib_maths "roundp(3.14159, 3)")" == "3.142"
 assert "$(stdlib_maths "roundp(10.9999, 2)")" == "11"
 
 # Test nextafter function
-assert "$(stdlib_maths "nextafter(1, 2) > 1")" == "1"
-assert "$(stdlib_maths "nextafter(1, 0) < 1")" == "1"
+assert "$(stdlib_maths "nextafter(1, 2) > 1")" == "true"
+assert "$(stdlib_maths "nextafter(1, 0) < 1")" == "true"
 
 # Test cotangent functions
-assert "$(stdlib_maths "cot(PI/4) > 0.99")" == "1"
-assert "$(stdlib_maths "coth(1) > 1.31")" == "1"
+assert "$(stdlib_maths "cot(PI/4) > 0.99")" == "true"
+assert "$(stdlib_maths "coth(1) > 1.31")" == "true"
 
 # Test additional classification functions
 assert "$(stdlib_maths "fpclassify(5)")" == "4"
-assert "$(stdlib_maths "iszero(0)")" == "1"
+assert "$(stdlib_maths "iszero(0)")" == "true"
 assert "$(stdlib_maths "iszero(1)")" == "0"
 assert "$(stdlib_maths "ilogb(8)")" == "3"
 assert "$(stdlib_maths "ilogb(16)")" == "4"
 
 # Test additional constants
-assert "$(stdlib_maths "GAMMA > 0.577")" == "1"
-assert "$(stdlib_maths "GAMMA < 0.578")" == "1"
-assert "$(stdlib_maths "DBL_MIN > 0")" == "1"
-assert "$(stdlib_maths "DBL_MAX > 1e308")" == "1"
+assert "$(stdlib_maths "GAMMA > 0.577")" == "true"
+assert "$(stdlib_maths "GAMMA < 0.578")" == "true"
+assert "$(stdlib_maths "DBL_MIN > 0")" == "true"
+assert "$(stdlib_maths "DBL_MAX > 1e308")" == "true"
 
 # Test special value functions (nan, inf)
-assert "$(stdlib_maths "isnan(nan)")" == "1"
-assert "$(stdlib_maths "isinf(inf)")" == "1"
-assert "$(stdlib_maths "isinf(-inf)")" == "1"
-assert "$(stdlib_maths "isfinite(inf)")" == "0"
-assert "$(stdlib_maths "isfinite(5)")" == "1"
-assert "$(stdlib_maths "issubnormal(DBL_MIN/2)")" == "1"
-assert "$(stdlib_maths "isunordered(nan, 5)")" == "1"
-assert "$(stdlib_maths "isunordered(nan, nan)")" == "1"
+assert "$(stdlib_maths "isnan(nan)")" == "true"
+assert "$(stdlib_maths "isinf(inf)")" == "true"
+assert "$(stdlib_maths "isinf(-inf)")" == "true"
+assert "$(stdlib_maths "isfinite(inf)")" == "false"
+assert "$(stdlib_maths "isfinite(5)")" == "true"
+assert "$(stdlib_maths "issubnormal(DBL_MIN/2)")" == "true"
+assert "$(stdlib_maths "isunordered(nan, 5)")" == "true"
+assert "$(stdlib_maths "isunordered(nan, nan)")" == "true"
 
 # Test arithmetic with special values
-assert "$(stdlib_maths "isnan(0 * inf)")" == "1"
-assert "$(stdlib_maths "isinf(5 + inf)")" == "1"
-assert "$(stdlib_maths "isnan(sqrt(-1))")" == "1"
+assert "$(stdlib_maths "isnan(0 * inf)")" == "true"
+assert "$(stdlib_maths "isinf(5 + inf)")" == "true"
+assert "$(stdlib_maths "isnan(sqrt(-1))")" == "true"
+
+# Test that classification functions work with regular numbers (should return false)
+assert "$(stdlib_maths "isnan(5)")" == "false"
+assert "$(stdlib_maths "isinf(5)")" == "false"
+assert "$(stdlib_maths "issubnormal(1.0)")" == "false"
+assert "$(stdlib_maths "isunordered(5, 6)")" == "false"
+
+# Test boolean output formatting
+assert "$(stdlib_maths "5 > 3")" == "true"
+assert "$(stdlib_maths "5 < 3")" == "false"
+assert "$(stdlib_maths "5 == 5")" == "true"
+assert "$(stdlib_maths "5 != 3")" == "true"
+assert "$(stdlib_maths "5 >= 5")" == "true"
+assert "$(stdlib_maths "5 <= 4")" == "false"
+
+# Test ternary operator with numeric values
+assert "$(stdlib_maths "5 > 3 ? 42 : 0")" == "42"
+assert "$(stdlib_maths "5 < 3 ? 42 : 0")" == "0"
+assert "$(stdlib_maths "isnan(5) ? 100 : 200")" == "200"
+assert "$(stdlib_maths "isnan(nan) ? 100 : 200")" == "100"
+assert "$(stdlib_maths "PI > 3 ? E : 0")" == "2.718281828459045"
+
+# Test ternary operator with true/false (should be converted to true/false output)
+assert "$(stdlib_maths "1 < 2 ? true : false")" == "true"
+assert "$(stdlib_maths "1 > 2 ? true : false")" == "false"
+assert "$(stdlib_maths "isnan(5) ? true : false")" == "false"
+assert "$(stdlib_maths "isnan(nan) ? true : false")" == "true"
+
+# Test exit codes for boolean expressions
+# True expressions should return exit code 0
+stdlib_maths "5 > 3" >/dev/null
+assert "$?" == "0"
+stdlib_maths "isnan(nan)" >/dev/null  
+assert "$?" == "0"
+
+# False expressions should return exit code 1
+stdlib_maths "5 < 3" >/dev/null
+assert "$?" == "1"
+stdlib_maths "isnan(5)" >/dev/null
+assert "$?" == "1"
+
+# Non-boolean expressions should return exit code 0
+stdlib_maths "5 + 3" >/dev/null
+assert "$?" == "0"
+stdlib_maths "sin(0)" >/dev/null
+assert "$?" == "0"
