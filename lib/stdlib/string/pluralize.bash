@@ -1,6 +1,27 @@
+stdlib_import "string/singular"
+stdlib_import "test"
+
 stdlib_string_pluralize() {
   local word="$1"
+  local count="$2"
   local pluralized=""
+
+  # If count is provided, then only pluralize the word if required (so passing
+  # `book 1` won't pluralize, but `book 2` will.
+  if [[ -n "$count" ]]; then
+    # Validate that count is a number
+    if ! stdlib_test type/is_number "$count"; then
+      echo "stdlib_string_pluralize: error: count must be a number, got: $count" >&2
+      return 1
+    fi
+    
+    # Check if count is exactly 1 (integer or float)
+    if [[ "$count" == "1" ]] || [[ "$count" == "1.0" ]] || [[ "$count" =~ ^1\.0*$ ]]; then
+      printf "%s\n" "$(stdlib_string_singular "$word")"
+      return
+    fi
+    # For any other number (including 0, negative, or fractional), use plural
+  fi
 
   case "$word" in
     "man")
