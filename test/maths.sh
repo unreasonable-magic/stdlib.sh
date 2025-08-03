@@ -300,3 +300,25 @@ stdlib_maths "5 + 3" >/dev/null
 assert "$?" == "0"
 stdlib_maths "sin(0)" >/dev/null
 assert "$?" == "0"
+
+# Test REPL mode with piped input
+output=$(echo -e "1 + 1\n5 > 3\nexit" | stdlib_maths | grep -v "interactive mode" | grep -v "Examples" | grep -v "^$")
+expected_lines=("2" "true")
+line_count=0
+while IFS= read -r line; do
+    if [[ -n "$line" ]]; then
+        assert "$line" == "${expected_lines[$line_count]}"
+        ((line_count++))
+    fi
+done <<< "$output"
+
+# Test REPL variable persistence
+output=$(echo -e "foo=1+2\nbar=3+4\nfoo+bar\nexit" | stdlib_maths | grep -v "interactive mode" | grep -v "Examples" | grep -v "^$")
+expected_lines=("3" "7" "10")
+line_count=0
+while IFS= read -r line; do
+    if [[ -n "$line" ]]; then
+        assert "$line" == "${expected_lines[$line_count]}"
+        ((line_count++))
+    fi
+done <<< "$output"

@@ -99,6 +99,15 @@
 #   stdlib_maths "5 < 3 ? 42 : 0"       → 0 (exit 0)
 #   stdlib_maths "1 < 2 ? true : false" → true (exit 0)
 #   if stdlib_maths "5 > 3"; then echo "works!"; fi
+#   stdlib_maths                         → starts interactive REPL mode
+#   echo "1 + 1" | stdlib_maths         → processes expressions from stdin
+# 
+# REPL Mode Features:
+#   - Compact output (no extra newlines)
+#   - Assignments print their values: foo = 1 + 2 → 3
+#   - Variables persist between expressions: foo=5; bar=3; foo+bar → 8
+#   - All mathematical functions and operators work
+#   - Type 'exit' or 'quit' to exit, or use Ctrl+C
 
 enable fltexpr
 stdlib_import "duration"
@@ -108,12 +117,63 @@ stdlib_maths() {
   local format_string="$1"
   shift
 
-  # Check if format string is provided
+  # If no arguments, start REPL mode (interactive or from stdin)
   if [[ -z "$format_string" ]]; then
-    echo "stdlib_maths: error: no format string provided" >&2
-    return 1
+    echo "stdlib_maths interactive mode (Ctrl+C or 'exit' to quit)"
+    echo "Examples: 1 + 1, sin(PI/2), 5 > 3, isnan(5), foo = 1 + 2"
+    echo ""
+    
+    # Initialize a session variable to track assignments
+    local repl_vars=""
+    
+    while true; do
+      # Only show prompt if stdin is a terminal
+      if [[ -t 0 ]]; then
+        printf "maths> "
+      fi
+      
+      if ! read -r format_string; then
+        # EOF reached
+        if [[ -t 0 ]]; then
+          echo ""
+        fi
+        break
+      fi
+      
+      # Skip empty lines
+      [[ -z "$format_string" ]] && continue
+      
+      # Exit commands
+      if [[ "$format_string" == "exit" ]] || [[ "$format_string" == "quit" ]]; then
+        break
+      fi
+      
+      # Process the expression with REPL flag and variable context
+      _stdlib_maths_eval "$format_string" true "$repl_vars"
+      
+      # Update the variable context
+      repl_vars="$_stdlib_repl_vars"
+    done
+    return 0
   fi
 
+  # Call the main evaluation function
+  _stdlib_maths_eval "$format_string" false "$@"
+}
+
+_stdlib_maths_eval() {
+  local format_string="$1"
+  local is_repl="$2"
+  local repl_vars="$3"
+  shift 3
+  
+  local __stdlib_maths_result exit_code
+  
+  # In REPL mode, restore previous variables
+  if [[ "$is_repl" == true ]] && [[ -n "$repl_vars" ]]; then
+    eval "$repl_vars"
+  fi
+  
   # Create a working copy of the format string
   local expression="$format_string"
   local arg_index=0
@@ -187,6 +247,31 @@ stdlib_maths() {
     if [[ -n "$error_output" ]]; then
       echo "stdlib_maths: error: $error_output" >&2
       return "$exit_code"
+    fi
+    
+    # In REPL mode, print the assigned value and update variable state
+    if [[ "$is_repl" == true ]]; then
+      # Extract variable name from assignment
+      local var_name="${expression%%=*}"
+      var_name="${var_name// /}"  # Remove spaces
+      
+      # Re-evaluate just the expression part to get the value
+      local expr_part="${expression#*=}"
+      expr_part="${expr_part#* }"  # Remove leading spaces (better)
+      
+      # Evaluate the expression to get the result
+      fltexpr "__temp_result = ($expr_part)" 2>/dev/null
+      printf "%s\n" "$__temp_result"
+      
+      # Store the variable for future use (export to global state)
+      declare -g "$var_name=$__temp_result"
+      
+      # Update the repl_vars state
+      if [[ -n "$_stdlib_repl_vars" ]]; then
+        _stdlib_repl_vars="$_stdlib_repl_vars; $var_name=$__temp_result"
+      else
+        _stdlib_repl_vars="$var_name=$__temp_result"
+      fi
     fi
   else
     # For expressions, evaluate and print result
