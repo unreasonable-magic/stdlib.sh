@@ -2,6 +2,12 @@ stdlib_import "argparser"
 stdlib_import "string/repeat"
 
 stdlib_string_indent() {
+  local prefix
+  if [[ "$1" == "--prefix" ]]; then
+    prefix="$2"
+    shift 2
+  fi
+
   if [[ $# -eq 1 ]]; then
     local indent_count_arg="$1"
   elif [[ $# -eq 2 ]]; then
@@ -17,11 +23,11 @@ stdlib_string_indent() {
 
   if [[ -n "$str" ]]; then
     while IFS= read -r line; do
-      printf "%s%s\n" "$spaces" "$line"
+      printf "%s%s%s\n" "$prefix" "$spaces" "$line"
     done <<< "$str"
   else
     while IFS= read -r line || [[ -n "$line" ]]; do
-      printf "%s%s\n" "$spaces" "$line"
+      printf "%s%s%s\n" "$prefix" "$spaces" "$line"
     done
   fi
 }

@@ -13,6 +13,15 @@ stdout=$(printf "$string" | stdlib_string_dedent)
 assert "$stdout" == $'this\nwill\n  be\nfixed'
 
 string="
+#   this
+#   will
+#     be
+#   fixed
+"
+stdout=$(printf "$string" | stdlib_string_dedent --prefix "#")
+assert "$stdout" == $'this\nwill\n  be\nfixed'
+
+string="
   this
   will
     be

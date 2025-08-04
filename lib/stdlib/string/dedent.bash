@@ -5,6 +5,12 @@ stdlib_string_dedent() {
   local line
   local indent_to_remove=999999
 
+  local prefix
+  if [[ "$1" == "--prefix" ]]; then
+    prefix="$2"
+    shift 2
+  fi
+
   if [[ "$1" != "" ]]; then
     readarray -t lines <<< "$1"
   else
@@ -23,6 +29,20 @@ stdlib_string_dedent() {
   while [[ ${#lines[@]} -gt 0 && (-z "${lines[-1]}" || "${lines[-1]}" =~ ^[[:space:]]*$) ]]; do
     unset 'lines[-1]' # Remove last element
   done
+
+  # Remove prefix if we have one
+  if [[ "$prefix" != "" ]]; then
+    local -i prefix_length="${#prefix}"
+    local -i index=0 total_lines="${#lines[@]}"
+
+    while [[ $index -lt $total_lines ]]; do
+      local line="${lines[$index]}"
+      if [[ "${line:0:$prefix_length}" == "$prefix" ]]; then
+        lines[$index]="${line:$prefix_length}"
+      fi
+      ((index++))
+    done
+  fi
 
   # Find the smallest indent amount from all non-empty lines
   if [[ ${#lines[@]} -gt 0 ]]; then
