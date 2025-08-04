@@ -17,9 +17,14 @@ stdlib_string_strip_suffix() {
     return
   fi
 
-  # Remove suffix if it exists
-  if [[ "$input" == *"$suffix" ]]; then
-    input="${input%"$suffix"}"
+  # Use parameter expansion which handles newlines properly
+  # Check if the string ends with the suffix
+  local input_length=${#input}
+  local suffix_length=${#suffix}
+  local suffix_start=$((input_length - suffix_length))
+  
+  if [[ $suffix_start -ge 0 ]] && [[ "${input:$suffix_start:$suffix_length}" == "$suffix" ]]; then
+    input="${input:0:$suffix_start}"
   fi
 
   printf "%s\n" "$input"

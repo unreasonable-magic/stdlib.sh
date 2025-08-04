@@ -17,9 +17,10 @@ stdlib_string_strip_prefix() {
     return
   fi
 
-  # Remove prefix if it exists
-  if [[ "$input" == "$prefix"* ]]; then
-    input="${input#"$prefix"}"
+  # Use parameter expansion which handles newlines properly
+  # Check if the string starts with the prefix
+  if [[ "${input:0:${#prefix}}" == "$prefix" ]]; then
+    input="${input:${#prefix}}"
   fi
 
   printf "%s\n" "$input"

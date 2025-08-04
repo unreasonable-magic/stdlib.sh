@@ -23,3 +23,16 @@ assert "$stdout" == "content"
 
 stdlib_string_strip_prefix -v out "var-content" "var-"
 assert "$out" == "content"
+
+# Test with newline in prefix
+stdout=$(printf "hello world\nblah" | stdlib_string_strip_prefix "hello world
+")
+assert "$stdout" == "blah"
+
+# Test with newline using $'...' syntax
+stdout=$(stdlib_string_strip_prefix $'first line\nsecond line' $'first line\n')
+assert "$stdout" == "second line"
+
+# Test with multiple newlines
+stdout=$(stdlib_string_strip_prefix $'prefix\n\ncontent' $'prefix\n\n')
+assert "$stdout" == "content"
