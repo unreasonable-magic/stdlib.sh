@@ -27,17 +27,33 @@ stdlib_function_comment() {
     # Once we come across a non-comment line, let's see if the next one is the
     # function we're looking for
     if [[ "$comment" != "" ]]; then
-      # Skip over blank lines
-      if [[ "$line" =~ ^[[:space:]]*$ ]]; then
-        continue
-      fi
-
       if [[ "$line" =~ ^$funcname\(\)[[:space:]]*\{$ ]]; then
         # Huzzah, we found it!
         stdlib_string_dedent "$comment"
         return
       else
-        # Comment wasn't the one we're looking for, so let's reset the buffer
+        # Comment wasn't the one we're looking for, so let's reset the buffer.
+        # This means that a comment like this:
+        #
+        #     # my comment before
+        #
+        #     # that continues here
+        #
+        # Is considered 2 differnt things. It also means that the comment needs
+        # to "touch" the function for it to be valid, so this is valid:
+        #
+        #     # blah
+        #     my_func() {
+        #       ...
+        #     }
+        #
+        # And this is not:
+        #
+        #     # blah
+        #
+        #     my_func() {
+        #       ...
+        #     }
         comment=""
       fi
     fi
