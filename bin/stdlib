@@ -29,8 +29,7 @@ shellenv)
 *)
   if [[ -n "$1" ]]; then
     eval "$(stdlib shellenv)"
-    # input/keyboard_capture will be replaced with input/keyboard
-    stdlib_import "${1%_*}"
+    stdlib_import "${1}"
     if [[ "$*" == *" --help"* ]]; then
       manpage="stdlib-${1//\//-}"
       man "${manpage}"
