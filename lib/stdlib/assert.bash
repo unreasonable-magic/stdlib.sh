@@ -22,6 +22,9 @@ assert() {
   ==)
     [ "$left" == "$right" ] || passed="false"
     ;;
+  =~)
+    [[ "$left" =~ $right ]] || passed="false"
+    ;;
   *)
     echo "unknown test operator: $operation"
     ;;
