@@ -16,6 +16,14 @@ simple_test() {
 stdout=$(stdlib_function_location simple_test)
 assert "$stdout" =~ "location.sh:[0-9]+"
 
+current_function_location_test() {
+  stdlib_function_location
+}
+
+# Should return location of current function
+stdout=$(current_function_location_test)
+assert "$stdout" =~ "test/function/location.sh:19"
+
 # Test with a function from fixtures file
 source test/fixtures/commented_functions.bash
 
