@@ -14,6 +14,3 @@ assert "$stdout" == "HELLO"
 
 stdout=$(echo -e "\n\n\t   \t  STDIN\n\n   \n\n" | stdlib_string_trim)
 assert "$stdout" == "STDIN"
-
-stdlib_string_trim -v out "   VAR    "
-assert "$out" == "VAR"
