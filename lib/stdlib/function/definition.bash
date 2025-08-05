@@ -131,8 +131,23 @@ stdlib_function_definition() {
       if [[ "$line_number" -eq "$target_line_number" ]]; then
         # Huzzah! It is, let's start reading
         if [[ "$line" =~ ^([a-zA-Z0-9_]+)[[:space:]]*\(\)[[:space:]]*\{?$ ]]; then
-          ((function_stack++))
           function_open_line="$line"$'\n'
+          
+          # If the line doesn't contain a {, we need to find it
+          if [[ ! "$line" =~ \{ ]]; then
+            # Keep reading until we find the opening brace
+            while [[ $((line_number + 1)) -lt $line_count ]]; do
+              ((line_number++))
+              line="${lines[$line_number]}"
+              function_open_line+="$line"$'\n'
+              
+              if [[ "$line" =~ \{ ]]; then
+                break
+              fi
+            done
+          fi
+          
+          ((function_stack++))
         else
           stdlib_error_log "$line is not a valid function declaration"
           return 1
