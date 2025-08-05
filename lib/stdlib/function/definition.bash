@@ -57,7 +57,7 @@ stdlib_function_definition() {
   IFS=":" read -r path path_line_number function_name <<< "$location"
 
   # Either read from the file, or read from memory
-  if stdlib_test file/exists "${path}"; then
+  if [[ -e "${path}" && "${function_name:0:1}" != "<" ]]; then
     mapfile -t lines < "$path"
     # The lines array starts at 0, but the path_line_number starts at 1
     target_line_number=$((path_line_number-1))
