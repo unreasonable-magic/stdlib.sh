@@ -166,8 +166,7 @@ stdlib_function_definition() {
         printf "%s%s%s\n" "${function_open_line}" "${function_body}" "${function_close_line}"
         ;;
       body)
-        local dedented_function_body="${ stdlib_string_dedent "$function_body"; }"
-        printf "%s\n" "${dedented_function_body}"
+        printf "%s\n" "${function_body}"
         ;;
     esac
   done
