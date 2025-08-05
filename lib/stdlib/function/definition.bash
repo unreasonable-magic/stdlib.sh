@@ -143,7 +143,7 @@ stdlib_function_definition() {
     ((line_number++))
   done
 
-  # If we recached the end of reading, and there was still a function in the
+  # If we reached the end of reading, and there was still a function in the
   # stack, that means we didn't close one properly
   if [[ $function_stack -ge 1 ]]; then
     stdlib_error_log "unclosed function detected in $path"
@@ -156,6 +156,7 @@ stdlib_function_definition() {
     return
   fi
 
+  # Or let's print out what was asked of us
   for format in "${formats[@]}"; do
     case "$format" in
       comment)
