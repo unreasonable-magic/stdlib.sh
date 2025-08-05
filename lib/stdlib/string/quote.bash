@@ -20,8 +20,10 @@ stdlib_string_quote() {
     esac
   done
 
-  if stdlib_test file/is_fifo /dev/stdin; then
-    input="$(cat)"
+  if [[ "$input" == "" ]]; then
+    if stdlib_test file/is_fifo /dev/stdin; then
+      input="$(cat)"
+    fi
   fi
 
   if stdlib_test string/is_empty "$input"; then
