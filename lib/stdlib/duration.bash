@@ -1,5 +1,6 @@
 stdlib_import "error"
 stdlib_import "duration/format"
+stdlib_import "maths"
 
 stdlib_duration() {
   local returnvar
@@ -36,7 +37,7 @@ stdlib_duration() {
   if [[ "$input" =~ ^[0-9]+\.?[0-9]*$ ]]; then
     total_seconds="$input"
     # Calculate milliseconds
-    total_milliseconds=$(printf "%.0f" $(echo "$input * 1000" | bc))
+    total_milliseconds=${ stdlib_maths "$input * 1000"; }
   else
     # Remove extra spaces and normalize
     temp_input=$(echo "$temp_input" | tr -s ' ')
@@ -44,38 +45,44 @@ stdlib_duration() {
     # Parse each time unit
     while [[ -n "$temp_input" ]]; do
       # Try to match a number followed by a unit
-      if [[ "$temp_input" =~ ^[[:space:]]*([0-9]+\.?[0-9]*)[[:space:]]*(millisecond|milliseconds|ms|second|seconds|sec|s|minute|minutes|min|m|hour|hours|hr|h|day|days|d|week|weeks|w|month|months|mo|year|years|yr|y)[[:space:]]* ]]; then
+      if [[ "$temp_input" =~ ^[[:space:]]*([0-9]+\.?[0-9]*)[[:space:]]*(nanosecond|nanoseconds|ns|microsecond|microseconds|μs|us|millisecond|milliseconds|ms|second|seconds|sec|s|minute|minutes|min|m|hour|hours|hr|h|day|days|d|week|weeks|w|month|months|mo|year|years|yr|y)[[:space:]]* ]]; then
         local value="${BASH_REMATCH[1]}"
         local unit="${BASH_REMATCH[2]}"
         local matched="${BASH_REMATCH[0]}"
         
         # Convert to seconds based on unit
         case "$unit" in
+          nanosecond|nanoseconds|ns)
+            total_seconds=${ stdlib_maths "$total_seconds + ($value / 1000000000)"; }
+            ;;
+          microsecond|microseconds|μs|us)
+            total_seconds=${ stdlib_maths "$total_seconds + ($value / 1000000)"; }
+            ;;
           millisecond|milliseconds|ms)
-            total_seconds=$(printf "%.3f" $(echo "$total_seconds + ($value / 1000)" | bc -l))
+            total_seconds=${ stdlib_maths "$total_seconds + ($value / 1000)"; }
             ;;
           second|seconds|sec|s)
-            total_seconds=$(echo "$total_seconds + $value" | bc)
+            total_seconds=${ stdlib_maths "$total_seconds + $value"; }
             ;;
           minute|minutes|min|m)
-            total_seconds=$(echo "$total_seconds + ($value * 60)" | bc)
+            total_seconds=${ stdlib_maths "$total_seconds + ($value * 60)"; }
             ;;
           hour|hours|hr|h)
-            total_seconds=$(echo "$total_seconds + ($value * 3600)" | bc)
+            total_seconds=${ stdlib_maths "$total_seconds + ($value * 3600)"; }
             ;;
           day|days|d)
-            total_seconds=$(echo "$total_seconds + ($value * 86400)" | bc)
+            total_seconds=${ stdlib_maths "$total_seconds + ($value * 86400)"; }
             ;;
           week|weeks|w)
-            total_seconds=$(echo "$total_seconds + ($value * 604800)" | bc)
+            total_seconds=${ stdlib_maths "$total_seconds + ($value * 604800)"; }
             ;;
           month|months|mo)
             # Approximate: 30 days per month
-            total_seconds=$(echo "$total_seconds + ($value * 2592000)" | bc)
+            total_seconds=${ stdlib_maths "$total_seconds + ($value * 2592000)"; }
             ;;
           year|years|yr|y)
             # Approximate: 365 days per year
-            total_seconds=$(echo "$total_seconds + ($value * 31536000)" | bc)
+            total_seconds=${ stdlib_maths "$total_seconds + ($value * 31536000)"; }
             ;;
         esac
         
@@ -88,53 +95,79 @@ stdlib_duration() {
     done
     
     # Calculate total milliseconds
-    total_milliseconds=$(printf "%.0f" $(echo "$total_seconds * 1000" | bc))
+    total_milliseconds=${ stdlib_maths "$total_seconds * 1000"; }
   fi
 
   # Calculate component values
   local temp_seconds=$total_seconds
   
   # Years
-  local years=$(echo "$temp_seconds / 31536000" | bc)
-  temp_seconds=$(echo "$temp_seconds - ($years * 31536000)" | bc)
+  local years=${ stdlib_maths "floor($temp_seconds / 31536000)"; }
+  temp_seconds=${ stdlib_maths "$temp_seconds - ($years * 31536000)"; }
   
   # Months (approximate: 30 days)
-  local months=$(echo "$temp_seconds / 2592000" | bc)
-  temp_seconds=$(echo "$temp_seconds - ($months * 2592000)" | bc)
+  local months=${ stdlib_maths "floor($temp_seconds / 2592000)"; }
+  temp_seconds=${ stdlib_maths "$temp_seconds - ($months * 2592000)"; }
   
   # Weeks
-  local weeks=$(echo "$temp_seconds / 604800" | bc)
-  temp_seconds=$(echo "$temp_seconds - ($weeks * 604800)" | bc)
+  local weeks=${ stdlib_maths "floor($temp_seconds / 604800)"; }
+  temp_seconds=${ stdlib_maths "$temp_seconds - ($weeks * 604800)"; }
   
   # Days
-  local days=$(echo "$temp_seconds / 86400" | bc)
-  temp_seconds=$(echo "$temp_seconds - ($days * 86400)" | bc)
+  local days=${ stdlib_maths "floor($temp_seconds / 86400)"; }
+  temp_seconds=${ stdlib_maths "$temp_seconds - ($days * 86400)"; }
   
   # Hours
-  local hours=$(echo "$temp_seconds / 3600" | bc)
-  temp_seconds=$(echo "$temp_seconds - ($hours * 3600)" | bc)
+  local hours=${ stdlib_maths "floor($temp_seconds / 3600)"; }
+  temp_seconds=${ stdlib_maths "$temp_seconds - ($hours * 3600)"; }
   
   # Minutes
-  local minutes=$(echo "$temp_seconds / 60" | bc)
-  temp_seconds=$(echo "$temp_seconds - ($minutes * 60)" | bc)
+  local minutes=${ stdlib_maths "floor($temp_seconds / 60)"; }
+  temp_seconds=${ stdlib_maths "$temp_seconds - ($minutes * 60)"; }
   
   # Seconds (integer part only)
-  local seconds=$(echo "$temp_seconds / 1" | bc)
+  local seconds=${ stdlib_maths "floor($temp_seconds)"; }
   
-  # Milliseconds (fractional part of remaining seconds * 1000)
+  # Extract fractional components
   local milliseconds=0
+  local microseconds=0
+  local nanoseconds=0
+  
   if [[ "$temp_seconds" =~ \. ]]; then
-    local fractional_part=$(echo "$temp_seconds - $seconds" | bc -l)
-    milliseconds=$(printf "%.0f" $(echo "$fractional_part * 1000" | bc))
+    local fractional_part=${ stdlib_maths "$temp_seconds - $seconds"; }
+    
+    # Milliseconds (first 3 decimal places)
+    milliseconds=${ stdlib_maths "floor($fractional_part * 1000)"; }
+    local remaining_fractional=${ stdlib_maths "$fractional_part - ($milliseconds / 1000)"; }
+    
+    # Microseconds (next 3 decimal places)
+    microseconds=${ stdlib_maths "floor($remaining_fractional * 1000000)"; }
+    remaining_fractional=${ stdlib_maths "$remaining_fractional - ($microseconds / 1000000)"; }
+    
+    # Nanoseconds (next 3 decimal places)
+    nanoseconds=${ stdlib_maths "floor($remaining_fractional * 1000000000)"; }
+    
+    # Adjust for overflow (if microseconds >= 1000, add to milliseconds, etc.)
+    if (( microseconds >= 1000 )); then
+      milliseconds=$((milliseconds + microseconds / 1000))
+      microseconds=$((microseconds % 1000))
+    fi
+    
+    if (( nanoseconds >= 1000 )); then
+      microseconds=$((microseconds + nanoseconds / 1000))
+      nanoseconds=$((nanoseconds % 1000))
+    fi
   fi
 
   # Calculate total values
-  local total_minutes=$(echo "$total_seconds / 60" | bc)
-  local total_hours=$(echo "$total_seconds / 3600" | bc)
-  local total_days=$(echo "$total_seconds / 86400" | bc)
-  local total_weeks=$(echo "$total_seconds / 604800" | bc)
-  local total_months=$(echo "$total_seconds / 2592000" | bc)
-  local total_years=$(echo "$total_seconds / 31536000" | bc)
+  local total_minutes=${ stdlib_maths "floor($total_seconds / 60)"; }
+  local total_hours=${ stdlib_maths "floor($total_seconds / 3600)"; }
+  local total_days=${ stdlib_maths "floor($total_seconds / 86400)"; }
+  local total_weeks=${ stdlib_maths "floor($total_seconds / 604800)"; }
+  local total_months=${ stdlib_maths "floor($total_seconds / 2592000)"; }
+  local total_years=${ stdlib_maths "floor($total_seconds / 31536000)"; }
+  local total_microseconds=${ stdlib_maths "floor($total_seconds * 1000000)"; }
+  local total_nanoseconds=${ stdlib_maths "floor($total_seconds * 1000000000)"; }
 
   local -a parts=()
 
@@ -146,6 +179,12 @@ stdlib_duration() {
   else
     for arg in "$@"; do
       case "$arg" in
+      --nanoseconds|--ns)
+        parts+=("$nanoseconds")
+        ;;
+      --microseconds|--μs|--us)
+        parts+=("$microseconds")
+        ;;
       --milliseconds|--ms)
         parts+=("$milliseconds")
         ;;
@@ -172,6 +211,12 @@ stdlib_duration() {
         ;;
       --total-seconds)
         parts+=("$total_seconds")
+        ;;
+      --total-nanoseconds|--total-ns)
+        parts+=("$total_nanoseconds")
+        ;;
+      --total-microseconds|--total-μs|--total-us)
+        parts+=("$total_microseconds")
         ;;
       --total-milliseconds|--total-ms)
         parts+=("$total_milliseconds")
