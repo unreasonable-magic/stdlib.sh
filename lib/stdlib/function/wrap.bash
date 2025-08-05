@@ -11,12 +11,22 @@ stdlib_function_wrap() {
     shift
   fi
 
-  local function_name="$1"
+  local function_identifier="$1"
   local new_body="$2"
 
   # Read body from stdin if not provided or if "-" is specified
   if [[ ("$new_body" == "" || "$new_body" == "-") && ! -t 0 ]]; then
     IFS= read -d '' -r new_body
+  fi
+
+  # Extract function name from identifier (could be name or location format)
+  local function_name
+  if [[ "$function_identifier" == *:*:* ]]; then
+    # Location format: path:line:function_name - extract the function name
+    function_name="${function_identifier##*:}"
+  else
+    # Simple function name
+    function_name="$function_identifier"
   fi
 
   # Validate function name
