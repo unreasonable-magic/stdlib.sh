@@ -30,6 +30,15 @@ stdlib_function_location() {
     read -r input
   fi
 
+  # Before we go parsing anytihng, maybe there's a hint we can just pull from.
+  # Hints can be set from anywhere, but they're usually when you dynamically
+  # define a function with `stdlib_function_define`
+  local hint="${ stdlib_function_location_hints get "$input"; }"
+  if [[ "$hint" != "" ]]; then
+    printf "%s\n" "$hint"
+    return
+  fi
+
   # Let's see what we've been given
   IFS=":" read -r -a parts <<< "$input"
   local -i parts_count="${#parts[@]}"
@@ -148,4 +157,38 @@ stdlib_function_location() {
   fi
 
   printf "%s:%s:%s\n" "$location" "$line_number" "$function_name"
+}
+
+stdlib_function_location_hints() {
+  declare -A -g __stdlib_function_location_hints=()
+
+  stdlib_function_location_hints() {
+    case "$1" in
+      set)
+        __stdlib_function_location_hints["$2"]="$3"
+        ;;
+
+      get)
+        printf "%s\n" "${__stdlib_function_location_hints["$2"]}"
+        ;;
+
+      size)
+        printf "%s\n" "${#__stdlib_function_location_hints[@]}"
+        ;;
+
+      ls)
+        local key buffer
+        for key in "${!__stdlib_function_location_hints[@]}"; do
+          buffer+="${key}=${__stdlib_function_location_hints["$key"]}"$'\n'
+        done
+        printf "%s" "$buffer"
+        ;;
+
+      *)
+        stdlib_argparser error/invalid_arg "$2"
+        return 1
+    esac
+  }
+
+  stdlib_function_location_hints "$@"
 }
