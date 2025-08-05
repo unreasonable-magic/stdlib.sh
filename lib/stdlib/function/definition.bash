@@ -130,7 +130,7 @@ stdlib_function_definition() {
       # declaration
       if [[ "$line_number" -eq "$target_line_number" ]]; then
         # Huzzah! It is, let's start reading
-        if [[ "$line" =~ ^([a-zA-Z0-9_]+)[[:space:]]*\(\)[[:space:]]*\{$ ]]; then
+        if [[ "$line" =~ ^([a-zA-Z0-9_]+)[[:space:]]*\(\)[[:space:]]*\{?$ ]]; then
           ((function_stack++))
           function_open_line="$line"$'\n'
         else
