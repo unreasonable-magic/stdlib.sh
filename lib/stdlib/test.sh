@@ -110,6 +110,10 @@ stdlib_test() {
     # Check if it's a valid decimal/float (has decimal point)
     [[ "$2" =~ ^-?[0-9]+\.[0-9]+$ ]]
     ;;
+  type/is_function)
+    # Check if a function exists
+    declare -f "$2" >/dev/null 2>&1
+    ;;
 
   # Shell
 
