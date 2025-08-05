@@ -56,3 +56,41 @@ another_test_function() {
 
 stdout=$(stdlib_function_location another_test_function)
 assert "$stdout" =~ "location.sh:[0-9]+"
+
+# Test new format options
+
+# Test --path option
+stdout=$(stdlib_function_location --path hello_world)
+assert "$stdout" =~ "commented_functions.bash$"
+
+# Test --line-number option
+stdout=$(stdlib_function_location --line-number hello_world)
+assert "$stdout" == "5"
+
+# Test --function-name option
+stdout=$(stdlib_function_location --function-name hello_world)
+assert "$stdout" == "hello_world"
+
+# Test multiple options (should output on separate lines)
+stdout=$(stdlib_function_location --path --line-number --function-name hello_world)
+IFS=$'\n' read -d '' -r -a actual_lines <<< "$stdout"
+assert "${#actual_lines[@]}" == "3"
+assert "${actual_lines[0]}" =~ "commented_functions.bash$"
+assert "${actual_lines[1]}" == "5"
+assert "${actual_lines[2]}" == "hello_world"
+
+# Test with dynamically defined function
+stdlib_import "function/define"
+func_name="${ stdlib_function_define "test_location_func" "echo 'test'"; }"
+
+# Test --path with dynamic function
+stdout=$(stdlib_function_location --path "$func_name")
+assert "$stdout" =~ "location.sh$"
+
+# Test --line-number with dynamic function
+stdout=$(stdlib_function_location --line-number "$func_name")
+assert "$stdout" =~ "^[0-9]+$"
+
+# Test --function-name with dynamic function
+stdout=$(stdlib_function_location --function-name "$func_name")
+assert "$stdout" == "$func_name"

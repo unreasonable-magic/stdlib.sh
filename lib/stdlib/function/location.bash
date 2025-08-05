@@ -3,7 +3,29 @@ stdlib_import "file/expandpath"
 stdlib_import "test"
 
 stdlib_function_location() {
+  local -a formats=()
   local input
+
+  # Parse format options
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --path)
+        formats+=("path")
+        shift
+        ;;
+      --line-number)
+        formats+=("line-number")
+        shift
+        ;;
+      --function-name)
+        formats+=("function-name")
+        shift
+        ;;
+      *)
+        break
+        ;;
+    esac
+  done
 
   # Either use the function passed into $1, or the calling function
   if [[ $# -gt 0 ]]; then
@@ -30,12 +52,47 @@ stdlib_function_location() {
     read -r input
   fi
 
+  # Helper function to format and output location based on requested formats
+  __stdlib_function_location_print() {
+    local path="$1"
+    local line="$2"
+    local func="$3"
+    
+    # If no formats specified, output the full location
+    if [[ ${#formats[@]} -eq 0 ]]; then
+      printf "%s:%s:%s\n" "$path" "$line" "$func"
+      return
+    fi
+    
+    # Output requested formats
+    local format
+    for format in "${formats[@]}"; do
+      case "$format" in
+        path)
+          printf "%s\n" "$path"
+          ;;
+        line-number)
+          printf "%s\n" "$line"
+          ;;
+        function-name)
+          printf "%s\n" "$func"
+          ;;
+      esac
+    done
+  }
+
   # Before we go parsing anytihng, maybe there's a hint we can just pull from.
   # Hints can be set from anywhere, but they're usually when you dynamically
   # define a function with `stdlib_function_define`
   local hint="${ stdlib_function_location_hints get "$input"; }"
   if [[ "$hint" != "" ]]; then
-    printf "%s\n" "$hint"
+    # Parse the hint to extract components
+    IFS=":" read -r -a hint_parts <<< "$hint"
+    if [[ ${#hint_parts[@]} -eq 3 ]]; then
+      __stdlib_function_location_print "${hint_parts[0]}" "${hint_parts[1]}" "${hint_parts[2]}"
+    else
+      printf "%s\n" "$hint"
+    fi
     return
   fi
 
@@ -54,7 +111,7 @@ stdlib_function_location() {
     # Make sure it wasn't actually the name of a function (since blah:12 is a
     # valid path and blah:12 is a valid bash function)
     if ! declare -f "$input" >/dev/null; then
-      printf "$input\n"
+      __stdlib_function_location_print "${parts[0]}" "${parts[1]}" "${parts[2]}"
       return
     fi
   fi
@@ -79,7 +136,7 @@ stdlib_function_location() {
 
     if [[ "$declaration" =~ ^([^ ]+)[[:space:]]+([0-9]+)[[:space:]]+(.+)$ ]]; then
       local expanded_path="${ stdlib_file_expandpath "${BASH_REMATCH[3]}"; }"
-      printf "%s:%s:%s\n" "$expanded_path" "${BASH_REMATCH[2]}" "${BASH_REMATCH[1]}"
+      __stdlib_function_location_print "$expanded_path" "${BASH_REMATCH[2]}" "${BASH_REMATCH[1]}"
       return 
     else
       stdlib_error "invalid format returned from declare -F $input ($declaration)"
@@ -156,7 +213,7 @@ stdlib_function_location() {
     fi
   fi
 
-  printf "%s:%s:%s\n" "$location" "$line_number" "$function_name"
+  __stdlib_function_location_print "$location" "$line_number" "$function_name"
 }
 
 stdlib_function_location_hints() {
