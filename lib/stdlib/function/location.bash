@@ -19,6 +19,9 @@ stdlib_function_location() {
     if [[ "$input" == "" || "$input" == "main" ]]; then
       if [[ ! -t 0 ]]; then
         input="-"
+      else
+        stdlib_error_log "not inside function"
+        return 1
       fi
     fi
   fi
