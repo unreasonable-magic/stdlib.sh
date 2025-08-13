@@ -4,7 +4,7 @@ stdlib_import() {
   # If the path has already been loaded (or is being loaded) then we can just
   # return as a no-op
   if [[ "${__stdlib_import_files["$1"]}" != "" ]]; then
-    return 1
+    return 0
   fi
 
   local path="$STDLIB_PATH/lib/stdlib"
