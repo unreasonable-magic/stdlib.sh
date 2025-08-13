@@ -46,7 +46,7 @@ stdlib_terminal_query() {
   stdlib_terminal_reader_start
 
   # Send query
-  printf "%b" "$query" >&2
+  printf "%b" "$query" >&2 >/dev/tty
 
   stdlib_terminal_reader_readkey
 }

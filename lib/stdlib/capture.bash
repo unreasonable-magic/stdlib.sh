@@ -49,3 +49,31 @@ capture() {
   # Return the original exit code
   return "$exit_code"
 }
+
+stdlib_capture() {
+  # Create temporary files for capture
+  local -r temp_stdout="$(mktemp)"
+  local -r temp_stderr="$(mktemp)"
+  local -r temp_exit="$(mktemp)"
+
+  # Execute command with output redirection
+  {
+    "$@"
+    echo $? >"$temp_exit"
+  } >"$temp_stdout" 2>"$temp_stderr"
+
+  # Read exit code
+  EXITCODE="$(cat "$temp_exit")"
+
+  # Read stdout content
+  STDOUT="$(cat "$temp_stdout")"
+
+  # Read stderr content
+  STDERR="$(cat "$temp_stderr")"
+
+  # Clean up temporary files
+  rm -f "$temp_stdout" "$temp_stderr" "$temp_exit"
+
+  # Return the original exit code
+  return "$EXITCODE"
+}
